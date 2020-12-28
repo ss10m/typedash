@@ -1,0 +1,27 @@
+version: "3.7"
+services:
+    server_dev:
+        build:
+            context: ./server/
+        command: npm run dev
+        volumes:
+            - ./server/:/server
+            - /server/node_modules
+        ports:
+            - "8080:8080"
+        environment:
+            - NODE_ENV=development
+    client_dev:
+        build:
+            context: ./client/
+        command: npm start
+        volumes:
+            - ./client/:/client
+            - /client/node_modules
+        depends_on:
+            - server_dev
+        ports:
+            - "3000:3000"
+        environment:
+            - NODE_ENV=development
+        stdin_open: true

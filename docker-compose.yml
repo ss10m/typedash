@@ -1,0 +1,17 @@
+version: "3.7"
+
+services:
+    app:
+        build: ./
+        restart: always
+        environment:
+            VIRTUAL_PORT: 8080
+            VIRTUAL_HOST: sync.ssprojects.ca
+            LETSENCRYPT_HOST: sync.ssprojects.ca
+            LETSENCRYPT_EMAIL: "fastf20@gmail.com"
+        networks:
+            - service-network
+
+networks:
+    service-network:
+        external: true
