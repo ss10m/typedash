@@ -6,12 +6,26 @@ services:
         restart: always
         environment:
             VIRTUAL_PORT: 8080
-            VIRTUAL_HOST: sync.ssprojects.ca
-            LETSENCRYPT_HOST: sync.ssprojects.ca
+            VIRTUAL_HOST: typing.ssprojects.ca
+            LETSENCRYPT_HOST: typing.ssprojects.ca
             LETSENCRYPT_EMAIL: "fastf20@gmail.com"
         networks:
             - service-network
+            - typing-network
+    db:
+        image: postgres:11.2-alpine
+        environment:
+            POSTGRES_DB: typing
+            POSTGRES_USER: typing
+            POSTGRES_PASSWORD: pw
+        networks:
+            - typing-network
+        volumes:
+            - ~/db_typing:/var/lib/postgresql/data
+            - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
 networks:
     service-network:
         external: true
+    typing-network:
+        driver: bridge

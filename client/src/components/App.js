@@ -46,7 +46,7 @@ class App extends React.Component {
             }
         );
 
-        fetch("/api")
+        fetch("/api/session")
             .then((response) => response.json())
             .then((data) => console.log(data));
 
@@ -96,6 +96,22 @@ class App extends React.Component {
         this.setState(updatedState);
     };
 
+    login = () => {
+        fetch("/api/session", {
+            method: "POST",
+        })
+            .then((response) => response.json())
+            .then((data) => console.log(data));
+    };
+
+    logout = () => {
+        fetch("/api/session", {
+            method: "DELETE",
+        })
+            .then((response) => response.json())
+            .then((data) => console.log(data));
+    };
+
     render() {
         return (
             <div className="app">
@@ -113,6 +129,8 @@ class App extends React.Component {
                         containsTypo={this.state.typoLength > 0}
                         isDisabled={this.state.wordIndex >= this.state.quoteLength}
                     />
+                    <button onClick={this.login}>LOGIN</button>
+                    <button onClick={this.logout}>LOGOUT</button>
                 </div>
             </div>
         );

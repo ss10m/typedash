@@ -1,39 +1,25 @@
 import express from "express";
-import http from "http";
-import path from "path";
+import session from "express-session";
+import sharedsession from "express-socket.io-session";
 import ioClient from "socket.io";
+import http from "http";
 
-import routes from "./routes.js";
-import authenticated from "./middlewares/index.js";
-
-const app = express();
-const server = new http.Server(app);
-const ioConnection = ioClient(server);
+import { sessionDetails } from "./config/session.js";
+import routes from "./routes/index.js";
+import socket from "./socket/index.js";
 
 const PORT = 8080;
 const HOST = "0.0.0.0";
 
-const CLIENT_BUILD_PATH = path.join(path.resolve(), "../client/build");
-app.use(express.static(CLIENT_BUILD_PATH));
-app.use("/api/v2", authenticated);
+const app = express(sessionDetails);
+const server = new http.Server(app);
+const io = ioClient(server);
+
+const expressSession = session(sessionDetails);
+app.use(expressSession);
+io.use(sharedsession(expressSession));
 
 routes(app);
-
-app.get("*", (request, response) => {
-    response.sendFile(path.join(CLIENT_BUILD_PATH, "index.html"));
-});
-
-ioConnection.on("connection", (socket) => {
-    console.log("new connection");
-    socket.emit("hello");
-
-    socket.on("hello", () => {
-        console.log("SOCKET HELLO");
-    });
-
-    socket.on("disconnect", () => {
-        console.log("disconnected");
-    });
-});
+socket(io);
 
 server.listen(PORT, HOST, () => console.log(`Running on http://${HOST}:${PORT}`));
