@@ -1,55 +1,205 @@
 import express from "express";
+import Joi from "joi";
+
 import db from ".././config/db.js";
 import { SESS_NAME } from "../config/session.js";
 
-import { parseError } from "../util/helper.js";
+import { signIn, signUp, usernameCheck } from "../validations/user.js";
+
+import {
+    parseError,
+    sessionizeUser,
+    encryptPassword,
+    verifyPassword,
+} from "../util/helper.js";
 
 const router = express.Router();
 
 // GET SESSION
 router.get("", async ({ session: { user } }, res) => {
-    try {
-        res.send({
-            meta: { ok: true, message: "" },
-            data: { user },
-        });
-    } catch (err) {
-        res.send({ meta: { ok: false, message: parseError(err) }, data: {} });
-    }
+    res.send({
+        meta: { ok: true, message: "" },
+        data: { user },
+    });
 });
 
 // LOGIN
 router.post("", async (req, res) => {
-    console.log("LOGIN");
-    const sessionizeUser = (user) => {
-        return { id: user.id, username: user.username, last_login: new Date() };
-    };
-    const query = "SELECT * FROM users WHERE username = $1";
-    const values = ["tom"];
-    const result = await db.query(query, values);
+    try {
+        const { username, password } = req.body;
+        await Joi.validate({ username, password }, signIn);
+        const query = "SELECT * FROM users WHERE username = $1";
+        const values = [username];
+        const result = await db.query(query, values);
+        if (!result.rows.length) {
+            res.send({
+                meta: {
+                    ok: false,
+                    message: "Account does not exist!",
+                    action: "LOGIN_ERROR",
+                },
+                data: {},
+            });
+            return;
+        }
 
-    const sessionUser = sessionizeUser(result.rows[0]);
-    console.log(sessionUser);
-    req.session.user = sessionUser;
+        const user = result.rows[0];
+        if (user && verifyPassword(user, password)) {
+            const sessionUser = sessionizeUser(user);
+            req.session.user = sessionUser;
 
-    res.send({ data: { user: sessionUser } });
+            res.send({
+                meta: {
+                    ok: true,
+                    message: "",
+                },
+                data: { user: sessionUser },
+            });
+        } else {
+            res.send({
+                meta: {
+                    ok: false,
+                    message: "Invalid login credentials",
+                    action: "LOGIN_ERROR",
+                },
+                data: {},
+            });
+        }
+    } catch (err) {
+        let meta = { ok: false, message: parseError(err) };
+        if (err.isJoi) meta.action = "LOGIN_ERROR";
+        res.send({ meta, data: {} });
+    }
 });
 
 // LOGIN AS GUEST
-router.post("/guest", async (req, res) => {});
+router.post("/guest", async (req, res) => {
+    try {
+        const query =
+            "SELECT * FROM users WHERE username LIKE 'Guest#%' ORDER BY created_at DESC LIMIT 1";
+        const result = await db.query(query);
+
+        let lastId;
+        if (result.rows.length) {
+            let username = result.rows[0].username;
+            lastId = parseInt(username.split("#")[1]) + 1;
+        } else {
+            lastId = 2551;
+        }
+
+        const queryInsert =
+            "INSERT INTO users(username, email, salt, hash) VALUES($1, $2, $3, $4) RETURNING *";
+        const valuesInsert = [`Guest#${lastId}`, "", "", ""];
+        const user = await db.query(queryInsert, valuesInsert);
+
+        const sessionUser = sessionizeUser(user.rows[0]);
+        req.session.user = sessionUser;
+        res.send({
+            meta: {
+                ok: true,
+                message: "",
+            },
+            data: { user: sessionUser },
+        });
+    } catch (err) {
+        let meta = { ok: false, message: parseError(err) };
+        res.send({ meta, data: {} });
+    }
+});
+
+// CLAIM GUEST ACCOUNT
+router.post("/claim", async (req, res) => {});
+
+// CHECK USERNAME
+router.post("/check", async (req, res) => {
+    try {
+        const username = req.body.username;
+        await Joi.validate({ username }, usernameCheck);
+
+        const query = "SELECT * FROM users WHERE username = $1";
+        const values = [username];
+        const result = await db.query(query, values);
+        if (result.rows.length) {
+            res.send({
+                meta: {
+                    ok: false,
+                    message: "Username already exists",
+                },
+                data: {},
+            });
+        } else {
+            res.send({
+                meta: {
+                    ok: true,
+                    message: "",
+                },
+                data: { username },
+            });
+        }
+    } catch (err) {
+        console.log(err);
+        let meta = { ok: false, message: "Invalid Username" };
+        res.send({ meta, data: {} });
+    }
+});
 
 // REGISTER
-router.post("/register", async (req, res) => {});
+router.post("/register", async (req, res) => {
+    try {
+        const { username, email, password, confirmPassword } = req.body;
+        await Joi.validate({ username, email, password, confirmPassword }, signUp);
+
+        const query = "SELECT * FROM users WHERE username = $1";
+        const values = [username];
+        const result = await db.query(query, values);
+        if (result.rows.length) {
+            res.send({
+                meta: {
+                    ok: false,
+                    message: "Username already exists",
+                    action: "REG_ERROR",
+                },
+                data: {},
+            });
+            return;
+        }
+
+        const { salt, hash } = encryptPassword(password);
+        const queryInsert =
+            "INSERT INTO users(username, email, salt, hash) VALUES($1, $2, $3, $4) RETURNING *";
+        const valuesInsert = [username, email, salt, hash];
+        const user = await db.query(queryInsert, valuesInsert);
+
+        const sessionUser = sessionizeUser(user.rows[0]);
+        req.session.user = sessionUser;
+        res.send({
+            meta: {
+                ok: true,
+                message: "",
+            },
+            data: { user: sessionUser },
+        });
+    } catch (err) {
+        console.log(err);
+        let meta = { ok: false, message: parseError(err) };
+        if (err.isJoi) meta.action = "REG_ERROR";
+        res.send({ meta, data: {} });
+    }
+});
 
 // LOGOUT
 router.delete("", async ({ session, body }, res) => {
-    console.log("LOG OUT");
-
-    session.destroy((err) => {
-        if (err) console.log("ERR");
-        res.clearCookie(SESS_NAME);
-        res.send({ msg: "LOGGED OUT" });
-    });
+    try {
+        const user = session.user;
+        if (!user) throw new Error();
+        session.destroy((err) => {
+            if (err) throw err;
+            res.clearCookie(SESS_NAME);
+            res.send({ meta: { ok: true, message: "" }, data: {} });
+        });
+    } catch (err) {
+        res.send({ meta: { ok: false, message: parseError(err) }, data: {} });
+    }
 });
 
 export default router;

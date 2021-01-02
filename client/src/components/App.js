@@ -1,212 +1,52 @@
+// Libraries & utils
 import React from "react";
-import socketIO from "socket.io-client";
-import classNames from "classnames";
+import { Route, Switch } from "react-router-dom";
 
-import { longestCommonSubstring } from "helpers";
+// Redux
+import { connect } from "react-redux";
+import { getSession } from "store/actions";
 
+// Components
+import Racer from "./racer/Racer";
+import Login from "./login/Login";
+
+// SCSS
 import "./App.scss";
 
 class App extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            input: "",
-            quote: [],
-            quoteLength: 0,
-            author: "",
-            title: "",
-            wordIndex: 0,
-            correctLength: 0,
-            typoLength: 0,
-        };
-
-        this.inputRef = React.createRef();
-    }
-
     componentDidMount() {
-        const b =
-            `"I wish it need not have happened in my time," said Frodo. ` +
-            `"So do I," said Gandalf, "and so do all who live to see ` +
-            `such times. But that is not for them to decide. All we ` +
-            `have to decide is what to do with the time that is given ` +
-            `us."`;
-        const words = b.split(" ").map((word) => word + " ");
-        const lastIndex = words.length - 1;
-        words[lastIndex] = words[lastIndex].trim();
-        this.setState(
-            {
-                quote: words,
-                quoteLength: words.length,
-                author: "J.R.R. Tolkien",
-                title: "The Fellowship of the Ring",
-            },
-            () => {
-                this.inputRef.current.focus();
-            }
-        );
-
-        fetch("/api/session")
-            .then((response) => response.json())
-            .then((data) => console.log(data));
-
-        let socket = socketIO.connect();
-        socket.on("hello", () => {
-            console.log("SOCKET HELLO2");
-            socket.emit("hello");
-        });
+        this.props.getSession();
     }
-
-    handleChange = (event) => {
-        const input = event.target.value;
-        const currentWord = this.state.quote[this.state.wordIndex];
-
-        if (!currentWord) return;
-
-        let updatedState;
-        if (currentWord === input) {
-            updatedState = (prevState) => ({
-                input: "",
-                wordIndex: prevState.wordIndex + 1,
-                correctLength: 0,
-                typoLength: 0,
-            });
-        } else if (currentWord.startsWith(input)) {
-            updatedState = {
-                input,
-                correctLength: input.length,
-                typoLength: 0,
-            };
-        } else if (currentWord === input.slice(0, currentWord.length)) {
-            updatedState = (prevState) => ({
-                input: "",
-                wordIndex: prevState.wordIndex + 1,
-                correctLength: 0,
-                typoLength: 0,
-            });
-        } else {
-            const strLen = longestCommonSubstring(currentWord, input);
-            updatedState = {
-                input,
-                correctLength: strLen,
-                typoLength: input.length - strLen,
-            };
-        }
-
-        this.setState(updatedState);
-    };
-
-    login = () => {
-        fetch("/api/session", {
-            method: "POST",
-        })
-            .then((response) => response.json())
-            .then((data) => console.log(data));
-    };
-
-    logout = () => {
-        fetch("/api/session", {
-            method: "DELETE",
-        })
-            .then((response) => response.json())
-            .then((data) => console.log(data));
-    };
 
     render() {
+        let { session } = this.props;
+        if (!session.isLoaded) return <div>Loading...</div>;
+
         return (
             <div className="app">
-                <div className="race">
-                    <Quote
-                        quote={this.state.quote}
-                        wordIndex={this.state.wordIndex}
-                        correctLength={this.state.correctLength}
-                        typoLength={this.state.typoLength}
-                    />
-                    <Input
-                        input={this.state.input}
-                        ref={this.inputRef}
-                        handleChange={this.handleChange}
-                        containsTypo={this.state.typoLength > 0}
-                        isDisabled={this.state.wordIndex >= this.state.quoteLength}
-                    />
-                    <button onClick={this.login}>LOGIN</button>
-                    <button onClick={this.logout}>LOGOUT</button>
+                <div className="main">
+                    <Switch>
+                        <Route exact path="/" render={() => <h1>main</h1>}></Route>
+                        <Route exact path="/racer" render={() => <Racer />} />
+                        <Route exact path="/login" render={() => <Login />} />
+                        <Route render={() => <h1>404</h1>} />
+                    </Switch>
                 </div>
             </div>
         );
     }
 }
 
-const Input = React.forwardRef((props, ref) => (
-    <input
-        className={classNames({
-            typo: props.containsTypo,
-        })}
-        ref={ref}
-        type="text"
-        spellCheck={false}
-        placeholder="Type the above text"
-        autoComplete="off"
-        value={props.input}
-        onChange={props.handleChange}
-        disabled={props.isDisabled}
-        autoFocus={true}
-    ></input>
-));
-
-const Quote = ({ quote, wordIndex, correctLength, typoLength }) => {
-    return (
-        <div className="quote no-select">
-            {quote.map((word, i) => (
-                <Word
-                    key={i}
-                    word={word}
-                    id={i}
-                    wordIndex={wordIndex}
-                    correctLength={correctLength}
-                    typoLength={typoLength}
-                />
-            ))}
-        </div>
-    );
+const mapStateToProps = (state) => {
+    return {
+        session: state.session,
+    };
 };
 
-const Word = ({ word, id, wordIndex, correctLength, typoLength }) => {
-    if (id === wordIndex) {
-        return [...word].map((letter, i) => (
-            <Letter
-                key={i}
-                letter={letter}
-                letterIndex={i}
-                correctLength={correctLength}
-                typoLength={typoLength}
-            />
-        ));
-    }
+const mapDispatchToProps = (dispatch) => ({
+    getSession: () => {
+        dispatch(getSession());
+    },
+});
 
-    return <span className={classNames({ "word-correct": id < wordIndex })}>{word}</span>;
-};
-
-const Letter = ({ letter, letterIndex, correctLength, typoLength }) => {
-    let letterClass = "";
-    if (letterIndex < correctLength) {
-        letterClass = "letter-correct";
-    } else if (letterIndex < correctLength + typoLength) {
-        letterClass = "letter-typo";
-    } else if (letter !== " ") {
-        letterClass = "word-current";
-    }
-
-    return (
-        <span
-            className={classNames({
-                [letterClass]: letterClass,
-                "letter-current": letterIndex === correctLength + typoLength,
-            })}
-        >
-            {letter}
-        </span>
-    );
-};
-
-export default App;
+export default connect(mapStateToProps, mapDispatchToProps)(App);

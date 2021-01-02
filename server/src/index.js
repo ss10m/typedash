@@ -17,6 +17,7 @@ const io = ioClient(server);
 
 const expressSession = session(sessionDetails);
 app.use(expressSession);
+app.use(express.json());
 io.use(sharedsession(expressSession));
 
 routes(app);

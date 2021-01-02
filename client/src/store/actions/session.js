@@ -1,4 +1,4 @@
-import { parseResponse, handleResponse } from "helpers";
+import { handleResponse } from "helpers";
 
 const getSession = () => async (dispatch) => {
     fetch("/api/session")
@@ -8,9 +8,7 @@ const getSession = () => async (dispatch) => {
             if (data.user) session.user = data.user;
             dispatch(setSession(session));
         })
-        .catch(() => {
-            //dispatch(setError("Something went wrong"));
-        });
+        .catch(() => {});
 };
 
 const setSession = (session) => ({
@@ -23,7 +21,7 @@ const clearSession = () => ({
     handleResponse,
 });
 
-const login = () => async (dispatch) => {
+const login = (userInfo) => async (dispatch) => {
     fetch("/api/session", {
         method: "POST",
         body: JSON.stringify({
@@ -36,49 +34,61 @@ const login = () => async (dispatch) => {
     })
         .then(handleResponse)
         .then((data) => {
-            let sessionState = { isLoaded: true, user: data };
+            let sessionState = { isLoaded: true, user: data.user };
             dispatch(setSession(sessionState));
         })
         .catch((error) => {
             console.log(error);
-            if (error.action) {
-                return; //dispatch(showLoginError(meta.message));
-            } else {
-                //dispatch(setError("Something went wrong"));
-            }
+            if (error.action) return; //dispatch(showLoginError(meta.message));
         });
-
-    /*
-    let parsed = await parseResponse(response);
-    if (!parsed) return; //dispatch(setError("Something went wrong"));
-    let { meta, data } = parsed;
-    console.log(meta, data);
-    if (!meta.ok) {
-        if (meta.action) {
-            return; //dispatch(showLoginError(meta.message));
-        }
-        return; //dispatch(setError("Something went wrong"));
-    }
-    let sessionState = { isLoaded: true, user: data.user };
-    dispatch(setSession(sessionState));
-    */
 };
 
-const loginAsGuest = () => async (dispatch) => {};
+const loginAsGuest = () => async (dispatch) => {
+    fetch("/api/session/guest", {
+        method: "POST",
+    })
+        .then(handleResponse)
+        .then((data) => {
+            let sessionState = { isLoaded: true, user: data.user };
+            dispatch(setSession(sessionState));
+        })
+        .catch((error) => {
+            console.log(error);
+            if (error.action) return; //dispatch(showLoginError(meta.message));
+        });
+};
 
 const claimAccount = () => async (dispatch) => {};
 
-const register = (userInfo) => async (dispatch) => {};
+const register = (userInfo) => async (dispatch) => {
+    fetch("/api/session/register", {
+        method: "POST",
+        body: JSON.stringify({
+            username: "czelo2",
+            email: "czelo@email.com",
+            password: "password123",
+            confirmPassword: "password123",
+        }),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then(handleResponse)
+        .then((data) => {
+            let sessionState = { isLoaded: true, user: data.user };
+            dispatch(setSession(sessionState));
+        })
+        .catch((error) => {
+            console.log(error);
+            if (error.action) return; //dispatch(showLoginError(meta.message));
+        });
+};
 
-const logout = () => async (dispatch) => {
-    const response = await fetch("/api/session", { method: "DELETE" });
-    let parsed = await parseResponse(response);
-    if (!parsed) return; //dispatch(setError("Something went wrong"));
-    let { meta } = parsed;
-    if (!meta.ok) {
-        return; //dispatch(setError("Something went wrong"));
-    }
-    dispatch(clearSession());
+const logout = () => (dispatch) => {
+    fetch("/api/session", { method: "DELETE" })
+        .then(handleResponse)
+        .then(() => dispatch(clearSession()))
+        .catch(() => {});
 };
 
 export { getSession, login, loginAsGuest, claimAccount, register, logout };

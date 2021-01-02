@@ -1,0 +1,66 @@
+.no-select {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently supported by Chrome, Opera and Firefox */
+}
+
+.race {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: #121a21;
+
+    .quote {
+        margin: 30px;
+        padding: 20px;
+        font-size: 25px;
+        border: 3px solid #202e3a;
+        border-radius: 7px;
+        color: whitesmoke;
+
+        .word-current {
+            text-decoration: underline;
+        }
+
+        .word-correct {
+            color: palegreen;
+        }
+
+        .letter-current {
+            outline: solid 1px yellow;
+        }
+
+        .letter-correct {
+            text-decoration: underline;
+            color: palegreen;
+        }
+
+        .letter-typo {
+            text-decoration: underline;
+            background-color: red;
+            color: white;
+        }
+    }
+
+    input {
+        height: 80px;
+        margin: 30px;
+        margin-top: 0;
+        padding: 0 20px;
+        overflow: hidden;
+        box-sizing: border-box;
+        outline: none;
+        border: 3px solid #202e3a;
+        border-radius: 7px;
+        font-size: 35px;
+        background-color: #202e3a;
+        color: whitesmoke;
+
+        &.typo {
+            border: 3px solid red;
+        }
+    }
+}

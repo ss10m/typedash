@@ -1,0 +1,82 @@
+$primary-color: whitesmoke;
+$secondary-color: #273747;
+
+.login {
+    color: whitesmoke;
+    padding: 20px;
+
+    .inside {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.input {
+    height: 45px;
+    width: 100%;
+    display: flex;
+    margin-top: 20px;
+
+    .icon {
+        height: 100%;
+        width: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid $primary-color;
+        border-right: 0;
+        border-radius: 5px 0 0 5px;
+        font-size: 25px;
+        color: $secondary-color;
+        background-color: $primary-color;
+    }
+
+    .field {
+        flex: 1;
+        height: 100%;
+        border: 1px solid $primary-color;
+        border-radius: 0 5px 5px 0;
+        border-left: none;
+
+        input {
+            padding: 0 10px;
+            height: 100%;
+            width: 100%;
+            outline: none;
+            border: none;
+            font-size: 16px;
+            color: white;
+            background: transparent;
+
+            &[type="password"] {
+                font: small-caption;
+            }
+        }
+
+        label {
+            position: relative;
+
+            .title {
+                position: absolute;
+                left: 10px;
+                top: 0;
+                transition: 0.25s cubic-bezier(0.68, -0.35, 0.465, 1.55);
+                border: 1px solid transparent;
+                pointer-events: none;
+                font-weight: 300;
+            }
+        }
+
+        &.active {
+            .title {
+                transform: translate(0, -22px);
+                font-size: 12px;
+                padding: 0 7px;
+                color: white;
+                border: 1px solid $primary-color;
+                border-radius: 5px;
+                background-color: $secondary-color;
+            }
+        }
+    }
+}
