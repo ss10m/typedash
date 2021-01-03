@@ -1,10 +1,6 @@
 // Libraries & utils
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import classNames from "classnames";
-
-// Redux
-import { connect } from "react-redux";
-import { getSession, login, logout, loginAsGuest, register } from "store/actions";
 
 // Helpers
 import { longestCommonSubstring } from "helpers";
@@ -25,6 +21,7 @@ class Racer extends React.Component {
             wordIndex: 0,
             correctLength: 0,
             typoLength: 0,
+            isRunning: false,
         };
 
         this.inputRef = React.createRef();
@@ -51,9 +48,16 @@ class Racer extends React.Component {
                 this.inputRef.current.focus();
             }
         );
+
+        /*
+        setTimeout(() => {
+            this.setState({ isRunning: true });
+        }, 2000);
+        */
     }
 
     handleChange = (event) => {
+        if (!this.state.isRunning) this.setState({ isRunning: true });
         const input = event.target.value;
         const currentWord = this.state.quote[this.state.wordIndex];
 
@@ -61,12 +65,7 @@ class Racer extends React.Component {
 
         let updatedState;
         if (currentWord === input) {
-            updatedState = (prevState) => ({
-                input: "",
-                wordIndex: prevState.wordIndex + 1,
-                correctLength: 0,
-                typoLength: 0,
-            });
+            return this.nextWord();
         } else if (currentWord.startsWith(input)) {
             updatedState = {
                 input,
@@ -74,12 +73,7 @@ class Racer extends React.Component {
                 typoLength: 0,
             };
         } else if (currentWord === input.slice(0, currentWord.length)) {
-            updatedState = (prevState) => ({
-                input: "",
-                wordIndex: prevState.wordIndex + 1,
-                correctLength: 0,
-                typoLength: 0,
-            });
+            return this.nextWord();
         } else {
             const strLen = longestCommonSubstring(currentWord, input);
             updatedState = {
@@ -92,24 +86,34 @@ class Racer extends React.Component {
         this.setState(updatedState);
     };
 
+    nextWord = () => {
+        console.log(this.state.wordIndex + 1, this.state.quoteLength);
+        this.setState((prevState) => ({
+            input: "",
+            wordIndex: prevState.wordIndex + 1,
+            correctLength: 0,
+            typoLength: 0,
+            isRunning: prevState.wordIndex + 1 !== prevState.quoteLength,
+        }));
+    };
+
     render() {
         return (
-            <div className="app">
-                <div className="race">
-                    <Quote
-                        quote={this.state.quote}
-                        wordIndex={this.state.wordIndex}
-                        correctLength={this.state.correctLength}
-                        typoLength={this.state.typoLength}
-                    />
-                    <Input
-                        input={this.state.input}
-                        ref={this.inputRef}
-                        handleChange={this.handleChange}
-                        containsTypo={this.state.typoLength > 0}
-                        isDisabled={this.state.wordIndex >= this.state.quoteLength}
-                    />
-                </div>
+            <div className="race">
+                <Timer isRunning={this.state.isRunning} />
+                <Quote
+                    quote={this.state.quote}
+                    wordIndex={this.state.wordIndex}
+                    correctLength={this.state.correctLength}
+                    typoLength={this.state.typoLength}
+                />
+                <Input
+                    input={this.state.input}
+                    ref={this.inputRef}
+                    handleChange={this.handleChange}
+                    containsTypo={this.state.typoLength > 0}
+                    isDisabled={this.state.wordIndex >= this.state.quoteLength}
+                />
             </div>
         );
     }
@@ -187,28 +191,71 @@ const Letter = ({ letter, letterIndex, correctLength, typoLength }) => {
     );
 };
 
-const mapStateToProps = (state) => {
-    return {
-        session: state.session,
+export default Racer;
+
+function Timer(props) {
+    const [isRunning, setIsRunning] = useState(props.isRunning);
+    const [prevTime, setPrevTime] = useState(null);
+    const [timeInMilliseconds, setTimeInMilliseconds] = useState(0);
+    const [time, setTime] = useState({ milliseconds: "000", minutes: "00", seconds: "00" });
+
+    useEffect(() => {
+        setIsRunning(props.isRunning);
+    }, [props.isRunning]);
+
+    useInterval(
+        () => {
+            let prev = prevTime ? prevTime : Date.now();
+            let diffTime = Date.now() - prev;
+            let newMilliTime = timeInMilliseconds + diffTime;
+            let newTime = toTime(newMilliTime);
+            setPrevTime(Date.now());
+            setTimeInMilliseconds(newMilliTime);
+            setTime(newTime);
+        },
+        isRunning ? 11 : null
+    );
+
+    const toTime = (time) => {
+        let milliseconds = parseInt(time % 1000),
+            seconds = Math.floor((time / 1000) % 60),
+            minutes = Math.floor(time / (1000 * 60));
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+        if (milliseconds < 10) milliseconds = "00" + milliseconds;
+        else if (milliseconds < 100) milliseconds = "0" + milliseconds;
+
+        return {
+            milliseconds,
+            seconds,
+            minutes,
+        };
     };
-};
 
-const mapDispatchToProps = (dispatch) => ({
-    getSession: () => {
-        dispatch(getSession());
-    },
-    login: () => {
-        dispatch(login());
-    },
-    loginAsGuest: () => {
-        dispatch(loginAsGuest());
-    },
-    register: () => {
-        dispatch(register());
-    },
-    logout: () => {
-        dispatch(logout());
-    },
-});
+    return (
+        <div className="timer">
+            <p>{`${time.minutes}:${time.seconds}:${time.milliseconds}`}</p>
+        </div>
+    );
+}
 
-export default connect(mapStateToProps, mapDispatchToProps)(Racer);
+function useInterval(callback, delay) {
+    const savedCallback = useRef();
+
+    // Remember the latest callback.
+    useEffect(() => {
+        savedCallback.current = callback;
+    }, [callback]);
+
+    // Set up the interval.
+    useEffect(() => {
+        function tick() {
+            savedCallback.current();
+        }
+        if (delay !== null) {
+            let id = setInterval(tick, delay);
+            return () => clearInterval(id);
+        }
+    }, [delay]);
+}

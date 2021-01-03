@@ -1,0 +1,53 @@
+.navbar {
+    height: 50px;
+    background-color: #202e3a;
+    margin-bottom: 50px;
+    border-radius: 7px;
+    color: whitesmoke;
+    box-shadow: 0px 0px 3px 1px black;
+    display: flex;
+    justify-content: space-between;
+
+    .logo {
+        height: 100%;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 18px;
+        text-decoration: none;
+        color: whitesmoke;
+
+        span {
+            color: orange;
+        }
+    }
+
+    .right {
+        display: flex;
+
+        .item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-left: 5px solid #0d1218;
+            font-weight: 700;
+            padding: 0 20px;
+            text-decoration: none;
+            color: whitesmoke;
+
+            .trophy {
+                color: gold;
+            }
+
+            &:hover {
+                background-color: #293b4a;
+                cursor: pointer;
+            }
+
+            &:last-child {
+                border-radius: 0 7px 7px 0;
+            }
+        }
+    }
+}

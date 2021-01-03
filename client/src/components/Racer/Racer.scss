@@ -11,11 +11,10 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    background-color: #121a21;
 
     .quote {
-        margin: 30px;
         padding: 20px;
+        margin-top: 20px;
         font-size: 25px;
         border: 3px solid #202e3a;
         border-radius: 7px;
@@ -47,8 +46,7 @@
 
     input {
         height: 80px;
-        margin: 30px;
-        margin-top: 0;
+        margin-top: 20px;
         padding: 0 20px;
         overflow: hidden;
         box-sizing: border-box;
@@ -63,4 +61,12 @@
             border: 3px solid red;
         }
     }
+}
+
+.timer {
+    color: whitesmoke;
+    font-weight: 700;
+    margin-left: 20px;
+    font-size: 30px;
+    letter-spacing: 1px;
 }
