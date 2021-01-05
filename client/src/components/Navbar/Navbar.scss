@@ -1,52 +1,49 @@
 .navbar {
     height: 50px;
-    background-color: #202e3a;
-    margin-bottom: 50px;
-    border-radius: 7px;
-    color: whitesmoke;
-    box-shadow: 0px 0px 3px 1px black;
     display: flex;
     justify-content: space-between;
+    margin-bottom: 50px;
+    border-radius: 7px;
+    box-shadow: 0px 0px 3px 1px black;
+    background-color: #202e3a;
+    color: whitesmoke;
 
     .logo {
-        height: 100%;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        line-height: 50px;
         padding: 0 18px;
         text-decoration: none;
         color: whitesmoke;
+        font-weight: 700;
 
         span {
-            color: orange;
+            color: gold;
         }
     }
 
-    .right {
+    .right-side {
         display: flex;
 
         .item {
+            height: 100%;
             display: flex;
             align-items: center;
-            justify-content: center;
+            padding: 0 20px;
             border-left: 5px solid #0d1218;
             font-weight: 700;
-            padding: 0 20px;
             text-decoration: none;
             color: whitesmoke;
 
-            .trophy {
-                color: gold;
+            &.login {
+                border-radius: 0 7px 7px 0;
+            }
+
+            .icon {
+                display: flex;
             }
 
             &:hover {
-                background-color: #293b4a;
                 cursor: pointer;
-            }
-
-            &:last-child {
-                border-radius: 0 7px 7px 0;
+                background-color: #293b4a;
             }
         }
     }

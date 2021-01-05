@@ -14,7 +14,6 @@ $hightlight-color: #30475e;
         right: 0;
         border-radius: 7px;
         background-color: $primary-color;
-        //box-shadow: 0px 0px 2px 1px black;
         box-shadow: 0px 0px 3px 1px black;
         display: flex;
         flex-direction: column;
@@ -30,24 +29,32 @@ $hightlight-color: #30475e;
 
             .info {
                 color: white;
-                margin-top: 10px;
+                margin: 10px 0;
+                display: flex;
+                align-items: center;
 
-                .user-icon {
-                    font-size: 28px;
+                .icon {
+                    font-size: 30px;
+                    display: flex;
+                    color: darkcyan;
                 }
-                .username {
-                    font-weight: 600;
-                    font-size: 18px;
-                    margin: 0;
+
+                .details {
                     margin-left: 10px;
-                }
-            }
 
-            .last-login {
-                margin: 0;
-                margin-top: 8px;
-                font-size: 12px;
-                font-weight: 300;
+                    .username {
+                        font-weight: 600;
+                        font-size: 18px;
+                        display: flex;
+                    }
+
+                    .last-login {
+                        margin: 0;
+                        margin-top: 2px;
+                        font-size: 12px;
+                        font-weight: 300;
+                    }
+                }
             }
         }
 
@@ -65,32 +72,33 @@ $hightlight-color: #30475e;
 .dropdown-option {
     height: 35px;
     margin: 0 15px;
-    font-weight: 300;
-    font-size: 16px;
-    color: $top-color;
+    font-weight: 500;
+    font-size: 15px;
     display: flex;
     align-items: center;
+    text-decoration: none;
 
-    .button {
+    .option {
         width: 100%;
-        height: 20px;
+        height: 30px;
         display: flex;
         align-items: center;
         color: white;
-        text-decoration: none;
         background-color: $primary-color;
         padding: 7px 8px;
         border-radius: 5px;
-        cursor: pointer;
 
-        .option-icon {
+        .icon {
+            display: flex;
             font-size: 18px;
             margin-right: 8px;
+            color: #857000;
         }
-    }
 
-    .selectable:hover {
-        background-color: $hightlight-color;
+        &:hover {
+            cursor: pointer;
+            background-color: $hightlight-color;
+        }
     }
 
     &:last-child {

@@ -1,33 +1,43 @@
 // Libraries & utils
-import { Component } from "react";
+import { useRef, useEffect, useCallback } from "react";
 
 // Redux
-import { connect } from "react-redux";
+import { useDispatch } from "react-redux";
 import { updateWindowSize } from "store/actions";
 
-class WindowSize extends Component {
-    componentDidMount() {
-        this.props.updateWindowSize(window.innerWidth);
-        window.addEventListener("resize", this.updateDimensions);
-    }
+const WindowSize = () => {
+    const dispatch = useDispatch();
 
-    componentWillUnmount() {
-        window.removeEventListener("resize", this.updateDimensions);
-    }
+    useEffect(() => {
+        dispatch(updateWindowSize(window.innerWidth));
+    }, [dispatch]);
 
-    updateDimensions = () => {
-        this.props.updateWindowSize(window.innerWidth);
-    };
+    const handler = useCallback(() => {
+        dispatch(updateWindowSize(window.innerWidth));
+    }, [dispatch]);
 
-    render() {
-        return null;
-    }
+    useEventListener("resize", handler);
+    return null;
+};
+
+function useEventListener(eventName, handler, element = window) {
+    const savedHandler = useRef();
+
+    useEffect(() => {
+        savedHandler.current = handler;
+    }, [handler]);
+
+    useEffect(() => {
+        const isSupported = element && element.addEventListener;
+        if (!isSupported) return;
+
+        const eventListener = (event) => savedHandler.current(event);
+        element.addEventListener(eventName, eventListener);
+
+        return () => {
+            element.removeEventListener(eventName, eventListener);
+        };
+    }, [eventName, element]);
 }
 
-const mapDispatchToProps = (dispatch) => ({
-    updateWindowSize: (width) => {
-        dispatch(updateWindowSize(width));
-    },
-});
-
-export default connect(null, mapDispatchToProps)(WindowSize);
+export default WindowSize;

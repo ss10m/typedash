@@ -27,14 +27,19 @@ class App extends React.Component {
         return (
             <>
                 <WindowSize />
-                <div className="app">
+                <div className="app no-select">
                     <div className="main">
                         <div className="sides">
                             <Navbar />
                             <Switch>
                                 <Route exact path="/" render={() => <h1>main</h1>}></Route>
-                                <Route exact path="/racer" render={() => <Racer />} />
+                                <Route exact path="/battle" render={() => <Racer />} />
                                 <Route exact path="/login" render={() => <Login />} />
+                                <Route
+                                    exact
+                                    path="/profile"
+                                    render={() => <h1>profile</h1>}
+                                />
                                 <Route render={() => <h1>404</h1>} />
                             </Switch>
                         </div>

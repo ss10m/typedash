@@ -138,7 +138,7 @@ const Input = React.forwardRef((props, ref) => (
 
 const Quote = ({ quote, wordIndex, correctLength, typoLength }) => {
     return (
-        <div className="quote no-select">
+        <div className="quote">
             {quote.map((word, i) => (
                 <Word
                     key={i}

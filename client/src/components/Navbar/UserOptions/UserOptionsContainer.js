@@ -1,75 +1,76 @@
 // Libraries & utils
-import React, { Component } from "react";
-import ReactDOM from "react-dom";
+import { useEffect, useRef, useCallback } from "react";
 
 // Redux
-import { connect } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { logout } from "store/actions";
-
-// Helpers
-import { dateDifference } from "helpers";
 
 // Components
 import UserOptions from "./UserOptions";
 
-class UserOptionsContainer extends Component {
-    constructor(props) {
-        super(props);
-        this.state = { showNotifications: true, time: Date.now() };
-    }
+// Helpers
+import { dateDifference } from "helpers";
 
-    componentDidMount() {
-        document.addEventListener("click", this.handleClickOutside, true);
-        this.interval = setInterval(() => this.setState({ time: Date.now() }), 1000);
-    }
+const UserOptionsContainer = ({ toggleDropDown, setDropdown }) => {
+    const dispatch = useDispatch();
+    const dropdownRef = useRef(null);
 
-    componentWillUnmount() {
-        document.removeEventListener("click", this.handleClickOutside, true);
-        clearInterval(this.interval);
-    }
+    const handler = useCallback(
+        (event) => {
+            console.log(this);
+            if (
+                !dropdownRef ||
+                !dropdownRef.current ||
+                !dropdownRef.current.contains(event.target)
+            ) {
+                toggleDropDown(event);
+            }
+        },
+        [toggleDropDown]
+    );
 
-    handleClickOutside = (event) => {
-        const domNode = ReactDOM.findDOMNode(this);
-        if (!domNode || !domNode.contains(event.target)) {
-            this.props.toggleDropDown(event);
-        }
+    useEventListener("click", handler);
+
+    const closeDropdown = () => {
+        setDropdown(false);
     };
 
-    logout = () => {
-        this.props.logout();
+    const logout2 = () => {
+        setDropdown(false);
+        dispatch(logout());
     };
 
-    toggleNotifications = (event) => {
-        this.setState({ showNotifications: event.target.checked });
-    };
+    const username = useSelector((state) => state.session.user.username);
 
-    render() {
-        let { time } = this.state;
-        let { username, last_login } = this.props.session.user;
-        let loggedIn = "325";
-
-        return (
-            <UserOptions
-                username={username}
-                loggedIn={loggedIn}
-                showNotifications={false}
-                toggleNotifications={this.toggleNotifications}
-                logout={this.logout}
-            />
-        );
-    }
-}
-
-const mapStateToProps = (state) => {
-    return {
-        session: state.session,
-    };
+    return (
+        <UserOptions
+            ref={dropdownRef}
+            username={username}
+            loggedIn={325}
+            closeDropdown={closeDropdown}
+            logout={logout2}
+        />
+    );
 };
 
-const mapDispatchToProps = (dispatch) => ({
-    logout: () => {
-        dispatch(logout());
-    },
-});
+function useEventListener(eventName, handler, element = window) {
+    const savedHandler = useRef();
 
-export default connect(mapStateToProps, mapDispatchToProps)(UserOptionsContainer);
+    useEffect(() => {
+        savedHandler.current = handler;
+    }, [handler]);
+
+    useEffect(() => {
+        const isSupported = element && element.addEventListener;
+        if (!isSupported) return;
+
+        const eventListener = (event) => savedHandler.current(event);
+        element.addEventListener(eventName, eventListener);
+
+        return () => {
+            element.removeEventListener(eventName, eventListener);
+        };
+    }, [eventName, element]);
+}
+
+export default UserOptionsContainer;
