@@ -4,16 +4,15 @@ import ReactDOM from "react-dom";
 import { BrowserRouter, Route } from "react-router-dom";
 
 // Redux
+import { createStore, applyMiddleware } from "redux";
 import { Provider } from "react-redux";
-import configureStore from "./store/configureStore";
+import thunk from "redux-thunk";
+import reducers from "./store/reducers";
 
 // Components
 import App from "./components/App";
 
-import SocketClient from "./SocketClient";
-
-const client = new SocketClient();
-const store = configureStore(client);
+const store = createStore(reducers, applyMiddleware(thunk));
 
 ReactDOM.render(
     <Provider store={store}>

@@ -1,5 +1,5 @@
 // Libraries & utils
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
@@ -62,11 +62,11 @@ const User = ({ windowSize }) => {
     const [dropdown, setDropdown] = useState(false);
     const user = useSelector((state) => state.session.user);
 
-    const toggleDropDown = useCallback((event) => {
+    const toggleDropDown = (event) => {
         event.stopPropagation();
         event.preventDefault();
         setDropdown(!dropdown);
-    });
+    };
 
     if (!user) {
         return (

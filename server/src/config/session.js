@@ -4,7 +4,8 @@ import { pgPool } from "./db.js";
 
 const SESS_NAME = "sid";
 const SESS_SECRET = "secret!session";
-const SESS_LIFETIME = 1000 * 60 * 60 * 24 * 60; // 60 days
+
+const SESS_LIFETIME = 1000 * 60 * 60 * 24 * 30 * 120;
 const pgSession = new pgSimpleSession(session);
 
 const sessionDetails = {

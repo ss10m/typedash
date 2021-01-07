@@ -3,15 +3,7 @@ import React, { useState, useEffect } from "react";
 
 // Redux
 import { connect } from "react-redux";
-import {
-    login,
-    logout,
-    loginAsGuest,
-    register,
-    connectSocket,
-    disconnectSocket,
-    send,
-} from "store/actions";
+import { login, logout, loginAsGuest, register } from "store/actions";
 
 // Icons
 import { FaUser } from "react-icons/fa";
@@ -22,11 +14,11 @@ import { handleResponse } from "helpers";
 //SCSS
 import "./Login.scss";
 
+import SocketAPI from "core/SocketClient";
+
 class Login extends React.Component {
     render() {
         let { session, socket } = this.props;
-
-        console.log(socket);
 
         return (
             <div className="login">
@@ -42,10 +34,9 @@ class Login extends React.Component {
                     <Register />
                     <Register />
                     <Register />
-
-                    <button onClick={this.props.connectSocket}>connectSocket</button>
-                    <button onClick={this.props.disconnectSocket}>disconnectSocket</button>
-                    <button onClick={this.props.send}>SEND</button>
+                    <button onClick={() => SocketAPI.emit("hello", "message from client")}>
+                        CHECK
+                    </button>
                 </div>
             </div>
         );
@@ -71,15 +62,6 @@ const mapDispatchToProps = (dispatch) => ({
     },
     logout: () => {
         dispatch(logout());
-    },
-    connectSocket: () => {
-        dispatch(connectSocket());
-    },
-    disconnectSocket: () => {
-        dispatch(disconnectSocket());
-    },
-    send: () => {
-        dispatch(send("2352353", "payload data"));
     },
 });
 

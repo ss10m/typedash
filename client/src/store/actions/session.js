@@ -1,11 +1,17 @@
 import { handleResponse } from "helpers";
 
+import socketIO from "core/SocketClient";
+
 const getSession = () => async (dispatch) => {
+    socketIO.setDispatch(dispatch);
     fetch("/api/session")
         .then(handleResponse)
         .then((data) => {
             let session = { isLoaded: true, user: null };
-            if (data.user) session.user = data.user;
+            if (data.user) {
+                session.user = data.user;
+                socketIO.connect();
+            }
             dispatch(setSession(session));
         })
         .catch(() => {});
@@ -18,7 +24,6 @@ const setSession = (session) => ({
 
 const clearSession = () => ({
     type: "CLEAR_SESSION",
-    handleResponse,
 });
 
 const login = (userInfo) => async (dispatch) => {
@@ -36,6 +41,7 @@ const login = (userInfo) => async (dispatch) => {
         .then((data) => {
             let sessionState = { isLoaded: true, user: data.user };
             dispatch(setSession(sessionState));
+            socketIO.connect();
         })
         .catch((error) => {
             console.log(error);
@@ -51,6 +57,7 @@ const loginAsGuest = () => async (dispatch) => {
         .then((data) => {
             let sessionState = { isLoaded: true, user: data.user };
             dispatch(setSession(sessionState));
+            socketIO.connect();
         })
         .catch((error) => {
             console.log(error);
@@ -77,6 +84,7 @@ const register = (userInfo) => async (dispatch) => {
         .then((data) => {
             let sessionState = { isLoaded: true, user: data.user };
             dispatch(setSession(sessionState));
+            socketIO.connect();
         })
         .catch((error) => {
             console.log(error);
@@ -87,8 +95,11 @@ const register = (userInfo) => async (dispatch) => {
 const logout = () => (dispatch) => {
     fetch("/api/session", { method: "DELETE" })
         .then(handleResponse)
-        .then(() => dispatch(clearSession()))
-        .catch(() => {});
+        .then(() => {
+            socketIO.disconnect();
+            dispatch(clearSession());
+        })
+        .catch(() => dispatch(clearSession()));
 };
 
 export { getSession, login, loginAsGuest, claimAccount, register, logout };

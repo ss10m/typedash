@@ -190,8 +190,6 @@ router.post("/register", async (req, res) => {
 // LOGOUT
 router.delete("", async ({ session, body }, res) => {
     try {
-        const user = session.user;
-        if (!user) throw new Error();
         session.destroy((err) => {
             if (err) throw err;
             res.clearCookie(SESS_NAME);

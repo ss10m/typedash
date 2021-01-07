@@ -1,9 +1,9 @@
 // Libraries & utils
-import React from "react";
+import React, { useEffect } from "react";
 import { Route, Switch } from "react-router-dom";
 
 // Redux
-import { connect } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { getSession } from "store/actions";
 
 // Components
@@ -15,51 +15,35 @@ import WindowSize from "./WindowSize/WindowSize";
 // SCSS
 import "./App.scss";
 
-class App extends React.Component {
-    componentDidMount() {
-        this.props.getSession();
-    }
+const App = () => {
+    const session = useSelector((state) => state.session);
+    const dispatch = useDispatch();
 
-    render() {
-        let { session } = this.props;
-        if (!session.isLoaded) return <div>Loading...</div>;
+    useEffect(() => {
+        dispatch(getSession());
+    }, [dispatch]);
 
-        return (
-            <>
-                <WindowSize />
-                <div className="app no-select">
-                    <div className="main">
-                        <div className="sides">
-                            <Navbar />
-                            <Switch>
-                                <Route exact path="/" render={() => <h1>main</h1>}></Route>
-                                <Route exact path="/battle" render={() => <Racer />} />
-                                <Route exact path="/login" render={() => <Login />} />
-                                <Route
-                                    exact
-                                    path="/profile"
-                                    render={() => <h1>profile</h1>}
-                                />
-                                <Route render={() => <h1>404</h1>} />
-                            </Switch>
-                        </div>
+    if (!session.isLoaded) return <div>Loading...</div>;
+
+    return (
+        <>
+            <WindowSize />
+            <div className="app no-select">
+                <div className="main">
+                    <div className="sides">
+                        <Navbar />
+                        <Switch>
+                            <Route exact path="/" render={() => <h1>main</h1>}></Route>
+                            <Route exact path="/battle" render={() => <Racer />} />
+                            <Route exact path="/login" render={() => <Login />} />
+                            <Route exact path="/profile" render={() => <h1>profile</h1>} />
+                            <Route render={() => <h1>404</h1>} />
+                        </Switch>
                     </div>
                 </div>
-            </>
-        );
-    }
-}
-
-const mapStateToProps = (state) => {
-    return {
-        session: state.session,
-    };
+            </div>
+        </>
+    );
 };
 
-const mapDispatchToProps = (dispatch) => ({
-    getSession: () => {
-        dispatch(getSession());
-    },
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default App;
