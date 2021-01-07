@@ -7,6 +7,12 @@ const socket = (io) => {
             console.log("SOCKET HELLO");
         });
 
+        socket.on("SendMessage", (data, cb) => {
+            console.log("SendMessage", data);
+
+            cb({ ok: "Sent from server" });
+        });
+
         socket.on("disconnect", () => {
             console.log("disconnected");
         });

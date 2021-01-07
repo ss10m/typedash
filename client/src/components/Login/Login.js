@@ -3,7 +3,15 @@ import React, { useState, useEffect } from "react";
 
 // Redux
 import { connect } from "react-redux";
-import { login, logout, loginAsGuest, register } from "store/actions";
+import {
+    login,
+    logout,
+    loginAsGuest,
+    register,
+    connectSocket,
+    disconnectSocket,
+    send,
+} from "store/actions";
 
 // Icons
 import { FaUser } from "react-icons/fa";
@@ -16,7 +24,9 @@ import "./Login.scss";
 
 class Login extends React.Component {
     render() {
-        let { session } = this.props;
+        let { session, socket } = this.props;
+
+        console.log(socket);
 
         return (
             <div className="login">
@@ -32,6 +42,10 @@ class Login extends React.Component {
                     <Register />
                     <Register />
                     <Register />
+
+                    <button onClick={this.props.connectSocket}>connectSocket</button>
+                    <button onClick={this.props.disconnectSocket}>disconnectSocket</button>
+                    <button onClick={this.props.send}>SEND</button>
                 </div>
             </div>
         );
@@ -41,6 +55,7 @@ class Login extends React.Component {
 const mapStateToProps = (state) => {
     return {
         session: state.session,
+        socket: state.socket,
     };
 };
 
@@ -56,6 +71,15 @@ const mapDispatchToProps = (dispatch) => ({
     },
     logout: () => {
         dispatch(logout());
+    },
+    connectSocket: () => {
+        dispatch(connectSocket());
+    },
+    disconnectSocket: () => {
+        dispatch(disconnectSocket());
+    },
+    send: () => {
+        dispatch(send("2352353", "payload data"));
     },
 });
 
