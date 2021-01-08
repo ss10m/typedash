@@ -1,3 +1,7 @@
+const isEmpty = (obj) => {
+    return !obj || Object.keys(obj).length === 0;
+};
+
 const longestCommonSubstring = (s1, s2) => {
     for (let i = 0; i < Math.min(s1.length, s2.length); i++) {
         if (s1.charAt(i) !== s2.charAt(i)) return i;
@@ -15,4 +19,4 @@ const handleResponse = (response) => {
     });
 };
 
-export { longestCommonSubstring, handleResponse };
+export { isEmpty, longestCommonSubstring, handleResponse };

@@ -9,7 +9,7 @@ import { logout } from "store/actions";
 import UserOptions from "./UserOptions";
 
 // Helpers
-import { dateDifference } from "helpers";
+//import { dateDifference } from "helpers";
 
 const UserOptionsContainer = ({ toggleDropDown, setDropdown }) => {
     const dispatch = useDispatch();
@@ -17,7 +17,6 @@ const UserOptionsContainer = ({ toggleDropDown, setDropdown }) => {
 
     const handler = useCallback(
         (event) => {
-            console.log(this);
             if (
                 !dropdownRef ||
                 !dropdownRef.current ||

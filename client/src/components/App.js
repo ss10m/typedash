@@ -9,6 +9,7 @@ import { getSession } from "store/actions";
 // Components
 import Navbar from "./Navbar/Navbar";
 import Login from "./Login/Login";
+import Rooms from "./Rooms/RoomsContainer";
 import Racer from "./Racer/Racer";
 import WindowSize from "./WindowSize/WindowSize";
 
@@ -34,8 +35,9 @@ const App = () => {
                         <Navbar />
                         <Switch>
                             <Route exact path="/" render={() => <h1>main</h1>}></Route>
-                            <Route exact path="/battle" render={() => <Racer />} />
-                            <Route exact path="/login" render={() => <Login />} />
+                            <Route exact path="/battle" component={Racer} />
+                            <Route exact path="/login" component={Login} />
+                            <Route exact path="/rooms" component={Rooms} />
                             <Route exact path="/profile" render={() => <h1>profile</h1>} />
                             <Route render={() => <h1>404</h1>} />
                         </Switch>

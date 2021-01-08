@@ -4,14 +4,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 // ICONS
-import {
-    FaTrophy,
-    FaPlay,
-    FaChartBar,
-    FaUserCircle,
-    FaChevronDown,
-    FaChevronUp,
-} from "react-icons/fa";
+import { FaTrophy, FaPlay, FaUserCircle, FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 // Components
 import UserOptions from "./UserOptions/UserOptionsContainer";
@@ -20,26 +13,26 @@ import UserOptions from "./UserOptions/UserOptionsContainer";
 import "./Navbar.scss";
 
 function Navbar() {
-    const windowSize = useSelector((state) => state.windowSize);
+    const windowWidth = useSelector((state) => state.windowSize.width);
 
     return (
         <div className="navbar">
-            <Logo windowSize={windowSize} />
+            <Logo windowWidth={windowWidth} />
             <div className="right-side">
-                <NavItem windowSize={windowSize} link="battle" name="PLAY">
+                <NavItem windowWidth={windowWidth} link="rooms" name="PLAY">
                     <FaPlay />
                 </NavItem>
-                <NavItem windowSize={windowSize} link="battle" name="HIGHSCORES">
+                <NavItem windowWidth={windowWidth} link="battle" name="HIGHSCORES">
                     <FaTrophy />
                 </NavItem>
-                <User windowSize={windowSize} />
+                <User windowWidth={windowWidth} />
             </div>
         </div>
     );
 }
 
-const Logo = ({ windowSize }) => {
-    let minmized = windowSize < 520;
+const Logo = ({ windowWidth }) => {
+    let minmized = windowWidth < 520;
     return (
         <Link to="/" className="logo">
             {minmized ? "K" : "KEYBOARD"}
@@ -49,16 +42,16 @@ const Logo = ({ windowSize }) => {
 };
 
 const NavItem = (props) => {
-    const { windowSize, link, name } = props;
+    const { windowWidth, link, name } = props;
     return (
         <Link to={`/${link}`} className="item">
             <span className="icon">{props.children}</span>
-            {windowSize >= 700 && <span style={{ marginLeft: "7px" }}>{name}</span>}
+            {windowWidth >= 700 && <span style={{ marginLeft: "7px" }}>{name}</span>}
         </Link>
     );
 };
 
-const User = ({ windowSize }) => {
+const User = ({ windowWidth }) => {
     const [dropdown, setDropdown] = useState(false);
     const user = useSelector((state) => state.session.user);
 
@@ -79,7 +72,7 @@ const User = ({ windowSize }) => {
         <div id="userDropdown">
             <div className="item login" onClick={(e) => toggleDropDown(e)}>
                 <span className="icon" style={{ marginRight: "7px" }}>
-                    {windowSize < 400 ? <FaUserCircle /> : user.username}
+                    {windowWidth < 400 ? <FaUserCircle /> : user.username}
                 </span>
                 <span className="icon">{dropdown ? <FaChevronUp /> : <FaChevronDown />}</span>
             </div>

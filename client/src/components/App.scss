@@ -3,7 +3,9 @@ body {
         "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #131516;
+    //background-color: #131516;
+    //background-color: #121a21;
+    background-color: #1c2934;
 }
 
 html {
@@ -19,7 +21,6 @@ html {
 
 .app {
     height: 100vh;
-    background-color: #121a21;
 }
 
 .no-select {
@@ -39,5 +40,6 @@ html {
 }
 
 .sides {
+    height: 100%;
     padding: 20px;
 }

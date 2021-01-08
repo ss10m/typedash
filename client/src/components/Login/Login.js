@@ -18,7 +18,7 @@ import SocketAPI from "core/SocketClient";
 
 class Login extends React.Component {
     render() {
-        let { session, socket } = this.props;
+        let { session } = this.props;
 
         return (
             <div className="login">
@@ -46,7 +46,6 @@ class Login extends React.Component {
 const mapStateToProps = (state) => {
     return {
         session: state.session,
-        socket: state.socket,
     };
 };
 

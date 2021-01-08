@@ -9,11 +9,11 @@ const WindowSize = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        dispatch(updateWindowSize(window.innerWidth));
+        dispatch(updateWindowSize(window.innerWidth, window.innerHeight));
     }, [dispatch]);
 
     const handler = useCallback(() => {
-        dispatch(updateWindowSize(window.innerWidth));
+        dispatch(updateWindowSize(window.innerWidth, window.innerHeight));
     }, [dispatch]);
 
     useEventListener("resize", handler);
