@@ -33,83 +33,153 @@
             }
         }
 
-        .guest-login {
-            width: 260px;
+        .loading {
+            flex: 1;
+        }
+    }
+}
 
-            .title {
-                margin-left: 10px;
-                margin-bottom: 5px;
-                font-size: 15px;
-            }
+.guest-login {
+    width: 260px;
 
-            .button {
-                width: 100%;
-                height: 45px;
-                margin-top: 10px;
-                border-radius: 7px;
-                background-color: #debb00;
-                border: none;
-                color: black;
-                text-align: center;
-                font-size: 20px;
-                font-weight: 800;
-                transition: all 0.5s;
-                cursor: pointer;
+    .title {
+        margin-left: 10px;
+        margin-bottom: 5px;
+        font-size: 15px;
+    }
 
-                span {
-                    cursor: pointer;
-                    display: inline-block;
-                    position: relative;
-                    transition: 0.5s;
+    .button {
+        width: 100%;
+        height: 45px;
+        margin-top: 10px;
+        border-radius: 7px;
+        background-color: #debb00;
+        border: none;
+        outline: none;
+        color: black;
+        text-align: center;
+        font-size: 20px;
+        font-weight: 800;
+        transition: all 0.5s;
+        box-shadow: 0px 0px 2px 1px #080808;
+        cursor: pointer;
 
-                    &:after {
-                        content: "\00bb";
-                        position: absolute;
-                        opacity: 0;
-                        top: -2px;
-                        right: -20px;
-                        transition: 0.5s;
-                    }
-                }
-            }
-
-            .button:hover span {
-                padding-right: 25px;
-            }
-
-            .button:hover span:after {
-                opacity: 1;
-                right: 0;
-            }
+        &.disabled {
+            opacity: 0.2;
+            pointer-events: none;
         }
 
-        .account-buttons {
-            height: 60px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            font-weight: 400;
-            font-size: 15px;
+        span {
+            cursor: pointer;
+            display: inline-block;
+            position: relative;
+            transition: 0.5s;
 
-            button {
-                margin-left: 5px;
-                padding: 5px 5px;
-                background-color: #273747;
-                box-shadow: 0px 0px 2px 1px #406182;
-                outline: none;
-                border: none;
-                border-radius: 5px;
-                color: whitesmoke;
-
-                &:hover {
-                    cursor: pointer;
-                    background-color: #406182;
-                }
-            }
-
-            .register {
-                margin-left: 12px;
+            &:after {
+                content: "\00bb";
+                position: absolute;
+                opacity: 0;
+                top: -2px;
+                right: -20px;
+                transition: 0.5s;
             }
         }
     }
+
+    .button:hover span {
+        padding-right: 25px;
+    }
+
+    .button:hover span:after {
+        opacity: 1;
+        right: 0;
+    }
+}
+
+.account-buttons {
+    height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-weight: 400;
+    font-size: 15px;
+
+    button {
+        margin-left: 5px;
+        padding: 5px 5px;
+        background-color: #273747;
+        box-shadow: 0px 0px 2px 1px #406182;
+        outline: none;
+        border: none;
+        border-radius: 5px;
+        color: whitesmoke;
+
+        &:hover {
+            cursor: pointer;
+            background-color: #406182;
+        }
+    }
+
+    .register {
+        margin-left: 12px;
+    }
+}
+
+.landing-buttons {
+    width: 260px;
+
+    .button {
+        width: 100%;
+        height: 45px;
+        margin-top: 10px;
+        border-radius: 7px;
+        background-color: #3a5068;
+        border: none;
+        outline: none;
+        color: whitesmoke;
+        text-align: center;
+        font-size: 20px;
+        font-weight: 800;
+        transition: all 0.5s;
+        box-shadow: 0px 0px 2px 1px #080808;
+        cursor: pointer;
+
+        &.cancel {
+            background-color: #ff4e4e;
+        }
+
+        &.disabled {
+            opacity: 0.2;
+            pointer-events: none;
+        }
+
+        span {
+            cursor: pointer;
+            display: inline-block;
+            position: relative;
+            transition: 0.5s;
+
+            &:after {
+                content: "\00bb";
+                position: absolute;
+                opacity: 0;
+                top: -2px;
+                right: -20px;
+                transition: 0.5s;
+            }
+        }
+    }
+
+    .button:hover span {
+        padding-right: 25px;
+    }
+
+    .button:hover span:after {
+        opacity: 1;
+        right: 0;
+    }
+}
+
+.landing-width {
+    width: 260px;
 }

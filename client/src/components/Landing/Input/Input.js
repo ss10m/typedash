@@ -1,5 +1,5 @@
 // Libraries & utils
-import Reac, { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import classNames from "classnames";
 
 // Icons
@@ -14,12 +14,16 @@ import Spinner from "../../Spinner/Spinner";
 // SCSS
 import "./Input.scss";
 
-const Input = () => {
-    const [input, setInput] = useState("");
+const Input = ({ initialValue, setCurrentInput }) => {
+    const [input, setInput] = useState(initialValue.username);
+    const [containsError, setContainsError] = useState(!initialValue.valid);
     const [isFetching, setIsFetching] = useState(false);
-    const [containsError, setContainsError] = useState(false);
+    const didMountRef = useRef(false);
+    const inputRef = useRef(input);
+    inputRef.current = input;
 
     useEffect(() => {
+        if (!didMountRef.current) return (didMountRef.current = true);
         if (!input) return;
         setIsFetching(true);
         const handler = setTimeout(() => {
@@ -33,24 +37,33 @@ const Input = () => {
                 },
             })
                 .then(handleResponse)
-                .then(() => {
+                .then((res) => {
+                    console.log(input, inputRef.current);
+                    if (input !== inputRef.current) return;
+                    setCurrentInput({ username: input, valid: true });
                     setIsFetching(false);
                 })
                 .catch(() => {
-                    setIsFetching(false);
+                    setCurrentInput({ username: input, valid: false });
                     setContainsError(true);
-                });
-        }, 500);
+                    setIsFetching(false);
+                })
+                .finally(() => {});
+        }, 1000);
 
         return () => {
             clearTimeout(handler);
             setIsFetching(false);
         };
-    }, [input]);
+    }, [input, setCurrentInput]);
 
     const handleInputChange = (event) => {
         const username = event.target.value;
-        if (containsError) setContainsError(false);
+        if (!username) {
+            setCurrentInput({ username: "", valid: true });
+            setIsFetching(false);
+        }
+        setContainsError(false);
         setInput(username);
     };
 
