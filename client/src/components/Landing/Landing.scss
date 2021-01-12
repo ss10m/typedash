@@ -44,7 +44,7 @@
 
     .title {
         margin-left: 10px;
-        margin-bottom: 5px;
+        margin-bottom: 3px;
         font-size: 15px;
     }
 
@@ -149,7 +149,7 @@
         }
 
         &.disabled {
-            opacity: 0.2;
+            opacity: 0.4;
             pointer-events: none;
         }
 
