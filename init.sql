@@ -11,7 +11,8 @@ CREATE INDEX "IDX_session_expire" ON "session" ("expire");
 
 CREATE TABLE "users" (
     "id" SERIAL PRIMARY KEY,
-    "username" VARCHAR(50) UNIQUE NOT NULL,
+    "username" VARCHAR(30) UNIQUE NOT NULL,
+    "display_name" VARCHAR(30) UNIQUE NOT NULL,
     "email" VARCHAR(50) NOT NULL,
     "salt" TEXT NOT NULL,
     "hash" TEXT NOT NULL,

@@ -1,36 +1,53 @@
 // Libraries & utils
-import React, { forwardRef } from "react";
-import { Link } from "react-router-dom";
+import React, { forwardRef, useEffect } from "react";
 
-// ICONS
+// Redux
+import { useDispatch, useSelector } from "react-redux";
+import { logout, showClaimAccount } from "store/actions";
+
+// Icons
 import { FaUserCircle, FaChartBar, FaRegCopy, FaSignOutAlt } from "react-icons/fa";
+
+import withClickWatcher from "../../Modal/Modal";
 
 // SCSS
 import "./UserOptions.scss";
 
-const UserOptions = forwardRef((props, ref) => {
-    let { username, loggedIn, closeDropdown, logout } = props;
-    return (
-        <div className="dropdown-options" ref={ref}>
-            <Header username={username} loggedIn={loggedIn} />
-            <hr className="divider" />
-            <ReLink
-                link="profile"
-                icon={<FaChartBar />}
-                name="PROFILE"
-                closeDropdown={closeDropdown}
-            />
-            <ReLink
-                link="profile"
-                icon={<FaRegCopy />}
-                name="CLAIM ACCOUNT"
-                closeDropdown={closeDropdown}
-            />
-            <hr className="divider" />
-            <Button icon={<FaSignOutAlt />} name="LOGOUT" onClick={logout} />
-        </div>
-    );
-});
+const UserOptions = withClickWatcher(
+    forwardRef((props, ref) => {
+        const { hideUserOptions, isVisible } = props;
+        const username = useSelector((state) => state.session.user.username);
+
+        useEffect(() => {
+            if (!isVisible) hideUserOptions();
+        }, [isVisible, hideUserOptions]);
+
+        return (
+            <div className="dropdown-options" ref={ref}>
+                <Header username={username} loggedIn={"235235"} />
+                <hr className="divider" />
+                <Button
+                    icon={<FaChartBar />}
+                    name="PROFILE"
+                    hideUserOptions={hideUserOptions}
+                />
+                <Button
+                    icon={<FaRegCopy />}
+                    name="CLAIM ACCOUNT"
+                    onClick={showClaimAccount}
+                    hideUserOptions={hideUserOptions}
+                />
+                <hr className="divider" />
+                <Button
+                    icon={<FaSignOutAlt />}
+                    name="LOGOUT"
+                    onClick={logout}
+                    hideUserOptions={hideUserOptions}
+                />
+            </div>
+        );
+    })
+);
 
 const Header = ({ username, loggedIn }) => {
     return (
@@ -48,21 +65,16 @@ const Header = ({ username, loggedIn }) => {
     );
 };
 
-const ReLink = ({ link, icon, name, closeDropdown }) => {
-    return (
-        <Link to={link} className="dropdown-option">
-            <div className="option" onClick={closeDropdown}>
-                <span className="icon">{icon}</span>
-                {name}
-            </div>
-        </Link>
-    );
-};
+const Button = ({ icon, name, onClick, hideUserOptions }) => {
+    const dispatch = useDispatch();
+    const onButtonClick = () => {
+        if (onClick) dispatch(onClick());
+        hideUserOptions();
+    };
 
-const Button = ({ onClick, icon, name }) => {
     return (
         <div className="dropdown-option">
-            <div className="option" onClick={onClick}>
+            <div className="option" onClick={onButtonClick}>
                 <span className="icon">{icon}</span>
                 {name}
             </div>

@@ -1,0 +1,13 @@
+const TEST_TYPE = {
+    VALID: "VALID",
+    AVAILABLE: "AVAILABLE",
+    EXISTS: "EXISTS",
+};
+
+const FIELD_TYPE = {
+    USERNAME: "USERNAME",
+    EMAIL: "EMAIL",
+    PASSWORD: "PASSWORD",
+};
+
+export { TEST_TYPE, FIELD_TYPE };

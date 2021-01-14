@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import { FaTrophy, FaPlay, FaUserCircle, FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 // Components
-import UserOptions from "./UserOptions/UserOptionsContainer";
+import UserOptions from "./UserOptions/UserOptions";
 
 //SCSS
 import "./Navbar.scss";
@@ -35,8 +35,8 @@ const Logo = ({ windowWidth }) => {
     let minmized = windowWidth < 520;
     return (
         <Link to="/" className="logo">
-            {minmized ? "K" : "KEYBOARD"}
-            <span>{minmized ? "B" : "BATTLES"}</span>
+            {minmized ? "T" : "TYPE"}
+            <span>{minmized ? "D" : "DASH"}</span>
         </Link>
     );
 };
@@ -52,13 +52,13 @@ const NavItem = (props) => {
 };
 
 const User = ({ windowWidth }) => {
-    const [dropdown, setDropdown] = useState(false);
+    const [isVisible, setIsVisible] = useState(false);
     const user = useSelector((state) => state.session.user);
 
     const toggleDropDown = (event) => {
         event.stopPropagation();
         event.preventDefault();
-        setDropdown(!dropdown);
+        setIsVisible(!isVisible);
     };
 
     if (!user) {
@@ -74,11 +74,9 @@ const User = ({ windowWidth }) => {
                 <span className="icon" style={{ marginRight: "7px" }}>
                     {windowWidth < 400 ? <FaUserCircle /> : user.username}
                 </span>
-                <span className="icon">{dropdown ? <FaChevronUp /> : <FaChevronDown />}</span>
+                <span className="icon">{isVisible ? <FaChevronUp /> : <FaChevronDown />}</span>
             </div>
-            {dropdown && (
-                <UserOptions setDropdown={setDropdown} toggleDropDown={toggleDropDown} />
-            )}
+            {isVisible && <UserOptions hideUserOptions={() => setIsVisible(false)} />}
         </div>
     );
 };

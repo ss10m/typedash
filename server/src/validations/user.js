@@ -13,7 +13,7 @@ const email = Joi.string()
 const username = Joi.string()
     .alphanum()
     .min(4)
-    .max(30)
+    .max(14)
     .required()
     .error(() => {
         return {
@@ -53,4 +53,12 @@ export const signIn = Joi.object().keys({
 
 export const usernameCheck = Joi.object().keys({
     username,
+});
+
+export const emailCheck = Joi.object().keys({
+    email,
+});
+
+export const passwordCheck = Joi.object().keys({
+    password,
 });

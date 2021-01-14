@@ -4,7 +4,7 @@ import Joi from "joi";
 import db from ".././config/db.js";
 import { SESS_NAME } from "../config/session.js";
 
-import { signIn, signUp, usernameCheck } from "../validations/user.js";
+import { signIn, signUp } from "../validations/user.js";
 
 import {
     parseError,
@@ -110,39 +110,6 @@ router.post("/guest", async (req, res) => {
 // CLAIM GUEST ACCOUNT
 router.post("/claim", async (req, res) => {});
 
-// CHECK USERNAME
-router.post("/check", async (req, res) => {
-    try {
-        const username = req.body.username;
-        await Joi.validate({ username }, usernameCheck);
-
-        const query = "SELECT * FROM users WHERE username = $1";
-        const values = [username];
-        const result = await db.query(query, values);
-        if (result.rows.length) {
-            res.send({
-                meta: {
-                    ok: false,
-                    message: "Username already exists",
-                },
-                data: {},
-            });
-        } else {
-            res.send({
-                meta: {
-                    ok: true,
-                    message: "",
-                },
-                data: { username },
-            });
-        }
-    } catch (err) {
-        console.log(err);
-        let meta = { ok: false, message: "Invalid Username" };
-        res.send({ meta, data: {} });
-    }
-});
-
 // REGISTER
 router.post("/register", async (req, res) => {
     try {
@@ -166,8 +133,8 @@ router.post("/register", async (req, res) => {
 
         const { salt, hash } = encryptPassword(password);
         const queryInsert =
-            "INSERT INTO users(username, email, salt, hash) VALUES($1, $2, $3, $4) RETURNING *";
-        const valuesInsert = [username, email, salt, hash];
+            "INSERT INTO users(username, display_name, email, salt, hash) VALUES($1, $2, $3, $4, $5) RETURNING *";
+        const valuesInsert = [username.toLowerCase(), username, email, salt, hash];
         const user = await db.query(queryInsert, valuesInsert);
 
         const sessionUser = sessionizeUser(user.rows[0]);

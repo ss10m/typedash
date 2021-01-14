@@ -1,5 +1,4 @@
 .race {
-    height: 100%;
     display: flex;
     flex-direction: column;
 
@@ -60,4 +59,95 @@
     margin-left: 20px;
     font-size: 30px;
     letter-spacing: 1px;
+}
+
+.scaleable-wrapper {
+    resize: both;
+    position: relative;
+    margin: 20px 0;
+}
+
+.very-specific-design {
+    width: 787px;
+    text-align: center;
+    position: relative;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    transform-origin: center center;
+}
+
+.keyboard {
+    border: 3px solid #000000;
+    height: 100%;
+    padding-bottom: 2px;
+    border-radius: 10px;
+    background-color: black;
+
+    span {
+        display: block;
+        margin-bottom: -6px;
+    }
+}
+
+.row {
+    margin-top: 2px;
+    overflow: hidden;
+}
+
+.key {
+    width: 50px;
+    height: 50px;
+    float: left;
+    cursor: pointer;
+    background-color: #fffff4;
+    color: #000000;
+    line-height: 48px;
+    text-align: center;
+    margin-left: 2px;
+    border-radius: 5px;
+}
+
+.key__symbols {
+    line-height: 28px;
+}
+
+.key__delete {
+    width: 100px;
+}
+
+.key__oneandhalf {
+    width: 75px;
+}
+
+.key__esc {
+    background: #ee786e;
+}
+
+.key__enter {
+    width: 112px;
+}
+
+.key__caps {
+    width: 90px;
+}
+
+.key__shift-left {
+    width: 115px;
+}
+
+.key__shift-right {
+    width: 139px;
+}
+
+.key__spacebar {
+    width: 332px;
+}
+
+.key__alt {
+    width: 65px;
+}
+
+.pressed {
+    background-color: orange;
 }

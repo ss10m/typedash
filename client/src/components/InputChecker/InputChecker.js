@@ -10,14 +10,18 @@ import { FaUser, FaAt, FaKey, FaCheckCircle, FaWindowClose } from "react-icons/f
 // Components
 import Spinner from "../Spinner/Spinner";
 
+// Constants
+import { TEST_TYPE, FIELD_TYPE } from "helpers/constants";
+
 // SCSS
 import "./InputChecker.scss";
 
-const InputChecker = ({ type, placeholder, initialValue, setIsValid, invalid, margin }) => {
+const InputChecker = ({ type, placeholder, initial, setIsValid, test, invalid, margin }) => {
     const { input, setInput, containsError, setContainsError, isFetching } = useInputValidator(
         type,
-        initialValue,
-        setIsValid
+        initial,
+        setIsValid,
+        test
     );
 
     const handleInputChange = (event) => {
@@ -34,7 +38,7 @@ const InputChecker = ({ type, placeholder, initialValue, setIsValid, invalid, ma
             <Icon type={type} showError={showError} />
             <input
                 className={classNames({ error: showError })}
-                type={type === "password" ? "password" : "text"}
+                type={type === FIELD_TYPE.PASSWORD ? "password" : "text"}
                 placeholder={placeholder}
                 value={input}
                 onChange={handleInputChange}
@@ -47,6 +51,7 @@ const InputChecker = ({ type, placeholder, initialValue, setIsValid, invalid, ma
 };
 
 InputChecker.defaultProps = {
+    test: TEST_TYPE.VALID,
     invalid: false,
     margin: true,
 };
@@ -54,13 +59,13 @@ InputChecker.defaultProps = {
 const Icon = ({ type, showError }) => {
     let icon;
     switch (type) {
-        case "username":
+        case FIELD_TYPE.USERNAME:
             icon = <FaUser />;
             break;
-        case "email":
+        case FIELD_TYPE.EMAIL:
             icon = <FaAt />;
             break;
-        case "password":
+        case FIELD_TYPE.PASSWORD:
             icon = <FaKey />;
             break;
         default:

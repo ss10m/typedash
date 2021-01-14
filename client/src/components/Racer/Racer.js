@@ -2,32 +2,28 @@
 import React, { useState, useEffect, useRef } from "react";
 import classNames from "classnames";
 
+// Redux
+import { useSelector } from "react-redux";
+
 // Helpers
 import { longestCommonSubstring } from "helpers";
+import keyboard from "./keyboard";
 
 // SCSS
 import "./Racer.scss";
 
-class Racer extends React.Component {
-    constructor(props) {
-        super(props);
+const Racer = () => {
+    const [input, setInput] = useState("");
+    const [quote, setQuote] = useState([]);
+    const [quoteLength, setQuoteLength] = useState(0);
+    const [wordIndex, setWordIndex] = useState(0);
+    const [correctLength, setCorrectLength] = useState(0);
+    const [typoLength, setTypoLength] = useState(0);
+    const [isRunning, setIsRunning] = useState(false);
 
-        this.state = {
-            input: "",
-            quote: [],
-            quoteLength: 0,
-            author: "",
-            title: "",
-            wordIndex: 0,
-            correctLength: 0,
-            typoLength: 0,
-            isRunning: false,
-        };
+    const inputRef = useRef(null);
 
-        this.inputRef = React.createRef();
-    }
-
-    componentDidMount() {
+    useEffect(() => {
         const b =
             `"I wish it need not have happened in my time," said Frodo. ` +
             `"So do I," said Gandalf, "and so do all who live to see ` +
@@ -37,87 +33,67 @@ class Racer extends React.Component {
         const words = b.split(" ").map((word) => word + " ");
         const lastIndex = words.length - 1;
         words[lastIndex] = words[lastIndex].trim();
-        this.setState(
-            {
-                quote: words,
-                quoteLength: words.length,
-                author: "J.R.R. Tolkien",
-                title: "The Fellowship of the Ring",
-            },
-            () => {
-                this.inputRef.current.focus();
-            }
-        );
 
-        /*
-        setTimeout(() => {
-            this.setState({ isRunning: true });
-        }, 2000);
-        */
-    }
+        setQuote(words);
+        setQuoteLength(words.length);
 
-    handleChange = (event) => {
-        if (!this.state.isRunning) this.setState({ isRunning: true });
+        //setTimeout(() => inputRef.current.focus(), 2000);
+    }, []);
+
+    const handleChange = (event) => {
+        if (!isRunning) setIsRunning(true);
         const input = event.target.value;
-        const currentWord = this.state.quote[this.state.wordIndex];
+        const currentWord = quote[wordIndex];
 
         if (!currentWord) return;
 
-        let updatedState;
         if (currentWord === input) {
-            return this.nextWord();
+            return nextWord();
         } else if (currentWord.startsWith(input)) {
-            updatedState = {
-                input,
-                correctLength: input.length,
-                typoLength: 0,
-            };
+            setInput(input);
+            setCorrectLength(input.length);
+            setTypoLength(0);
         } else if (currentWord === input.slice(0, currentWord.length)) {
-            return this.nextWord();
+            return nextWord();
         } else {
             const strLen = longestCommonSubstring(currentWord, input);
-            updatedState = {
-                input,
-                correctLength: strLen,
-                typoLength: input.length - strLen,
-            };
+
+            setInput(input);
+            setCorrectLength(strLen);
+            setTypoLength(input.length - strLen);
         }
-
-        this.setState(updatedState);
     };
 
-    nextWord = () => {
-        console.log(this.state.wordIndex + 1, this.state.quoteLength);
-        this.setState((prevState) => ({
-            input: "",
-            wordIndex: prevState.wordIndex + 1,
-            correctLength: 0,
-            typoLength: 0,
-            isRunning: prevState.wordIndex + 1 !== prevState.quoteLength,
-        }));
+    const nextWord = () => {
+        console.log(wordIndex + 1, quoteLength);
+
+        setInput("");
+        setWordIndex(wordIndex + 1);
+        setCorrectLength(0);
+        setTypoLength(0);
+        setIsRunning(wordIndex + 1 !== quoteLength);
     };
 
-    render() {
-        return (
-            <div className="race">
-                <Timer isRunning={this.state.isRunning} />
-                <Quote
-                    quote={this.state.quote}
-                    wordIndex={this.state.wordIndex}
-                    correctLength={this.state.correctLength}
-                    typoLength={this.state.typoLength}
-                />
-                <Input
-                    input={this.state.input}
-                    ref={this.inputRef}
-                    handleChange={this.handleChange}
-                    containsTypo={this.state.typoLength > 0}
-                    isDisabled={this.state.wordIndex >= this.state.quoteLength}
-                />
-            </div>
-        );
-    }
-}
+    return (
+        <div className="race">
+            <Timer isRunning={isRunning} />
+            <Quote
+                quote={quote}
+                wordIndex={wordIndex}
+                correctLength={correctLength}
+                typoLength={typoLength}
+            />
+            <Input
+                input={input}
+                ref={inputRef}
+                handleChange={handleChange}
+                containsTypo={typoLength > 0}
+                isDisabled={wordIndex >= quoteLength}
+            />
+            <Keyboard />
+        </div>
+    );
+};
 
 const Input = React.forwardRef((props, ref) => (
     <input
@@ -191,13 +167,80 @@ const Letter = ({ letter, letterIndex, correctLength, typoLength }) => {
     );
 };
 
+const Keyboard = () => {
+    const { width } = useSelector((state) => state.windowSize);
+    const [pressed, setPressed] = useState({});
+
+    const keyDownHandler = (event) => {
+        if (pressed[event.code] && pressed[event.code].pressed) return;
+        setPressed((prevState) => {
+            return { ...prevState, [event.code]: { pressed: true } };
+        });
+
+        setTimeout(
+            () =>
+                setPressed((prevState) => {
+                    return { ...prevState, [event.code]: { pressed: false } };
+                }),
+            200
+        );
+    };
+
+    useEventListener("keydown", keyDownHandler);
+
+    let newWidth = Math.min(width, 787) - 40;
+    newWidth = Math.max(newWidth, 280);
+    const scale = newWidth / 787;
+    const newHeight = 265 * scale;
+
+    return (
+        <div
+            className="scaleable-wrapper"
+            style={{
+                height: newHeight,
+            }}
+        >
+            <div
+                className="very-specific-design"
+                style={{
+                    transform: `translate(-50%, -50%) scale(${scale})`,
+                }}
+            >
+                <div className="keyboard">
+                    {keyboard.map((row) => (
+                        <div className="row">
+                            {row.map((key) => (
+                                <div
+                                    className={classNames("key", {
+                                        [key.class]: key.class,
+                                        key__symbols: key.secondary,
+                                        pressed:
+                                            pressed[key.code] && pressed[key.code].pressed,
+                                    })}
+                                >
+                                    {key.secondary && <span>{key.secondary}</span>}
+                                    {key.display}
+                                </div>
+                            ))}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 export default Racer;
 
 function Timer(props) {
     const [isRunning, setIsRunning] = useState(props.isRunning);
     const [prevTime, setPrevTime] = useState(null);
     const [timeInMilliseconds, setTimeInMilliseconds] = useState(0);
-    const [time, setTime] = useState({ milliseconds: "000", minutes: "00", seconds: "00" });
+    const [time, setTime] = useState({
+        milliseconds: "000",
+        minutes: "00",
+        seconds: "00",
+    });
 
     useEffect(() => {
         setIsRunning(props.isRunning);
@@ -258,4 +301,24 @@ function useInterval(callback, delay) {
             return () => clearInterval(id);
         }
     }, [delay]);
+}
+
+function useEventListener(eventName, handler, element = window) {
+    const savedHandler = useRef();
+
+    useEffect(() => {
+        savedHandler.current = handler;
+    }, [handler]);
+
+    useEffect(() => {
+        const isSupported = element && element.addEventListener;
+        if (!isSupported) return;
+
+        const eventListener = (event) => savedHandler.current(event);
+        element.addEventListener(eventName, eventListener);
+
+        return () => {
+            element.removeEventListener(eventName, eventListener);
+        };
+    }, [eventName, element]);
 }

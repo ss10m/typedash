@@ -4,12 +4,15 @@ import classNames from "classnames";
 
 // Redux
 import { useDispatch } from "react-redux";
-import { login } from "store/actions";
+import { login, register } from "store/actions";
 
 // Components
-import Input from "./Input/Input";
-import InputChecker from "./InputChecker/InputChecker";
+import Input from "../Input/Input";
+import InputChecker from "../InputChecker/InputChecker";
 import Spinner from "../Spinner/Spinner";
+
+// Constants
+import { TEST_TYPE, FIELD_TYPE } from "helpers/constants";
 
 // SCSS
 import "./Landing.scss";
@@ -73,10 +76,12 @@ const GuestLogin = ({ setView, username, setUsername }) => {
             <div className="guest-login">
                 <div className="title">Create a temporary account</div>
                 <InputChecker
-                    type="username"
+                    test={TEST_TYPE.AVAILABLE}
+                    type={FIELD_TYPE.USERNAME}
                     placeholder="Username"
-                    initialValue={username}
-                    setCurrentInput={setUsername}
+                    initial={username}
+                    setIsValid={setUsername}
+                    margin={false}
                 />
                 <button
                     className={classNames("button", {
@@ -104,22 +109,22 @@ const GuestLogin = ({ setView, username, setUsername }) => {
 };
 
 const Login = ({ setView }) => {
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
+    const [username, setUsername] = useState({ value: "", valid: false });
+    const [password, setPassword] = useState({ value: "", valid: false });
     const isDisabled = [username, password].some((input) => !input);
 
     return (
         <>
             <div className="landing-width">
-                <Input
-                    id="username"
+                <InputChecker
+                    test={TEST_TYPE.EXISTS}
+                    type={FIELD_TYPE.USERNAME}
                     placeholder="Username"
-                    input={username}
-                    setInput={setUsername}
-                    autofocus
+                    initial={username}
+                    setIsValid={setUsername}
                 />
                 <Input
-                    id="password"
+                    type="password"
                     placeholder="Password"
                     input={password}
                     setInput={setPassword}
@@ -131,56 +136,71 @@ const Login = ({ setView }) => {
 };
 
 const Register = ({ setView }) => {
+    const dispatch = useDispatch();
     const [username, setUsername] = useState({ value: "", valid: false });
     const [email, setEmail] = useState({ value: "", valid: false });
     const [password, setPassword] = useState({ value: "", valid: false });
     const [confirmPassword, setConfirmPassword] = useState({ value: "", valid: false });
-    const isDisabled = [username, email, password, confirmPassword].some(
-        (input) => !input.valid
-    );
+    const [mismatchedPasswords, setMismatchedPasswords] = useState(false);
+    const isDisabled =
+        [username, email, password, confirmPassword].some((input) => !input.valid) ||
+        mismatchedPasswords;
+
+    useEffect(() => {
+        if (password.value && password.value !== confirmPassword.value) {
+            setMismatchedPasswords(true);
+        } else {
+            setMismatchedPasswords(false);
+        }
+    }, [password, confirmPassword]);
 
     return (
         <>
             <div className="landing-width">
                 <InputChecker
-                    type="username"
+                    test={TEST_TYPE.AVAILABLE}
+                    type={FIELD_TYPE.USERNAME}
                     placeholder="Username"
-                    initialValue={username}
-                    setCurrentInput={setUsername}
-                    margin
+                    initial={username}
+                    setIsValid={setUsername}
                 />
                 <InputChecker
-                    type="email"
+                    type={FIELD_TYPE.EMAIL}
                     placeholder="Email"
-                    initialValue={email}
-                    setCurrentInput={setEmail}
-                    margin
+                    initial={email}
+                    setIsValid={setEmail}
                 />
                 <InputChecker
-                    type="password"
+                    type={FIELD_TYPE.PASSWORD}
                     placeholder="Password"
-                    initialValue={password}
-                    setCurrentInput={setPassword}
-                    margin
+                    initial={password}
+                    setIsValid={setPassword}
                 />
                 <InputChecker
-                    type="password"
+                    type={FIELD_TYPE.PASSWORD}
                     placeholder="Confirm Password"
-                    initialValue={confirmPassword}
-                    setCurrentInput={setConfirmPassword}
-                    confirm={password.value}
-                    margin
+                    initial={confirmPassword}
+                    setIsValid={setConfirmPassword}
+                    invalid={mismatchedPasswords}
                 />
             </div>
-            <NavButtons name="REGISTER" setView={setView} isDisabled={isDisabled} />
+            <NavButtons
+                name="REGISTER"
+                setView={setView}
+                isDisabled={isDisabled}
+                onClick={() => dispatch(register())}
+            />
         </>
     );
 };
 
-const NavButtons = ({ name, setView, isDisabled }) => {
+const NavButtons = ({ name, setView, isDisabled, onClick }) => {
     return (
         <div className="landing-buttons">
-            <button className={classNames("button", { disabled: isDisabled })}>
+            <button
+                className={classNames("button", { disabled: isDisabled })}
+                onClick={onClick}
+            >
                 <span>{name}</span>
             </button>
             <button className="button cancel" onClick={() => setView("guest")}>

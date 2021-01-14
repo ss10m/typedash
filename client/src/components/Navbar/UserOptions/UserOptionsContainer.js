@@ -3,7 +3,7 @@ import { useEffect, useRef, useCallback } from "react";
 
 // Redux
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "store/actions";
+import { logout, showClaimAccount } from "store/actions";
 
 // Components
 import UserOptions from "./UserOptions";
@@ -13,6 +13,7 @@ import UserOptions from "./UserOptions";
 
 const UserOptionsContainer = ({ toggleDropDown, setDropdown }) => {
     const dispatch = useDispatch();
+    const username = useSelector((state) => state.session.user.username);
     const dropdownRef = useRef(null);
 
     const handler = useCallback(
@@ -30,26 +31,7 @@ const UserOptionsContainer = ({ toggleDropDown, setDropdown }) => {
 
     useEventListener("click", handler);
 
-    const closeDropdown = () => {
-        setDropdown(false);
-    };
-
-    const logout2 = () => {
-        setDropdown(false);
-        dispatch(logout());
-    };
-
-    const username = useSelector((state) => state.session.user.username);
-
-    return (
-        <UserOptions
-            ref={dropdownRef}
-            username={username}
-            loggedIn={325}
-            closeDropdown={closeDropdown}
-            logout={logout2}
-        />
-    );
+    return <UserOptions ref={dropdownRef} username={username} loggedIn={325} />;
 };
 
 function useEventListener(eventName, handler, element = window) {

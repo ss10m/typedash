@@ -1,7 +1,7 @@
 const socket = (io) => {
     io.on("connection", (socket) => {
         console.log("new connection");
-        console.log(socket.handshake.session);
+        //console.log(socket.handshake.session);
 
         socket.on("hello", () => {
             console.log("SOCKET HELLO");

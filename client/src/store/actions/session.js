@@ -31,7 +31,7 @@ const login = (userInfo) => async (dispatch) => {
         method: "POST",
         body: JSON.stringify({
             username: "czelo",
-            password: "password123",
+            password: "password",
         }),
         headers: {
             "Content-Type": "application/json",
@@ -71,10 +71,10 @@ const register = (userInfo) => async (dispatch) => {
     fetch("/api/session/register", {
         method: "POST",
         body: JSON.stringify({
-            username: "czelo2",
+            username: "CZELO",
             email: "czelo@email.com",
-            password: "password123",
-            confirmPassword: "password123",
+            password: "password",
+            confirmPassword: "password",
         }),
         headers: {
             "Content-Type": "application/json",

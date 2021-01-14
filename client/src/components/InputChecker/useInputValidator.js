@@ -4,9 +4,9 @@ import { useState, useEffect, useRef } from "react";
 // Helpers
 import { handleResponse } from "helpers";
 
-const useInputValidator = (type, initialValue, setIsValid) => {
-    const [input, setInput] = useState(initialValue.value);
-    const [containsError, setContainsError] = useState(!initialValue.valid);
+const useInputValidator = (type, initial, setIsValid, test) => {
+    const [input, setInput] = useState(initial.value);
+    const [containsError, setContainsError] = useState(!initial.valid);
     const [isFetching, setIsFetching] = useState(false);
     const didMountRef = useRef(false);
     const inputRef = useRef(input);
@@ -20,10 +20,11 @@ const useInputValidator = (type, initialValue, setIsValid) => {
         setIsValid((input) => ({ ...input, valid: false }));
 
         const handler = setTimeout(() => {
-            fetch("/api/session/check", {
+            fetch("/api/validate", {
                 method: "POST",
                 body: JSON.stringify({
                     type,
+                    test,
                     value: input,
                 }),
                 headers: {
@@ -49,7 +50,7 @@ const useInputValidator = (type, initialValue, setIsValid) => {
             clearTimeout(handler);
             setIsFetching(false);
         };
-    }, [type, input, setIsValid]);
+    }, [type, input, setIsValid, test]);
 
     return { input, setInput, containsError, setContainsError, isFetching };
 };

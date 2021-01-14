@@ -1,7 +1,6 @@
 // Libraries & utils
 import React from "react";
 import classNames from "classnames";
-import { useTable, useSortBy } from "react-table";
 
 // SCSS
 import "./Rooms.scss";
@@ -9,20 +8,11 @@ import "./Rooms.scss";
 // Icons
 import { IconContext } from "react-icons";
 import { FiSearch, FiRefreshCw } from "react-icons/fi";
-import {
-    FaSort,
-    FaSortUp,
-    FaSortDown,
-    FaPlay,
-    FaPause,
-    FaStop,
-    FaUser,
-    FaTimes,
-} from "react-icons/fa";
+import { FaPlay, FaPause, FaStop, FaUser, FaTimes } from "react-icons/fa";
 
 import keyboard from "./kb.jpg";
 
-export default (props) => {
+const Rooms = (props) => {
     const {
         windowSize: { height },
     } = props;
@@ -40,7 +30,7 @@ function Lobby(props) {
     return (
         <div className="lobby">
             <div className="imag">
-                <img className="kb" src={keyboard} />
+                <img className="kb" src={keyboard} alt="keyboard" />
             </div>
             <Navigation {...props} />
             <CustomTable {...props} />
@@ -153,93 +143,8 @@ const RoomIndicator = ({ status, isEmpty }) => {
 };
 
 function Table({ columns, data }) {
-    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable(
-        {
-            columns,
-            data,
-        },
-        useSortBy
-    );
-
-    return (
-        <>
-            <table {...getTableProps()}>
-                <thead>
-                    {headerGroups.map((headerGroup) => (
-                        <tr {...headerGroup.getHeaderGroupProps()}>
-                            {headerGroup.headers.map((column) => {
-                                if (column.id === "join") {
-                                    return (
-                                        <th
-                                            {...column.getHeaderProps()}
-                                            style={{ width: "35%" }}
-                                        ></th>
-                                    );
-                                }
-
-                                if (column.id === "indicator") {
-                                    return (
-                                        <th {...column.getHeaderProps()}>
-                                            {column.render("Header")}
-                                        </th>
-                                    );
-                                }
-
-                                return (
-                                    <th
-                                        {...column.getHeaderProps(
-                                            column.getSortByToggleProps()
-                                        )}
-                                    >
-                                        <div className="header-name">
-                                            {column.render("Header")}
-                                            {column.isSorted ? (
-                                                <span className="sorted">
-                                                    {column.isSortedDesc ? (
-                                                        <FaSortDown />
-                                                    ) : (
-                                                        <FaSortUp />
-                                                    )}
-                                                </span>
-                                            ) : (
-                                                <span className="unsorted">
-                                                    <FaSort />
-                                                </span>
-                                            )}
-                                        </div>
-                                    </th>
-                                );
-                            })}
-                        </tr>
-                    ))}
-                </thead>
-                <tbody {...getTableBodyProps()}>
-                    {rows.map((row, i) => {
-                        prepareRow(row);
-                        return (
-                            <tr {...row.getRowProps()}>
-                                {row.cells.map((cell) => {
-                                    if (cell.column.id === "join") {
-                                        return (
-                                            <td {...cell.getCellProps()} className="btn">
-                                                <button onClick={row.original.join}>
-                                                    JOIN
-                                                </button>
-                                            </td>
-                                        );
-                                    } else {
-                                        return (
-                                            <td {...cell.getCellProps()}>
-                                                {cell.render("Cell")}
-                                            </td>
-                                        );
-                                    }
-                                })}
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
-        </>
-    );
+    // Up for(Online), name, number of users, join btn
+    return null;
 }
+
+export default Rooms;
