@@ -1,19 +1,9 @@
 import Joi from "joi";
 import db from ".././config/db.js";
 
+import { TEST_TYPE, FIELD_TYPE } from "../util/constants.js";
+
 import { usernameCheck, emailCheck, passwordCheck } from "../validations/user.js";
-
-const TEST_TYPE = {
-    VALID: "VALID",
-    AVAILABLE: "AVAILABLE",
-    EXISTS: "EXISTS",
-};
-
-const FIELD_TYPE = {
-    USERNAME: "USERNAME",
-    EMAIL: "EMAIL",
-    PASSWORD: "PASSWORD",
-};
 
 const validate = (body, session, cb) => {
     const { type, test, value } = body;
@@ -62,7 +52,6 @@ const usernameAvailable = async (value, session, cb) => {
 
         await Joi.validate({ username: value }, usernameCheck);
 
-        // case sensitive
         if (user && user.username === username) {
             cb({
                 meta: {

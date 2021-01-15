@@ -72,7 +72,7 @@ const User = ({ windowWidth }) => {
         <div id="userDropdown">
             <div className="item login" onClick={(e) => toggleDropDown(e)}>
                 <span className="icon" style={{ marginRight: "7px" }}>
-                    {windowWidth < 400 ? <FaUserCircle /> : user.username}
+                    {windowWidth < 400 ? <FaUserCircle /> : user.displayName}
                 </span>
                 <span className="icon">{isVisible ? <FaChevronUp /> : <FaChevronDown />}</span>
             </div>

@@ -1,5 +1,5 @@
 // Libraries & utils
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import classNames from "classnames";
 
 // Redux
@@ -69,7 +69,7 @@ const View = () => {
 };
 
 const GuestLogin = ({ setView, username, setUsername }) => {
-    const dispatch = useDispatch();
+    //const dispatch = useDispatch();
 
     return (
         <>
@@ -87,7 +87,7 @@ const GuestLogin = ({ setView, username, setUsername }) => {
                     className={classNames("button", {
                         disabled: !username.valid,
                     })}
-                    onClick={() => dispatch(login())}
+                    onClick={() => console.log("guest login")}
                 >
                     <span>JOIN</span>
                 </button>
@@ -109,9 +109,34 @@ const GuestLogin = ({ setView, username, setUsername }) => {
 };
 
 const Login = ({ setView }) => {
+    const dispatch = useDispatch();
     const [username, setUsername] = useState({ value: "", valid: false });
     const [password, setPassword] = useState({ value: "", valid: false });
-    const isDisabled = [username, password].some((input) => !input);
+    const [credentials, setCredentials] = useState({ valid: true, msg: "" });
+    const [isFetching, setIsFetching] = useState(false);
+    const invalidField = [username, password].some((input) => !input.valid);
+    const isDisabled = invalidField || !credentials.valid || isFetching;
+
+    useEventListener("keypress", (event) => {
+        if (event.code !== "Enter" || isDisabled) return;
+        onSubmit();
+    });
+
+    const onSubmit = () => {
+        setIsFetching(true);
+        const onFailure = (msg) => {
+            setCredentials({
+                valid: false,
+                msg,
+            });
+            setIsFetching(false);
+        };
+        const loginInfo = {
+            username: username.value,
+            password: password.value,
+        };
+        dispatch(login(loginInfo, onFailure));
+    };
 
     return (
         <>
@@ -122,15 +147,24 @@ const Login = ({ setView }) => {
                     placeholder="Username"
                     initial={username}
                     setIsValid={setUsername}
+                    autofocus
                 />
                 <Input
-                    type="password"
+                    type={FIELD_TYPE.PASSWORD}
                     placeholder="Password"
                     input={password}
                     setInput={setPassword}
+                    credentials={credentials}
+                    setCredentials={setCredentials}
                 />
+                <div className="msg">{credentials.msg}</div>
             </div>
-            <NavButtons name="LOGIN" setView={setView} isDisabled={isDisabled} />
+            <NavButtons
+                name="LOGIN"
+                setView={setView}
+                isDisabled={isDisabled}
+                onClick={onSubmit}
+            />
         </>
     );
 };
@@ -142,9 +176,19 @@ const Register = ({ setView }) => {
     const [password, setPassword] = useState({ value: "", valid: false });
     const [confirmPassword, setConfirmPassword] = useState({ value: "", valid: false });
     const [mismatchedPasswords, setMismatchedPasswords] = useState(false);
-    const isDisabled =
-        [username, email, password, confirmPassword].some((input) => !input.valid) ||
-        mismatchedPasswords;
+    const [credentials, setCredentials] = useState({ valid: true, msg: "" });
+    const [isFetching, setIsFetching] = useState(false);
+    const invalidField = [username, email, password, confirmPassword].some(
+        (input) => !input.valid
+    );
+    const isDisabled = invalidField || mismatchedPasswords || !credentials.valid || isFetching;
+
+    useEffect(() => {
+        setCredentials({
+            valid: true,
+            msg: "",
+        });
+    }, [username, email, password, confirmPassword]);
 
     useEffect(() => {
         if (password.value && password.value !== confirmPassword.value) {
@@ -153,6 +197,29 @@ const Register = ({ setView }) => {
             setMismatchedPasswords(false);
         }
     }, [password, confirmPassword]);
+
+    useEventListener("keypress", (event) => {
+        if (event.code !== "Enter" || isDisabled) return;
+        onSubmit();
+    });
+
+    const onSubmit = () => {
+        setIsFetching(true);
+        const onFailure = (msg) => {
+            setCredentials({
+                valid: false,
+                msg,
+            });
+            setIsFetching(false);
+        };
+        const loginInfo = {
+            username: username.value,
+            email: email.value,
+            password: password.value,
+            confirmPassword: confirmPassword.value,
+        };
+        dispatch(register(loginInfo, onFailure));
+    };
 
     return (
         <>
@@ -163,6 +230,7 @@ const Register = ({ setView }) => {
                     placeholder="Username"
                     initial={username}
                     setIsValid={setUsername}
+                    autofocus
                 />
                 <InputChecker
                     type={FIELD_TYPE.EMAIL}
@@ -183,12 +251,13 @@ const Register = ({ setView }) => {
                     setIsValid={setConfirmPassword}
                     invalid={mismatchedPasswords}
                 />
+                <div className="msg">{credentials.msg}</div>
             </div>
             <NavButtons
                 name="REGISTER"
                 setView={setView}
                 isDisabled={isDisabled}
-                onClick={() => dispatch(register())}
+                onClick={onSubmit}
             />
         </>
     );
@@ -208,6 +277,26 @@ const NavButtons = ({ name, setView, isDisabled, onClick }) => {
             </button>
         </div>
     );
+};
+
+const useEventListener = (eventName, handler, element = window) => {
+    const savedHandler = useRef();
+
+    useEffect(() => {
+        savedHandler.current = handler;
+    }, [handler]);
+
+    useEffect(() => {
+        const isSupported = element && element.addEventListener;
+        if (!isSupported) return;
+
+        const eventListener = (event) => savedHandler.current(event);
+        element.addEventListener(eventName, eventListener);
+
+        return () => {
+            element.removeEventListener(eventName, eventListener);
+        };
+    }, [eventName, element]);
 };
 
 export default Landing;

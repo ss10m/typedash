@@ -52,22 +52,11 @@
         border-left: none;
         border-radius: 0 7px 7px 0;
         font-size: 20px;
+        color: red;
         background-color: #374858;
 
         &.error {
             border-color: red;
-        }
-
-        span {
-            display: flex;
-            padding: 3px;
-            border-radius: 7px;
-            font-size: 18px;
-
-            &:hover {
-                background-color: #22303e;
-                cursor: pointer;
-            }
         }
     }
 }

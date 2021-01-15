@@ -26,13 +26,10 @@ const clearSession = () => ({
     type: "CLEAR_SESSION",
 });
 
-const login = (userInfo) => async (dispatch) => {
+const login = (loginInfo, onFailure) => async (dispatch) => {
     fetch("/api/session", {
         method: "POST",
-        body: JSON.stringify({
-            username: "czelo",
-            password: "password",
-        }),
+        body: JSON.stringify(loginInfo),
         headers: {
             "Content-Type": "application/json",
         },
@@ -44,8 +41,7 @@ const login = (userInfo) => async (dispatch) => {
             socketIO.connect();
         })
         .catch((error) => {
-            console.log(error);
-            if (error.action) return; //dispatch(showLoginError(meta.message));
+            onFailure(error.message);
         });
 };
 
@@ -67,15 +63,10 @@ const loginAsGuest = () => async (dispatch) => {
 
 const claimAccount = () => async (dispatch) => {};
 
-const register = (userInfo) => async (dispatch) => {
+const register = (userInfo, onFailure) => async (dispatch) => {
     fetch("/api/session/register", {
         method: "POST",
-        body: JSON.stringify({
-            username: "CZELO",
-            email: "czelo@email.com",
-            password: "password",
-            confirmPassword: "password",
-        }),
+        body: JSON.stringify(userInfo),
         headers: {
             "Content-Type": "application/json",
         },
@@ -87,8 +78,7 @@ const register = (userInfo) => async (dispatch) => {
             socketIO.connect();
         })
         .catch((error) => {
-            console.log(error);
-            if (error.action) return; //dispatch(showLoginError(meta.message));
+            onFailure(error.message);
         });
 };
 

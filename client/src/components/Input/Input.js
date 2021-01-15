@@ -1,47 +1,64 @@
+// Libraries & utils
+import classNames from "classnames";
+
 // Icons
-import { FaUser, FaKey, FaTimes } from "react-icons/fa";
+import { FaUser, FaKey, FaWindowClose } from "react-icons/fa";
+
+// Constants
+import { FIELD_TYPE } from "helpers/constants";
 
 // SCSS
 import "./Input.scss";
 
-const Input = ({ type, placeholder, input, setInput, autofocus }) => {
+const Input = ({ type, placeholder, input, setInput, credentials, setCredentials }) => {
+    const handleInputChange = (event) => {
+        const value = event.target.value;
+        setInput({ value, valid: value.length > 0 });
+        setCredentials({ valid: true, msg: "" });
+    };
+
     return (
         <div className="basic-input">
-            <Icon type={type} />
+            <Icon type={type} credentials={credentials} />
             <input
-                //className="error"
-                type="text"
+                className={classNames({ error: !credentials.valid })}
+                type={type === FIELD_TYPE.PASSWORD ? "password" : "text"}
                 value={input.value}
-                onChange={(e) => setInput({ value: e.target.value, valid: true })}
+                onChange={handleInputChange}
                 spellCheck={false}
                 placeholder={placeholder}
                 autoComplete="off"
-                autoFocus={autofocus}
             />
-            <div className="status">
-                {input.value && (
-                    <span onClick={() => setInput({ value: "", valid: false })}>
-                        <FaTimes />
-                    </span>
-                )}
-            </div>
+            <Status credentials={credentials} />
         </div>
     );
 };
 
-const Icon = ({ type }) => {
+const Icon = ({ type, credentials }) => {
     let icon;
     switch (type) {
-        case "username":
+        case FIELD_TYPE.USERNAME:
             icon = <FaUser />;
             break;
-        case "password":
+        case FIELD_TYPE.PASSWORD:
             icon = <FaKey />;
             break;
         default:
             break;
     }
-    return <div className="icon">{icon}</div>;
+    return <div className={classNames("icon", { error: !credentials.valid })}>{icon}</div>;
+};
+
+const Status = ({ credentials }) => {
+    return (
+        <div
+            className={classNames("status", {
+                error: !credentials.valid,
+            })}
+        >
+            {!credentials.valid && <FaWindowClose />}
+        </div>
+    );
 };
 
 export default Input;

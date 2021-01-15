@@ -29,14 +29,13 @@ router.post("", async (req, res) => {
         const { username, password } = req.body;
         await Joi.validate({ username, password }, signIn);
         const query = "SELECT * FROM users WHERE username = $1";
-        const values = [username];
+        const values = [username.toLowerCase()];
         const result = await db.query(query, values);
         if (!result.rows.length) {
             res.send({
                 meta: {
                     ok: false,
                     message: "Account does not exist!",
-                    action: "LOGIN_ERROR",
                 },
                 data: {},
             });
@@ -59,15 +58,13 @@ router.post("", async (req, res) => {
             res.send({
                 meta: {
                     ok: false,
-                    message: "Invalid login credentials",
-                    action: "LOGIN_ERROR",
+                    message: "Invalid password",
                 },
                 data: {},
             });
         }
     } catch (err) {
         let meta = { ok: false, message: parseError(err) };
-        if (err.isJoi) meta.action = "LOGIN_ERROR";
         res.send({ meta, data: {} });
     }
 });
@@ -117,14 +114,13 @@ router.post("/register", async (req, res) => {
         await Joi.validate({ username, email, password, confirmPassword }, signUp);
 
         const query = "SELECT * FROM users WHERE username = $1";
-        const values = [username];
+        const values = [username.toLowerCase()];
         const result = await db.query(query, values);
         if (result.rows.length) {
             res.send({
                 meta: {
                     ok: false,
                     message: "Username already exists",
-                    action: "REG_ERROR",
                 },
                 data: {},
             });
@@ -147,9 +143,7 @@ router.post("/register", async (req, res) => {
             data: { user: sessionUser },
         });
     } catch (err) {
-        console.log(err);
         let meta = { ok: false, message: parseError(err) };
-        if (err.isJoi) meta.action = "REG_ERROR";
         res.send({ meta, data: {} });
     }
 });

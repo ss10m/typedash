@@ -16,7 +16,16 @@ import { TEST_TYPE, FIELD_TYPE } from "helpers/constants";
 // SCSS
 import "./InputChecker.scss";
 
-const InputChecker = ({ type, placeholder, initial, setIsValid, test, invalid, margin }) => {
+const InputChecker = ({
+    type,
+    placeholder,
+    initial,
+    setIsValid,
+    test,
+    invalid,
+    margin,
+    autofocus,
+}) => {
     const { input, setInput, containsError, setContainsError, isFetching } = useInputValidator(
         type,
         initial,
@@ -44,6 +53,7 @@ const InputChecker = ({ type, placeholder, initial, setIsValid, test, invalid, m
                 onChange={handleInputChange}
                 spellCheck={false}
                 autoComplete="off"
+                autoFocus={autofocus}
             />
             <Status inputLength={input.length} showError={showError} isFetching={isFetching} />
         </div>
@@ -54,6 +64,7 @@ InputChecker.defaultProps = {
     test: TEST_TYPE.VALID,
     invalid: false,
     margin: true,
+    autofocus: false,
 };
 
 const Icon = ({ type, showError }) => {
