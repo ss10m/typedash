@@ -1,3 +1,9 @@
+const ACCOUNT_TYPE = {
+    ADMIN: 1,
+    NORMAL: 2,
+    GUEST: 3,
+};
+
 const TEST_TYPE = {
     VALID: "VALID",
     AVAILABLE: "AVAILABLE",
@@ -10,4 +16,4 @@ const FIELD_TYPE = {
     PASSWORD: "PASSWORD",
 };
 
-export { TEST_TYPE, FIELD_TYPE };
+export { ACCOUNT_TYPE, TEST_TYPE, FIELD_TYPE };

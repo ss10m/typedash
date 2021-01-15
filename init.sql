@@ -9,8 +9,19 @@ ALTER TABLE "session" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFE
 
 CREATE INDEX "IDX_session_expire" ON "session" ("expire");
 
+CREATE TABLE "account_type" (
+    "id" INTEGER PRIMARY KEY,
+    "type" VARCHAR(50) NOT NULL
+);
+
+INSERT INTO "account_type" ("id", "type") VALUES
+    (1, 'admin'),
+    (2, 'normal'),
+    (3, 'guest');
+
 CREATE TABLE "users" (
     "id" SERIAL PRIMARY KEY,
+    "account_type" INTEGER REFERENCES "account_type"("id") NOT NULL,
     "username" VARCHAR(30) UNIQUE NOT NULL,
     "display_name" VARCHAR(30) UNIQUE NOT NULL,
     "email" VARCHAR(50) NOT NULL,
@@ -18,3 +29,5 @@ CREATE TABLE "users" (
     "hash" TEXT NOT NULL,
     "created_at" TIMESTAMP DEFAULT NOW()
 );
+
+

@@ -6,9 +6,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout, showClaimAccount } from "store/actions";
 
 // Icons
-import { FaUserCircle, FaChartBar, FaRegCopy, FaSignOutAlt } from "react-icons/fa";
+import {
+    FaUserCircle,
+    FaChartBar,
+    FaRegCopy,
+    FaUnlockAlt,
+    FaRegUser,
+    FaSignOutAlt,
+} from "react-icons/fa";
 
 import withClickWatcher from "../../Modal/Modal";
+
+import { ACCOUNT_TYPE } from "helpers/constants";
 
 // SCSS
 import "./UserOptions.scss";
@@ -16,7 +25,7 @@ import "./UserOptions.scss";
 const UserOptions = withClickWatcher(
     forwardRef((props, ref) => {
         const { hideUserOptions, isVisible } = props;
-        const username = useSelector((state) => state.session.user.username);
+        const { username, accountType } = useSelector((state) => state.session.user);
 
         useEffect(() => {
             if (!isVisible) hideUserOptions();
@@ -31,12 +40,27 @@ const UserOptions = withClickWatcher(
                     name="PROFILE"
                     hideUserOptions={hideUserOptions}
                 />
-                <Button
-                    icon={<FaRegCopy />}
-                    name="CLAIM ACCOUNT"
-                    onClick={showClaimAccount}
-                    hideUserOptions={hideUserOptions}
-                />
+                {accountType === ACCOUNT_TYPE.GUEST ? (
+                    <Button
+                        icon={<FaRegCopy />}
+                        name="CLAIM ACCOUNT"
+                        onClick={showClaimAccount}
+                        hideUserOptions={hideUserOptions}
+                    />
+                ) : (
+                    <>
+                        <Button
+                            icon={<FaRegUser />}
+                            name="CHANGE USERNAME"
+                            hideUserOptions={hideUserOptions}
+                        />
+                        <Button
+                            icon={<FaUnlockAlt />}
+                            name="CHANGE PASSWORD"
+                            hideUserOptions={hideUserOptions}
+                        />
+                    </>
+                )}
                 <hr className="divider" />
                 <Button
                     icon={<FaSignOutAlt />}

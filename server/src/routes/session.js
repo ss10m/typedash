@@ -4,7 +4,7 @@ import Joi from "joi";
 import db from ".././config/db.js";
 import { SESS_NAME } from "../config/session.js";
 
-import { signIn, signUp } from "../validations/user.js";
+import { signUp } from "../validations/user.js";
 
 import {
     parseError,
@@ -27,7 +27,6 @@ router.get("", async ({ session: { user } }, res) => {
 router.post("", async (req, res) => {
     try {
         const { username, password } = req.body;
-        await Joi.validate({ username, password }, signIn);
         const query = "SELECT * FROM users WHERE username = $1";
         const values = [username.toLowerCase()];
         const result = await db.query(query, values);
@@ -128,9 +127,9 @@ router.post("/register", async (req, res) => {
         }
 
         const { salt, hash } = encryptPassword(password);
-        const queryInsert =
-            "INSERT INTO users(username, display_name, email, salt, hash) VALUES($1, $2, $3, $4, $5) RETURNING *";
-        const valuesInsert = [username.toLowerCase(), username, email, salt, hash];
+        const queryInsert = `INSERT INTO users(account_type, username, display_name, email, salt, hash) 
+                    VALUES($1, $2, $3, $4, $5, $6) RETURNING *`;
+        const valuesInsert = [2, username.toLowerCase(), username, email, salt, hash];
         const user = await db.query(queryInsert, valuesInsert);
 
         const sessionUser = sessionizeUser(user.rows[0]);
