@@ -1,168 +1,37 @@
 import express from "express";
-import Joi from "joi";
 
-import db from ".././config/db.js";
-import { SESS_NAME } from "../config/session.js";
-
-import { signUp, usernameCheck } from "../validations/user.js";
-
-import {
-    parseError,
-    sessionizeUser,
-    encryptPassword,
-    verifyPassword,
-} from "../util/helper.js";
+import * as Session from "../controllers/session.js";
 
 const router = express.Router();
 
 // GET SESSION
-router.get("", async ({ session: { user } }, res) => {
-    res.send({
-        meta: { ok: true, message: "" },
-        data: { user },
-    });
+router.get("", async ({ session }, res) => {
+    Session.getSession(session, (data) => res.send(data));
 });
 
 // LOGIN
-router.post("", async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        const query = "SELECT * FROM users WHERE username = $1";
-        const values = [username.toLowerCase()];
-        const result = await db.query(query, values);
-        if (!result.rows.length) {
-            res.send({
-                meta: {
-                    ok: false,
-                    message: "Account does not exist!",
-                },
-                data: {},
-            });
-            return;
-        }
-
-        const user = result.rows[0];
-        if (user && verifyPassword(user, password)) {
-            const sessionUser = sessionizeUser(user);
-            req.session.user = sessionUser;
-
-            res.send({
-                meta: {
-                    ok: true,
-                    message: "",
-                },
-                data: { user: sessionUser },
-            });
-        } else {
-            res.send({
-                meta: {
-                    ok: false,
-                    message: "Invalid password",
-                },
-                data: {},
-            });
-        }
-    } catch (err) {
-        let meta = { ok: false, message: parseError(err) };
-        res.send({ meta, data: {} });
-    }
+router.post("", async ({ session, body }, res) => {
+    Session.login(session, body, (data) => res.send(data));
 });
 
 // LOGIN AS GUEST
-router.post("/guest", async (req, res) => {
-    try {
-        const { username } = req.body;
-        await Joi.validate({ username }, usernameCheck);
-
-        const query = "SELECT * FROM users WHERE username = $1";
-        const values = [username.toLowerCase()];
-        const result = await db.query(query, values);
-        if (result.rows.length) {
-            res.send({
-                meta: {
-                    ok: false,
-                    message: "Username already exists",
-                },
-                data: {},
-            });
-            return;
-        }
-
-        const queryInsert = `INSERT INTO users(account_type, username, display_name, email, salt, hash) 
-                    VALUES($1, $2, $3, $4, $5, $6) RETURNING *`;
-        const valuesInsert = [3, username.toLowerCase(), username, "", "", ""];
-        const user = await db.query(queryInsert, valuesInsert);
-
-        const sessionUser = sessionizeUser(user.rows[0]);
-        req.session.user = sessionUser;
-        res.send({
-            meta: {
-                ok: true,
-                message: "",
-            },
-            data: { user: sessionUser },
-        });
-    } catch (err) {
-        let meta = { ok: false, message: parseError(err) };
-        res.send({ meta, data: {} });
-    }
+router.post("/guest", async ({ session, body }, res) => {
+    Session.loginAsGuest(session, body, (data) => res.send(data));
 });
 
 // CLAIM GUEST ACCOUNT
-router.post("/claim", async (req, res) => {});
+router.post("/claim", async ({ session, body }, res) => {
+    Session.claimAccount(session, body, (data) => res.send(data));
+});
 
 // REGISTER
-router.post("/register", async (req, res) => {
-    try {
-        const { username, email, password, confirmPassword } = req.body;
-        await Joi.validate({ username, email, password, confirmPassword }, signUp);
-
-        const query = "SELECT * FROM users WHERE username = $1";
-        const values = [username.toLowerCase()];
-        const result = await db.query(query, values);
-        if (result.rows.length) {
-            res.send({
-                meta: {
-                    ok: false,
-                    message: "Username already exists",
-                },
-                data: {},
-            });
-            return;
-        }
-
-        const { salt, hash } = encryptPassword(password);
-        const queryInsert = `INSERT INTO users(account_type, username, display_name, email, salt, hash) 
-                    VALUES($1, $2, $3, $4, $5, $6) RETURNING *`;
-        const valuesInsert = [2, username.toLowerCase(), username, email, salt, hash];
-        const user = await db.query(queryInsert, valuesInsert);
-
-        const sessionUser = sessionizeUser(user.rows[0]);
-        req.session.user = sessionUser;
-        res.send({
-            meta: {
-                ok: true,
-                message: "",
-            },
-            data: { user: sessionUser },
-        });
-    } catch (err) {
-        let meta = { ok: false, message: parseError(err) };
-        res.send({ meta, data: {} });
-    }
+router.post("/register", async ({ session, body }, res) => {
+    Session.register(session, body, (data) => res.send(data));
 });
 
 // LOGOUT
-router.delete("", async ({ session, body }, res) => {
-    try {
-        session.destroy((err) => {
-            if (err) throw err;
-            res.clearCookie(SESS_NAME);
-            res.send({ meta: { ok: true, message: "" }, data: {} });
-        });
-    } catch (err) {
-        res.send({ meta: { ok: false, message: parseError(err) }, data: {} });
-    }
+router.delete("", async ({ session }, res) => {
+    Session.logout(session, res);
 });
 
 export default router;
