@@ -4,7 +4,7 @@ import Joi from "joi";
 import db from ".././config/db.js";
 import { SESS_NAME } from "../config/session.js";
 
-import { signUp } from "../validations/user.js";
+import { signUp, usernameCheck } from "../validations/user.js";
 
 import {
     parseError,
@@ -71,21 +71,26 @@ router.post("", async (req, res) => {
 // LOGIN AS GUEST
 router.post("/guest", async (req, res) => {
     try {
-        const query =
-            "SELECT * FROM users WHERE username LIKE 'Guest#%' ORDER BY created_at DESC LIMIT 1";
-        const result = await db.query(query);
+        const { username } = req.body;
+        await Joi.validate({ username }, usernameCheck);
 
-        let lastId;
+        const query = "SELECT * FROM users WHERE username = $1";
+        const values = [username.toLowerCase()];
+        const result = await db.query(query, values);
         if (result.rows.length) {
-            let username = result.rows[0].username;
-            lastId = parseInt(username.split("#")[1]) + 1;
-        } else {
-            lastId = 2551;
+            res.send({
+                meta: {
+                    ok: false,
+                    message: "Username already exists",
+                },
+                data: {},
+            });
+            return;
         }
 
-        const queryInsert =
-            "INSERT INTO users(username, email, salt, hash) VALUES($1, $2, $3, $4) RETURNING *";
-        const valuesInsert = [`Guest#${lastId}`, "", "", ""];
+        const queryInsert = `INSERT INTO users(account_type, username, display_name, email, salt, hash) 
+                    VALUES($1, $2, $3, $4, $5, $6) RETURNING *`;
+        const valuesInsert = [3, username.toLowerCase(), username, "", "", ""];
         const user = await db.query(queryInsert, valuesInsert);
 
         const sessionUser = sessionizeUser(user.rows[0]);

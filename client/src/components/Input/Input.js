@@ -10,7 +10,15 @@ import { FIELD_TYPE } from "helpers/constants";
 // SCSS
 import "./Input.scss";
 
-const Input = ({ type, placeholder, input, setInput, credentials, setCredentials }) => {
+const Input = ({
+    type,
+    placeholder,
+    input,
+    setInput,
+    credentials,
+    setCredentials,
+    isDisabled,
+}) => {
     const handleInputChange = (event) => {
         const value = event.target.value;
         setInput({ value, valid: value.length > 0 });
@@ -28,6 +36,7 @@ const Input = ({ type, placeholder, input, setInput, credentials, setCredentials
                 spellCheck={false}
                 placeholder={placeholder}
                 autoComplete="off"
+                disabled={isDisabled}
             />
             <Status credentials={credentials} />
         </div>

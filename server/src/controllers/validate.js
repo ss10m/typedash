@@ -46,7 +46,6 @@ const validInput = async (type, value, cb) => {
 
 const usernameAvailable = async (value, session, cb) => {
     try {
-        console.log(session);
         const { user } = session;
         const username = value.toLowerCase();
 

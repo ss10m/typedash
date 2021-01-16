@@ -4,7 +4,7 @@ import classNames from "classnames";
 
 // Redux
 import { useDispatch } from "react-redux";
-import { login, register } from "store/actions";
+import { login, loginAsGuest, register } from "store/actions";
 
 // Components
 import Input from "../Input/Input";
@@ -69,7 +69,23 @@ const View = () => {
 };
 
 const GuestLogin = ({ setView, username, setUsername }) => {
-    //const dispatch = useDispatch();
+    const dispatch = useDispatch();
+    const [isFetching, setIsFetching] = useState(false);
+    const isDisabled = !username.valid || isFetching;
+
+    useEventListener("keydown", (event) => {
+        if (!isDisabled && event.code === "Enter") onSubmit();
+    });
+
+    const onSubmit = () => {
+        setIsFetching(true);
+        const userInfo = { username: username.value };
+        const onFailure = () => {
+            setIsFetching(false);
+            setUsername((current) => ({ ...current, valid: false }));
+        };
+        dispatch(loginAsGuest(userInfo, onFailure));
+    };
 
     return (
         <>
@@ -81,13 +97,15 @@ const GuestLogin = ({ setView, username, setUsername }) => {
                     placeholder="Username"
                     initial={username}
                     setIsValid={setUsername}
+                    invalid={!username.valid}
                     margin={false}
+                    isDisabled={isFetching}
                 />
                 <button
                     className={classNames("button", {
-                        disabled: !username.valid,
+                        disabled: isDisabled,
                     })}
-                    onClick={() => console.log("guest login")}
+                    onClick={onSubmit}
                 >
                     <span>JOIN</span>
                 </button>
@@ -117,23 +135,23 @@ const Login = ({ setView }) => {
     const invalidField = [username, password].some((input) => !input.valid);
     const isDisabled = invalidField || !credentials.valid || isFetching;
 
-    useEventListener("keypress", (event) => {
-        if (event.code !== "Enter" || isDisabled) return;
-        onSubmit();
+    useEventListener("keydown", (event) => {
+        if (event.code === "Escape") return setView("guest");
+        if (!isDisabled && event.code === "Enter") onSubmit();
     });
 
     const onSubmit = () => {
         setIsFetching(true);
+        const loginInfo = {
+            username: username.value,
+            password: password.value,
+        };
         const onFailure = (msg) => {
             setCredentials({
                 valid: false,
                 msg,
             });
             setIsFetching(false);
-        };
-        const loginInfo = {
-            username: username.value,
-            password: password.value,
         };
         dispatch(login(loginInfo, onFailure));
     };
@@ -147,6 +165,7 @@ const Login = ({ setView }) => {
                     placeholder="Username"
                     initial={username}
                     setIsValid={setUsername}
+                    isDisabled={isFetching}
                     autofocus
                 />
                 <Input
@@ -156,6 +175,7 @@ const Login = ({ setView }) => {
                     setInput={setPassword}
                     credentials={credentials}
                     setCredentials={setCredentials}
+                    isDisabled={isFetching}
                 />
                 <div className="msg">{credentials.msg}</div>
             </div>
@@ -198,25 +218,25 @@ const Register = ({ setView }) => {
         }
     }, [password, confirmPassword]);
 
-    useEventListener("keypress", (event) => {
-        if (event.code !== "Enter" || isDisabled) return;
-        onSubmit();
+    useEventListener("keydown", (event) => {
+        if (event.code === "Escape") return setView("guest");
+        if (!isDisabled && event.code === "Enter") onSubmit();
     });
 
     const onSubmit = () => {
         setIsFetching(true);
+        const loginInfo = {
+            username: username.value,
+            email: email.value,
+            password: password.value,
+            confirmPassword: confirmPassword.value,
+        };
         const onFailure = (msg) => {
             setCredentials({
                 valid: false,
                 msg,
             });
             setIsFetching(false);
-        };
-        const loginInfo = {
-            username: username.value,
-            email: email.value,
-            password: password.value,
-            confirmPassword: confirmPassword.value,
         };
         dispatch(register(loginInfo, onFailure));
     };
@@ -230,6 +250,7 @@ const Register = ({ setView }) => {
                     placeholder="Username"
                     initial={username}
                     setIsValid={setUsername}
+                    isDisabled={isFetching}
                     autofocus
                 />
                 <InputChecker
@@ -237,12 +258,14 @@ const Register = ({ setView }) => {
                     placeholder="Email"
                     initial={email}
                     setIsValid={setEmail}
+                    isDisabled={isFetching}
                 />
                 <InputChecker
                     type={FIELD_TYPE.PASSWORD}
                     placeholder="Password"
                     initial={password}
                     setIsValid={setPassword}
+                    isDisabled={isFetching}
                 />
                 <InputChecker
                     type={FIELD_TYPE.PASSWORD}
@@ -250,6 +273,7 @@ const Register = ({ setView }) => {
                     initial={confirmPassword}
                     setIsValid={setConfirmPassword}
                     invalid={mismatchedPasswords}
+                    isDisabled={isFetching}
                 />
                 <div className="msg">{credentials.msg}</div>
             </div>

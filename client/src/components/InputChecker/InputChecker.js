@@ -25,6 +25,7 @@ const InputChecker = ({
     invalid,
     margin,
     autofocus,
+    isDisabled,
 }) => {
     const { input, setInput, containsError, setContainsError, isFetching } = useInputValidator(
         type,
@@ -54,6 +55,7 @@ const InputChecker = ({
                 spellCheck={false}
                 autoComplete="off"
                 autoFocus={autofocus}
+                disabled={isDisabled}
             />
             <Status inputLength={input.length} showError={showError} isFetching={isFetching} />
         </div>
@@ -65,6 +67,7 @@ InputChecker.defaultProps = {
     invalid: false,
     margin: true,
     autofocus: false,
+    isDisabled: false,
 };
 
 const Icon = ({ type, showError }) => {

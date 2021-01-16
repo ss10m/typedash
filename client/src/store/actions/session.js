@@ -45,9 +45,13 @@ const login = (loginInfo, onFailure) => async (dispatch) => {
         });
 };
 
-const loginAsGuest = () => async (dispatch) => {
+const loginAsGuest = (userInfo, onFailure) => async (dispatch) => {
     fetch("/api/session/guest", {
         method: "POST",
+        body: JSON.stringify(userInfo),
+        headers: {
+            "Content-Type": "application/json",
+        },
     })
         .then(handleResponse)
         .then((data) => {
@@ -55,9 +59,8 @@ const loginAsGuest = () => async (dispatch) => {
             dispatch(setSession(sessionState));
             socketIO.connect();
         })
-        .catch((error) => {
-            console.log(error);
-            if (error.action) return; //dispatch(showLoginError(meta.message));
+        .catch(() => {
+            onFailure();
         });
 };
 
