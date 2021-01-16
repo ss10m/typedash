@@ -135,6 +135,13 @@ const Login = ({ setView }) => {
     const invalidField = [username, password].some((input) => !input.valid);
     const isDisabled = invalidField || !credentials.valid || isFetching;
 
+    useEffect(() => {
+        setCredentials({
+            valid: true,
+            msg: "",
+        });
+    }, [username]);
+
     useEventListener("keydown", (event) => {
         if (event.code === "Escape") return setView("guest");
         if (!isDisabled && event.code === "Enter") onSubmit();

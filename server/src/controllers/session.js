@@ -145,15 +145,14 @@ const register = async (session, body, cb) => {
 };
 
 const logout = (session, res) => {
-    try {
-        session.destroy((err) => {
-            if (err) throw err;
-            res.clearCookie(SESS_NAME);
-            res.send({ meta: { ok: true, message: "" }, data: {} });
-        });
-    } catch (err) {
-        res.send({ meta: { ok: false, message: parseError(err) }, data: {} });
-    }
+    session.destroy((err) => {
+        if (err) {
+            res.send({ meta: { ok: false, message: parseError(err) }, data: {} });
+            return;
+        }
+        res.clearCookie(SESS_NAME);
+        res.send({ meta: { ok: true, message: "" }, data: {} });
+    });
 };
 
 export { getSession, login, loginAsGuest, claimAccount, register, logout };

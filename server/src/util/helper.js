@@ -2,7 +2,7 @@ import crypto from "crypto";
 
 export const parseError = (err) => {
     let message = "";
-    if (err.isJoi) {
+    if (err && err.isJoi) {
         message = err.details[0].message;
     } else {
         message = "Internal Server Error";
