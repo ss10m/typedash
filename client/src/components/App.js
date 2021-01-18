@@ -10,7 +10,8 @@ import { getSession } from "store/actions";
 import Landing from "./Landing/Landing";
 import Navbar from "./Navbar/Navbar";
 import Login from "./Login/Login";
-import Rooms from "./Rooms/RoomsContainer";
+import Room from "./Room/Room";
+import Rooms from "./Rooms/Rooms";
 import Racer from "./Racer/Racer";
 import ClaimAccount from "./ClaimAccount/ClaimAccount";
 import WindowSize from "./WindowSize/WindowSize";
@@ -19,8 +20,10 @@ import WindowSize from "./WindowSize/WindowSize";
 import "./App.scss";
 
 const App = () => {
-    const session = useSelector((state) => state.session);
-    const claimAccount = useSelector((state) => state.claimAccount);
+    const { session, error, claimAccount, room } = useSelector((state) => state);
+    const state = useSelector((state) => state);
+    console.log(state);
+
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -30,8 +33,12 @@ const App = () => {
     let view;
     if (!session.isLoaded) {
         view = null;
+    } else if (error) {
+        view = <div>{error}</div>;
     } else if (!session.user) {
         view = <Landing />;
+    } else if (room) {
+        view = <Room />;
     } else {
         view = (
             <div className="sides">

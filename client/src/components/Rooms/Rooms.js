@@ -1,150 +1,150 @@
 // Libraries & utils
-import React from "react";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import classNames from "classnames";
 
 // SCSS
 import "./Rooms.scss";
 
 // Icons
-import { IconContext } from "react-icons";
 import { FiSearch, FiRefreshCw } from "react-icons/fi";
-import { FaPlay, FaPause, FaStop, FaUser, FaTimes } from "react-icons/fa";
+import { FaTimes } from "react-icons/fa";
+
+// Socket API
+import SocketAPI from "core/SocketClient";
 
 import keyboard from "./kb.jpg";
 
-const Rooms = (props) => {
-    const {
-        windowSize: { height },
-    } = props;
+const Rooms = () => {
+    const height = useSelector((state) => state.windowSize.height);
+    const [filter, setFilter] = useState("");
 
     return (
         <div className="rooms" style={{ height: height - 120 }}>
-            <div className="rooms-inside">
-                <Lobby {...props} />
+            <div className="lobby">
+                <div className="imag">
+                    <img className="kb" src={keyboard} alt="keyboard" />
+                </div>
+                <Navigation filter={filter} setFilter={setFilter} />
+                <RoomList filter={filter} />
             </div>
         </div>
     );
 };
 
-function Lobby(props) {
-    return (
-        <div className="lobby">
-            <div className="imag">
-                <img className="kb" src={keyboard} alt="keyboard" />
-            </div>
-            <Navigation {...props} />
-            <CustomTable {...props} />
-        </div>
-    );
-}
+const Navigation = ({ filter, setFilter }) => {
+    const createRoom = () => {
+        SocketAPI.emit("create-room");
+    };
 
-function Navigation(props) {
     return (
         <div className="rooms-nagivation">
-            <div className="create-btn" onClick={props.createRoom}>
+            <div className="create-btn" onClick={createRoom}>
                 Create Room
             </div>
-            <div
-                className={classNames("refresh-btn", {
-                    "refresh-btn-disabled": props.refreshDisabled,
-                })}
-                onClick={props.refreshRooms}
-            >
-                <span
-                    className={classNames({
-                        current: props.refreshDisabled,
-                    })}
-                >
-                    <FiRefreshCw />
-                </span>
-            </div>
-
-            <div className="input-wrapper">
-                <div className="icon">
-                    <FiSearch />
-                </div>
-                <input
-                    className={classNames({
-                        rounded: !props.filter,
-                    })}
-                    type="text"
-                    value={props.filter}
-                    onChange={props.handleChange}
-                    spellCheck={false}
-                    placeholder="Search"
-                    autoComplete="off"
-                />
-                {props.filter && (
-                    <div className="icon right">
-                        <span onClick={props.clearFilter}>
-                            <FaTimes />
-                        </span>
-                    </div>
-                )}
-            </div>
+            <RefreshButton />
+            <Filter filter={filter} setFilter={setFilter} />
         </div>
     );
-}
-
-function CustomTable(props) {
-    const columns = [
-        {
-            Header: "Status",
-            accessor: "indicator",
-        },
-        {
-            Header: "Name",
-            accessor: "name",
-        },
-        {
-            Header: <FaUser />,
-            accessor: "users",
-        },
-        {
-            Header: "",
-            accessor: "join",
-        },
-    ];
-
-    for (let room of props.rooms) {
-        room.indicator = <RoomIndicator status={room.status} isEmpty={props.isEmpty} />;
-        room.join = () => props.joinRoom(room.id);
-    }
-
-    return (
-        <div className="table-wrapper">
-            <Table columns={columns} data={props.rooms} refresh={props.refreshRooms} />
-            {props.isEmpty(props.rooms) && <div className="empty">No rooms found</div>}
-        </div>
-    );
-}
-
-const RoomIndicator = ({ status, isEmpty }) => {
-    if (isEmpty(status)) {
-        return (
-            <IconContext.Provider value={{ color: "red", size: "20px" }}>
-                <FaStop />
-            </IconContext.Provider>
-        );
-    }
-    if (status.isPlaying) {
-        return (
-            <IconContext.Provider value={{ color: "green", size: "20px" }}>
-                <FaPlay />
-            </IconContext.Provider>
-        );
-    } else {
-        return (
-            <IconContext.Provider value={{ color: "orange", size: "20px" }}>
-                <FaPause />
-            </IconContext.Provider>
-        );
-    }
 };
 
-function Table({ columns, data }) {
-    // Up for(Online), name, number of users, join btn
-    return null;
-}
+const RefreshButton = () => {
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const refresh = () => {
+        if (isRefreshing) return;
+        setIsRefreshing(true);
+        SocketAPI.emit("get-rooms");
+        setTimeout(() => {
+            setIsRefreshing(false);
+        }, 800);
+    };
+
+    return (
+        <div
+            className={classNames("refresh-btn", {
+                "refresh-btn-disabled": isRefreshing,
+            })}
+            onClick={refresh}
+        >
+            <span
+                className={classNames({
+                    current: isRefreshing,
+                })}
+            >
+                <FiRefreshCw />
+            </span>
+        </div>
+    );
+};
+
+const Filter = ({ filter, setFilter }) => {
+    return (
+        <div className="input-wrapper">
+            <div className="icon">
+                <FiSearch />
+            </div>
+            <input
+                className={classNames({
+                    rounded: !filter,
+                })}
+                type="text"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                spellCheck={false}
+                placeholder="Search"
+                autoComplete="off"
+            />
+            {filter && (
+                <div className="icon right">
+                    <span onClick={() => setFilter("")}>
+                        <FaTimes />
+                    </span>
+                </div>
+            )}
+        </div>
+    );
+};
+
+const RoomList = ({ filter }) => {
+    const rooms = useSelector((state) => state.rooms);
+
+    const filterRooms = () => {
+        if (!filter) return rooms;
+
+        const filtered = filter.toLowerCase().trim();
+
+        return rooms.filter((room) => {
+            const lowerName = room.name.toLowerCase();
+            if (lowerName.includes(filtered)) return true;
+            if (lowerName.includes("room " + filtered)) return true;
+            return false;
+        });
+    };
+
+    const filteredRooms = filterRooms();
+
+    return (
+        <div className="rooms-list">
+            {filteredRooms.map((room) => (
+                <Room key={room.id} room={room} />
+            ))}
+        </div>
+    );
+};
+
+const Room = ({ room }) => {
+    const joinRoom = () => {
+        SocketAPI.emit("join-room", room.id);
+    };
+
+    return (
+        <div className="room">
+            {room.name}
+            <button onClick={joinRoom}>JOIN</button>
+        </div>
+    );
+};
+
+// Up for(Online), name, number of users, join btn
 
 export default Rooms;
