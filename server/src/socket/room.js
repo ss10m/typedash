@@ -1,6 +1,11 @@
 import { Connection, Room } from "../core/index.js";
 
 export default (io, socket) => {
+    if (!socket.handshake.session.user) {
+        socket.emit("handle-error", "Session not found");
+        return socket.disconnect();
+    }
+
     let browserId = socket.handshake.query.id;
     if (!browserId) {
         socket.emit("handle-error", "Local Storage is not enabled");

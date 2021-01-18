@@ -18,6 +18,9 @@ const sessionDetails = {
         tableName: "session",
     }),
     cookie: {
+        httpOnly: true,
+        secure: true,
+        sameSite: true,
         maxAge: parseInt(SESS_LIFETIME),
     },
 };

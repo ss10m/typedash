@@ -11,11 +11,12 @@ import socket from "./socket/index.js";
 const PORT = 8080;
 const HOST = "0.0.0.0";
 
-const app = express(sessionDetails);
+const app = express();
 const server = new http.Server(app);
 const io = ioClient(server);
 
 const expressSession = session(sessionDetails);
+app.set("trust proxy", 1);
 app.use(expressSession);
 app.use(express.json());
 io.use(sharedsession(expressSession));
