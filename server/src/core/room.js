@@ -42,20 +42,16 @@ export class Room {
         return isEmpty;
     }
 
-    setUserState(socketId, key, value) {
-        this.users[socketId][key] = value;
-    }
-
-    getUser(socketId) {
-        return this.users[socketId];
+    getDetails() {
+        return {
+            id: this.id,
+            name: this.name,
+            users: this.getUsers(),
+        };
     }
 
     getUsers() {
         return Object.values(this.users);
-    }
-
-    update(key, value) {
-        this[key] = { ...this[key], ...value };
     }
 
     static getRoomById(id) {
@@ -71,7 +67,6 @@ export class Room {
             name: room.name,
             id: room.id,
             users: Object.keys(room.users).length,
-            status: room.video,
         }));
     }
 }
