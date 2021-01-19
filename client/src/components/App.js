@@ -9,7 +9,6 @@ import { getSession } from "store/actions";
 // Components
 import Landing from "./Landing/Landing";
 import Navbar from "./Navbar/Navbar";
-import Login from "./Login/Login";
 import Room from "./Room/Room";
 import Rooms from "./Rooms/Rooms";
 import Racer from "./Racer/Racer";
@@ -45,10 +44,9 @@ const App = () => {
                 <Navbar />
                 <Switch>
                     <Route exact path="/" render={() => <h1>main</h1>}></Route>
-                    <Route exact path="/battle" component={Racer} />
-                    <Route exact path="/login" component={Login} />
-                    <Route exact path="/rooms" component={Rooms} />
-                    <Route exact path="/profile" render={() => <h1>profile</h1>} />
+                    <Route path="/battle" component={Racer} />
+                    <Route path="/rooms" component={Rooms} />
+                    <Route path="/profile" render={() => <h1>profile</h1>} />
                     <Route render={() => <h1>404</h1>} />
                 </Switch>
             </div>
