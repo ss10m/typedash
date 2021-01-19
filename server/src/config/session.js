@@ -19,7 +19,7 @@ const sessionDetails = {
     }),
     cookie: {
         httpOnly: true,
-        secure: true,
+        secure: process.env.NODE_ENV === "production",
         sameSite: true,
         maxAge: parseInt(SESS_LIFETIME),
     },

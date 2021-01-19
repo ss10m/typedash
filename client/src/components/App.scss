@@ -25,6 +25,12 @@ html {
     padding: 0;
 }
 
+textarea,
+input[type] {
+    -webkit-appearance: none;
+    border-radius: 0;
+}
+
 .no-select {
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
