@@ -1,7 +1,8 @@
 // Libraries & utils
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import classNames from "classnames";
+import { useHistory } from "react-router-dom";
 
 // SCSS
 import "./Rooms.scss";
@@ -18,6 +19,12 @@ import keyboard from "./kb.jpg";
 const Rooms = () => {
     const height = useSelector((state) => state.windowSize.height);
     const [filter, setFilter] = useState("");
+
+    useEffect(() => {
+        console.log("viewing rooms");
+
+        return () => console.log("left rooms");
+    }, []);
 
     return (
         <div className="rooms" style={{ height: height - 120 }}>
@@ -121,7 +128,12 @@ const RoomList = ({ filter }) => {
         });
     };
 
-    const filteredRooms = filterRooms();
+    //const filteredRooms = filterRooms();
+    const filteredRooms = [
+        { name: "ROOM A", id: "asdv32dsg" },
+        { name: "ROOM B", id: "243wdvas" },
+        { name: "ROOM C", id: "hkfgh64" },
+    ];
 
     return (
         <div className="rooms-list">
@@ -133,14 +145,12 @@ const RoomList = ({ filter }) => {
 };
 
 const Room = ({ room }) => {
-    const joinRoom = () => {
-        SocketAPI.emit("join-room", room.id);
-    };
+    const history = useHistory();
 
     return (
         <div className="room">
             {room.name}
-            <button onClick={joinRoom}>JOIN</button>
+            <button onClick={() => history.push(`/room/${room.id}`)}>JOIN</button>
         </div>
     );
 };

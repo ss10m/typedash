@@ -7,7 +7,7 @@ const getSession = () => async (dispatch) => {
     fetch("/api/session")
         .then(handleResponse)
         .then((data) => {
-            let session = { isLoaded: true, user: null };
+            let session = { isLoaded: true };
             if (data.user) {
                 session.user = data.user;
                 socketIO.connect();
@@ -95,4 +95,4 @@ const logout = () => (dispatch) => {
         .catch(() => dispatch(clearSession()));
 };
 
-export { getSession, login, loginAsGuest, claimAccount, register, logout };
+export { setSession, getSession, login, loginAsGuest, claimAccount, register, logout };

@@ -19,7 +19,7 @@ function Navbar() {
         <div className="navbar">
             <Logo windowWidth={windowWidth} />
             <div className="right-side">
-                <NavItem windowWidth={windowWidth} link="rooms" name="PLAY">
+                <NavItem windowWidth={windowWidth} link="" name="PLAY">
                     <FaPlay />
                 </NavItem>
                 <NavItem windowWidth={windowWidth} link="battle" name="HIGHSCORES">

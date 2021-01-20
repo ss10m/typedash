@@ -7,6 +7,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { getSession } from "store/actions";
 
 // Components
+import Error from "./Error/Error";
 import Landing from "./Landing/Landing";
 import Navbar from "./Navbar/Navbar";
 import Room from "./Room/Room";
@@ -19,38 +20,21 @@ import WindowSize from "./WindowSize/WindowSize";
 import "./App.scss";
 
 const App = () => {
-    const { session, error, claimAccount, room } = useSelector((state) => state);
-    const state = useSelector((state) => state);
-    console.log(state);
-
+    const { session, error, claimAccount } = useSelector((state) => state);
     const dispatch = useDispatch();
 
     useEffect(() => {
         dispatch(getSession());
     }, [dispatch]);
 
-    let view;
     if (!session.isLoaded) {
-        view = null;
+        return null;
     } else if (error) {
-        view = <div>{error}</div>;
+        return <Error msg={error} />;
     } else if (!session.user) {
-        view = <Landing />;
-    } else if (room) {
-        view = <Room />;
-    } else {
-        view = (
-            <div className="sides">
-                <Navbar />
-                <Switch>
-                    <Route exact path="/" render={() => <h1>main</h1>}></Route>
-                    <Route path="/battle" component={Racer} />
-                    <Route path="/rooms" component={Rooms} />
-                    <Route path="/profile" render={() => <h1>profile</h1>} />
-                    <Route render={() => <h1>404</h1>} />
-                </Switch>
-            </div>
-        );
+        return <Landing />;
+    } else if (!session.isConnected) {
+        return null;
     }
 
     return (
@@ -58,7 +42,26 @@ const App = () => {
             <WindowSize />
             {claimAccount && <ClaimAccount />}
             <div className="app no-select">
-                <div className="inner">{view}</div>
+                <div className="inner">
+                    <Navbar />
+                    <Switch>
+                        <Route exact path="/">
+                            <Rooms />
+                        </Route>
+                        <Route path="/room/:id">
+                            <Room />
+                        </Route>
+                        <Route path="/battle">
+                            <Racer />
+                        </Route>
+                        <Route path="/profile">
+                            <h1>profile</h1>
+                        </Route>
+                        <Route>
+                            <Error msg="404 NOT FOUND" />
+                        </Route>
+                    </Switch>
+                </div>
             </div>
         </>
     );

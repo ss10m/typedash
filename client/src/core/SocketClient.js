@@ -1,6 +1,6 @@
 import io from "socket.io-client";
 
-import { setError, setRoom, updateRoom, clearRoom, setRooms } from "store/actions";
+import { setSession, setError, setRoom, updateRoom, clearRoom, setRooms } from "store/actions";
 
 class SocketAPI {
     constructor() {
@@ -14,6 +14,7 @@ class SocketAPI {
             localStorage.setItem("sync-id", id);
         }
         this.socket = io.connect({ query: `id=${id}` });
+        this.socket.on("connect", () => this.dispatch(setSession({ isConnected: true })));
         this.setup();
     }
 
