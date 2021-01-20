@@ -1,6 +1,6 @@
 import io from "socket.io-client";
 
-import { setSession, setError, setRoom, updateRoom, clearRoom, setRooms } from "store/actions";
+import { setSession, setError, setRooms } from "store/actions";
 
 class SocketAPI {
     constructor() {
@@ -67,6 +67,7 @@ class SocketAPI {
 
     leaveRoom() {
         console.log("leaveRoom");
+        this.onRoomUpdate = null;
         this.emit("leave-room");
     }
 
@@ -90,15 +91,14 @@ class SocketAPI {
             this.onRoomUpdate("joined", update);
         });
 
+        this.socket.on("failed-to-join", (msg) => {
+            if (!this.onRoomUpdate) return;
+            this.onRoomUpdate("error", msg);
+        });
+
         this.socket.on("updated-room", (update) => {
             if (!this.onRoomUpdate) return;
             this.onRoomUpdate("updated", update);
-        });
-
-        this.socket.on("left-room", () => {
-            if (!this.onRoomUpdate) return;
-            this.onRoomUpdate("left");
-            this.onRoomUpdate = null;
         });
     }
 }

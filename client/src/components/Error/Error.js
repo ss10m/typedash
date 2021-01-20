@@ -2,7 +2,7 @@ import "./Error.scss";
 
 const Error = ({ msg }) => {
     return (
-        <div className="error">
+        <div className="error-wrapper">
             <div className="header">
                 <div className="title">
                     TYPE<span>DASH</span>

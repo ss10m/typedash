@@ -49,7 +49,9 @@ export default (io, socket) => {
         console.log("join-room: " + roomId);
 
         const room = Room.getRoomById(roomId);
-        if (!room) return; // error ROOM NOT FOUND
+        if (!room) {
+            return socket.emit("failed-to-join", "Room not found");
+        }
 
         const usersInRoom = room.getUsers().length;
         room.join(socket);
@@ -71,7 +73,6 @@ export default (io, socket) => {
 
         const isRoomEmpty = room.leave(socket.id);
         socket.leave(room.id);
-        socket.emit("left-room");
         if (isRoomEmpty) return updateLobby(io);
 
         let updatedState = {};
