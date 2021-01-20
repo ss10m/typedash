@@ -5,6 +5,8 @@ import { setSession, setError, setRoom, updateRoom, clearRoom, setRooms } from "
 class SocketAPI {
     constructor() {
         this.socket = null;
+        this.onRoomCreate = null;
+        this.onRoomUpdate = null;
     }
 
     connect() {
@@ -31,6 +33,43 @@ class SocketAPI {
         return this.socket != null && this.socket.connected;
     }
 
+    emit(event, data = null) {
+        if (!this.isConnected()) return;
+        this.socket.emit(event, data);
+    }
+
+    joinLobby() {
+        console.log("joinLobby");
+        this.emit("join-lobby");
+    }
+
+    refreshLobby() {
+        console.log("refreshLobby");
+        this.emit("refresh-lobby");
+    }
+
+    leaveLobby() {
+        console.log("leaveLobby");
+        this.emit("leave-lobby");
+    }
+
+    createRoom(onCreate) {
+        console.log("createRoom");
+        this.onRoomCreate = onCreate;
+        this.emit("create-room");
+    }
+
+    joinRoom(id, onUpdate) {
+        console.log("joinRoom");
+        this.onRoomUpdate = onUpdate;
+        this.emit("join-room", id);
+    }
+
+    leaveRoom() {
+        console.log("leaveRoom");
+        this.emit("leave-room");
+    }
+
     setup() {
         this.socket.on("handle-error", (err) => {
             this.dispatch(setError(err));
@@ -40,22 +79,27 @@ class SocketAPI {
             this.dispatch(setRooms(rooms));
         });
 
-        this.socket.on("joined-room", (room) => {
-            this.dispatch(setRoom(room));
+        this.socket.on("room-created", (roomId) => {
+            if (!this.onRoomCreate) return;
+            this.onRoomCreate(roomId);
+            this.onRoomCreate = null;
         });
 
-        this.socket.on("left-room", () => {
-            this.dispatch(clearRoom());
+        this.socket.on("joined-room", (update) => {
+            if (!this.onRoomUpdate) return;
+            this.onRoomUpdate("joined", update);
         });
 
         this.socket.on("updated-room", (update) => {
-            this.dispatch(updateRoom(update));
+            if (!this.onRoomUpdate) return;
+            this.onRoomUpdate("updated", update);
         });
-    }
 
-    emit(event, data = null) {
-        if (!this.isConnected()) return;
-        this.socket.emit(event, data);
+        this.socket.on("left-room", () => {
+            if (!this.onRoomUpdate) return;
+            this.onRoomUpdate("left");
+            this.onRoomUpdate = null;
+        });
     }
 }
 

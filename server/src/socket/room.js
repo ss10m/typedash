@@ -20,6 +20,89 @@ export default (io, socket) => {
         return socket.disconnect();
     }
 
+    socket.on("join-lobby", () => {
+        console.log("join-lobby");
+        socket.join("lobby");
+        socket.emit("rooms", Room.getRooms());
+        printLobby();
+    });
+
+    socket.on("refresh-lobby", () => {
+        console.log("refresh-lobby");
+        socket.emit("rooms", Room.getRooms());
+    });
+
+    socket.on("leave-lobby", () => {
+        console.log("leave-lobby");
+        socket.leave("lobby");
+        printLobby();
+    });
+
+    socket.on("create-room", () => {
+        console.log("create-room");
+        const room = new Room(socket.id);
+        socket.emit("room-created", room.id);
+        updateLobby(io);
+    });
+
+    socket.on("join-room", (roomId) => {
+        console.log("join-room: " + roomId);
+
+        const room = Room.getRoomById(roomId);
+        if (!room) return; // error ROOM NOT FOUND
+
+        const usersInRoom = room.getUsers().length;
+        room.join(socket);
+        if (usersInRoom) {
+            const updatedState = {};
+            updatedState.users = room.getUsers();
+            socket.to(room.id).emit("updated-room", updatedState);
+        }
+
+        socket.join(room.id);
+        socket.emit("joined-room", room.getDetails());
+    });
+
+    socket.on("leave-room", () => {
+        console.log("leave-room");
+
+        const room = Room.getRoomBySocketId(socket.id);
+        if (!room) return;
+
+        const isRoomEmpty = room.leave(socket.id);
+        socket.leave(room.id);
+        socket.emit("left-room");
+        if (isRoomEmpty) return updateLobby(io);
+
+        let updatedState = {};
+        updatedState.users = room.getUsers();
+        socket.to(room.id).emit("updated-room", updatedState);
+    });
+
+    socket.on("disconnect", () => {
+        console.log("disconnect");
+        Connection.removeConnection(socket.id);
+        const room = Room.getRoomBySocketId(socket.id);
+        if (!room) return;
+
+        const isRoomEmpty = room.leave(socket.id);
+        socket.leave(room.id);
+        if (isRoomEmpty) return updateLobby(io);
+
+        let updatedState = {};
+        updatedState.users = room.getUsers();
+        socket.to(room.id).emit("updated-room", updatedState);
+
+        printLobby();
+    });
+
+    const printLobby = () => {
+        io.in("lobby").clients((err, clients) => {
+            console.log(clients);
+        });
+    };
+
+    /*
     socket.emit("rooms", Room.getRooms());
     socket.join("lobby");
 
@@ -78,6 +161,7 @@ export default (io, socket) => {
         updatedState["users"] = Object.values(room.users);
         socket.to(room.id).emit("updated-room", updatedState);
     });
+    */
 };
 
 const updateLobby = (io) => {

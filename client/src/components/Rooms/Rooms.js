@@ -21,9 +21,8 @@ const Rooms = () => {
     const [filter, setFilter] = useState("");
 
     useEffect(() => {
-        console.log("viewing rooms");
-
-        return () => console.log("left rooms");
+        SocketAPI.joinLobby();
+        return () => SocketAPI.leaveLobby();
     }, []);
 
     return (
@@ -40,17 +39,30 @@ const Rooms = () => {
 };
 
 const Navigation = ({ filter, setFilter }) => {
+    return (
+        <div className="rooms-nagivation">
+            <CreateRoomButton />
+            <RefreshButton />
+            <Filter filter={filter} setFilter={setFilter} />
+        </div>
+    );
+};
+
+const CreateRoomButton = () => {
+    const [isCreating, setIsCreating] = useState(false);
+    const history = useHistory();
     const createRoom = () => {
-        SocketAPI.emit("create-room");
+        if (isCreating) return;
+        setIsCreating(true);
+        const onCreate = (roomId) => {
+            history.push(`/room/${roomId}`);
+        };
+        SocketAPI.createRoom(onCreate);
     };
 
     return (
-        <div className="rooms-nagivation">
-            <div className="create-btn" onClick={createRoom}>
-                Create Room
-            </div>
-            <RefreshButton />
-            <Filter filter={filter} setFilter={setFilter} />
+        <div className="create-btn" onClick={createRoom}>
+            Create Room
         </div>
     );
 };
@@ -60,7 +72,7 @@ const RefreshButton = () => {
     const refresh = () => {
         if (isRefreshing) return;
         setIsRefreshing(true);
-        SocketAPI.emit("get-rooms");
+        SocketAPI.refreshLobby();
         setTimeout(() => {
             setIsRefreshing(false);
         }, 800);
@@ -128,12 +140,12 @@ const RoomList = ({ filter }) => {
         });
     };
 
-    //const filteredRooms = filterRooms();
-    const filteredRooms = [
-        { name: "ROOM A", id: "asdv32dsg" },
-        { name: "ROOM B", id: "243wdvas" },
-        { name: "ROOM C", id: "hkfgh64" },
-    ];
+    const filteredRooms = filterRooms();
+    // const filteredRooms = [
+    //     { name: "ROOM A", id: "asdv32dsg" },
+    //     { name: "ROOM B", id: "243wdvas" },
+    //     { name: "ROOM C", id: "hkfgh64" },
+    // ];
 
     return (
         <div className="rooms-list">

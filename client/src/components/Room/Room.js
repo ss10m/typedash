@@ -7,32 +7,47 @@ import SocketAPI from "core/SocketClient";
 
 // SCSS
 import "./Room.scss";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
-const Room = (props) => {
-    const room = useSelector((state) => state.room);
+const Room = () => {
+    const [room, setRoom] = useState(null);
     const { id } = useParams();
     const history = useHistory();
-    //console.log(room);
 
     useEffect(() => {
-        console.log("joined room: " + id);
+        SocketAPI.joinRoom(id, onUpdate);
+        return () => SocketAPI.leaveRoom();
+    }, [id]);
 
-        return () => console.log("left room: " + id);
-    }, []);
+    const onUpdate = (key, data) => {
+        console.log("onUpdate");
+        console.log(key, data);
 
-    /*
-    const leaveRoom = () => {
-        SocketAPI.emit("leave-room");
+        switch (key) {
+            case "joined":
+                setRoom(data);
+                break;
+            case "updated":
+                setRoom((room) => ({ ...room, ...data }));
+                break;
+            case "left":
+                history.push("/");
+                break;
+        }
     };
-    */
+
+    console.log(room);
+    if (!room) return null;
 
     return (
         <div className="room">
-            <div>ROOM</div>
-            <div>{room && room.name}</div>
-            <div>{room && room.users.map((user) => <p>{user.username}</p>)}</div>
-            <button onClick={() => history.push("/")}>LEAVE ROOM</button>
+            <div>{room.name}</div>
+            <div>
+                {room.users.map((user) => (
+                    <p>{user.username}</p>
+                ))}
+            </div>
+            <button onClick={() => SocketAPI.leaveRoom()}>LEAVE ROOM</button>
         </div>
     );
 };
