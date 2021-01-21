@@ -26,7 +26,7 @@ const Rooms = () => {
     }, []);
 
     return (
-        <div className="rooms" style={{ height: height - 120 }}>
+        <div className="rooms">
             <div className="lobby">
                 <div className="imag">
                     <img className="kb" src={keyboard} alt="keyboard" />

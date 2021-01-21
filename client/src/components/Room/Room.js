@@ -5,6 +5,8 @@ import { useHistory, useParams } from "react-router-dom";
 // Socket API
 import SocketAPI from "core/SocketClient";
 
+import Error from "../Error/Error";
+
 // SCSS
 import "./Room.scss";
 
@@ -12,7 +14,7 @@ const Room = () => {
     const { room, error } = useRoomApi();
     const history = useHistory();
 
-    if (error) return <div>{error}</div>;
+    if (error) return <Error msg={error} goBack={() => history.goBack()} />;
     if (!room) return null;
 
     return (

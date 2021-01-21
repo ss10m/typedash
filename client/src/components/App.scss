@@ -41,14 +41,16 @@ input[type] {
 }
 
 .app {
-    min-height: 100vh;
     min-width: 320px;
     width: 100%;
     position: absolute;
 
     .inner {
+        min-height: 100vh;
         max-width: 1000px;
         margin: 0 auto;
         padding: 20px;
+        display: flex;
+        flex-direction: column;
     }
 }
