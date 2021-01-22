@@ -1,6 +1,7 @@
 // Libraries & utils
 import { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
+import classNames from "classnames";
 
 // Socket API
 import SocketAPI from "core/SocketClient";
@@ -23,12 +24,7 @@ const Room = () => {
     return (
         <div className="room">
             <div>{room.name}</div>
-            <div>
-                PLAYRES:
-                {players.map((user, index) => (
-                    <div key={index}>{`${user.username} - ${user.progress}`}</div>
-                ))}
-            </div>
+            <Players players={players} />
             <div>
                 SPECTATORS:
                 {spectators.map((user, index) => (
@@ -42,6 +38,29 @@ const Room = () => {
                 currentQuote={quote}
                 updateStatus={updateStatus}
             />
+        </div>
+    );
+};
+
+const Players = ({ players }) => {
+    return (
+        <div className="players-wrapper">
+            <div
+                className={classNames("start", {
+                    mini: players.length === 1,
+                })}
+            >
+                START
+            </div>
+            <div className="players">
+                {players.map((user) => (
+                    <div key={user.id} className="player">
+                        <div className="username">{user.username}</div>
+                        <div className="progress" style={{ width: `${user.progress}%` }} />
+                    </div>
+                ))}
+            </div>
+            <div className="flag"></div>
         </div>
     );
 };

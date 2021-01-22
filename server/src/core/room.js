@@ -34,7 +34,7 @@ export class Room {
         const socketId = socket.id;
         const username = socket.handshake.session.user.displayName;
 
-        this.players[socketId] = { username, progress: 0 };
+        this.players[socketId] = { username, id: socketId, progress: 0 };
         /*
         if (Math.random() > 0.5) {
             this.players[socketId] = { username };
