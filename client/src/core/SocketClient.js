@@ -7,6 +7,8 @@ class SocketAPI {
         this.socket = null;
         this.onRoomCreate = null;
         this.onRoomUpdate = null;
+
+        this.updateStatus = this.updateStatus.bind(this);
     }
 
     connect() {
@@ -71,6 +73,11 @@ class SocketAPI {
         this.emit("leave-room");
     }
 
+    updateStatus(status) {
+        console.log("updateStatus");
+        this.emit("update-status", status);
+    }
+
     setup() {
         this.socket.on("handle-error", (err) => {
             this.dispatch(setError(err));
@@ -86,9 +93,9 @@ class SocketAPI {
             this.onRoomCreate = null;
         });
 
-        this.socket.on("joined-room", (update) => {
+        this.socket.on("joined-room", (data) => {
             if (!this.onRoomUpdate) return;
-            this.onRoomUpdate("joined", update);
+            this.onRoomUpdate("joined", data);
         });
 
         this.socket.on("failed-to-join", (msg) => {

@@ -12,25 +12,26 @@ import keyboard from "./keyboard";
 // SCSS
 import "./Racer.scss";
 
-const Racer = () => {
+const Racer = ({ isRunning, setIsRunning, currentQuote, updateStatus }) => {
     const [input, setInput] = useState("");
     const [quote, setQuote] = useState([]);
     const [quoteLength, setQuoteLength] = useState(0);
     const [wordIndex, setWordIndex] = useState(0);
     const [correctLength, setCorrectLength] = useState(0);
     const [typoLength, setTypoLength] = useState(0);
-    const [isRunning, setIsRunning] = useState(false);
 
     const inputRef = useRef(null);
 
     useEffect(() => {
-        const b =
+        /*
+        let b =
             `"I wish it need not have happened in my time," said Frodo. ` +
             `"So do I," said Gandalf, "and so do all who live to see ` +
             `such times. But that is not for them to decide. All we ` +
             `have to decide is what to do with the time that is given ` +
             `us."`;
-        const words = b.split(" ").map((word) => word + " ");
+        */
+        const words = currentQuote.split(" ").map((word) => word + " ");
         const lastIndex = words.length - 1;
         words[lastIndex] = words[lastIndex].trim();
 
@@ -38,7 +39,7 @@ const Racer = () => {
         setQuoteLength(words.length);
 
         //setTimeout(() => inputRef.current.focus(), 2000);
-    }, []);
+    }, [currentQuote]);
 
     const handleChange = (event) => {
         if (!isRunning) setIsRunning(true);
@@ -72,6 +73,8 @@ const Racer = () => {
         setCorrectLength(0);
         setTypoLength(0);
         setIsRunning(wordIndex + 1 !== quoteLength);
+
+        updateStatus({ progress: wordIndex + 1 });
     };
 
     return (
@@ -207,9 +210,9 @@ const Keyboard = () => {
                 }}
             >
                 <div className="keyboard">
-                    {keyboard.map((row) => (
-                        <div className="row">
-                            {row.map((key) => (
+                    {keyboard.map((row, rowIndex) => (
+                        <div className="row" key={rowIndex}>
+                            {row.map((key, keyIndex) => (
                                 <div
                                     className={classNames("key", {
                                         [key.class]: key.class,
@@ -217,6 +220,7 @@ const Keyboard = () => {
                                         pressed:
                                             pressed[key.code] && pressed[key.code].pressed,
                                     })}
+                                    key={keyIndex}
                                 >
                                     {key.secondary && <span>{key.secondary}</span>}
                                     {key.display}

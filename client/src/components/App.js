@@ -12,7 +12,7 @@ import Landing from "./Landing/Landing";
 import Navbar from "./Navbar/Navbar";
 import Room from "./Room/Room";
 import Rooms from "./Rooms/Rooms";
-import Racer from "./Racer/Racer";
+import Highscores from "./Highscores/Highscores";
 import ClaimAccount from "./ClaimAccount/ClaimAccount";
 import WindowSize from "./WindowSize/WindowSize";
 
@@ -51,8 +51,8 @@ const App = () => {
                         <Route path="/room/:id">
                             <Room />
                         </Route>
-                        <Route path="/battle">
-                            <Racer />
+                        <Route path="/highscores">
+                            <Highscores />
                         </Route>
                         <Route path="/profile">
                             <h1>profile</h1>

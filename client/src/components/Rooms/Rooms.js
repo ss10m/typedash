@@ -17,7 +17,6 @@ import SocketAPI from "core/SocketClient";
 import keyboard from "./kb.jpg";
 
 const Rooms = () => {
-    const height = useSelector((state) => state.windowSize.height);
     const [filter, setFilter] = useState("");
 
     useEffect(() => {

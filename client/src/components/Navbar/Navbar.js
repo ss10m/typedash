@@ -22,7 +22,7 @@ function Navbar() {
                 <NavItem windowWidth={windowWidth} link="" name="PLAY">
                     <FaPlay />
                 </NavItem>
-                <NavItem windowWidth={windowWidth} link="battle" name="HIGHSCORES">
+                <NavItem windowWidth={windowWidth} link="highscores" name="HIGHSCORES">
                     <FaTrophy />
                 </NavItem>
                 <User windowWidth={windowWidth} />

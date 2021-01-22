@@ -53,16 +53,32 @@ export default (io, socket) => {
             return socket.emit("failed-to-join", "Room not found");
         }
 
-        const usersInRoom = room.getUsers().length;
         room.join(socket);
-        if (usersInRoom) {
+        if (room.getNumOfUsers()) {
             const updatedState = {};
-            updatedState.users = room.getUsers();
+            updatedState.players = room.getPlayers();
+            updatedState.spectators = room.getSpectators();
             socket.to(room.id).emit("updated-room", updatedState);
         }
 
         socket.join(room.id);
         socket.emit("joined-room", room.getDetails());
+    });
+
+    socket.on("update-status", (status) => {
+        console.log("update-status");
+
+        const room = Room.getRoomBySocketId(socket.id);
+        if (!room) return;
+        const player = room.players[socket.id];
+        if (!player) return;
+
+        const progress = status.progress / room.status.quoteLength;
+        player.progress = Math.round(progress * 100);
+
+        const updatedState = {};
+        updatedState.players = room.getPlayers();
+        io.in(room.id).emit("updated-room", updatedState);
     });
 
     socket.on("leave-room", () => {
@@ -76,7 +92,8 @@ export default (io, socket) => {
         if (isRoomEmpty) return updateLobby(io);
 
         let updatedState = {};
-        updatedState.users = room.getUsers();
+        updatedState.players = room.getPlayers();
+        updatedState.spectators = room.getSpectators();
         socket.to(room.id).emit("updated-room", updatedState);
     });
 
@@ -91,7 +108,8 @@ export default (io, socket) => {
         if (isRoomEmpty) return updateLobby(io);
 
         let updatedState = {};
-        updatedState.users = room.getUsers();
+        updatedState.players = room.getPlayers();
+        updatedState.spectators = room.getSpectators();
         socket.to(room.id).emit("updated-room", updatedState);
 
         printLobby();
@@ -102,67 +120,6 @@ export default (io, socket) => {
             console.log(clients);
         });
     };
-
-    /*
-    socket.emit("rooms", Room.getRooms());
-    socket.join("lobby");
-
-    socket.on("get-rooms", () => {
-        socket.emit("rooms", Room.getRooms());
-    });
-
-    socket.on("create-room", () => {
-        const room = new Room(socket.id);
-        room.join(socket);
-        socket.leave("lobby");
-        socket.join(room.id);
-        socket.emit("joined-room", room.getDetails());
-        updateLobby(io);
-    });
-
-    socket.on("join-room", (roomId) => {
-        const room = Room.getRoomById(roomId);
-        if (!room) return socket.emit("rooms", Room.getRooms());
-
-        room.join(socket);
-        const updatedState = {};
-        updatedState["users"] = room.getUsers();
-        socket.to(room.id).emit("updated-room", updatedState);
-
-        socket.leave("lobby");
-        socket.join(room.id);
-        socket.emit("joined-room", room.getDetails());
-    });
-
-    socket.on("leave-room", () => {
-        let room = Room.getRoomBySocketId(socket.id);
-        if (!room) return;
-
-        const isRoomEmpty = room.leave(socket.id);
-        socket.leave(room.id);
-        socket.join("lobby");
-        socket.emit("left-room");
-        if (isRoomEmpty) return updateLobby(io);
-
-        let updatedState = {};
-        updatedState["users"] = room.getUsers();
-        socket.to(room.id).emit("updated-room", updatedState);
-    });
-
-    socket.on("disconnect", () => {
-        Connection.removeConnection(socket.id);
-        let room = Room.getRoomBySocketId(socket.id);
-        if (!room) return socket.leave("lobby");
-
-        const isRoomEmpty = room.leave(socket.id);
-        socket.leave(room.id);
-        if (isRoomEmpty) return updateLobby(io);
-
-        let updatedState = {};
-        updatedState["users"] = Object.values(room.users);
-        socket.to(room.id).emit("updated-room", updatedState);
-    });
-    */
 };
 
 const updateLobby = (io) => {
