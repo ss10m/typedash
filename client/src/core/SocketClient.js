@@ -1,3 +1,4 @@
+import { STATE } from "helpers/constants";
 import io from "socket.io-client";
 
 import { setSession, setError, setRooms } from "store/actions";
@@ -7,11 +8,9 @@ class SocketAPI {
         this.socket = null;
         this.onRoomCreate = null;
         this.onRoomUpdate = null;
-
-        this.updateStatus = this.updateStatus.bind(this);
     }
 
-    connect() {
+    connect = () => {
         let id = localStorage.getItem("sync-id");
         if (!id) {
             id = Math.random().toString(36).substr(2, 9);
@@ -20,65 +19,73 @@ class SocketAPI {
         this.socket = io.connect({ query: `id=${id}` });
         this.socket.on("connect", () => this.dispatch(setSession({ isConnected: true })));
         this.setup();
-    }
+    };
 
-    disconnect() {
+    disconnect = () => {
         this.socket.disconnect();
         this.socket = null;
-    }
+    };
 
-    setDispatch(dispatch) {
+    setDispatch = (dispatch) => {
         this.dispatch = dispatch;
-    }
+    };
 
-    isConnected() {
+    isConnected = () => {
         return this.socket != null && this.socket.connected;
-    }
+    };
 
-    emit(event, data = null) {
+    emit = (event, data = null) => {
         if (!this.isConnected()) return;
         this.socket.emit(event, data);
-    }
+    };
 
-    joinLobby() {
+    joinLobby = () => {
         console.log("joinLobby");
         this.emit("join-lobby");
-    }
+    };
 
-    refreshLobby() {
+    refreshLobby = () => {
         console.log("refreshLobby");
         this.emit("refresh-lobby");
-    }
+    };
 
-    leaveLobby() {
+    leaveLobby = () => {
         console.log("leaveLobby");
         this.emit("leave-lobby");
-    }
+    };
 
-    createRoom(onCreate) {
+    createRoom = (onCreate) => {
         console.log("createRoom");
         this.onRoomCreate = onCreate;
         this.emit("create-room");
-    }
+    };
 
-    joinRoom(id, onUpdate) {
+    joinRoom = (id, onUpdate) => {
         console.log("joinRoom");
         this.onRoomUpdate = onUpdate;
         this.emit("join-room", id);
-    }
+    };
 
-    leaveRoom() {
+    leaveRoom = () => {
         console.log("leaveRoom");
         this.onRoomUpdate = null;
         this.emit("leave-room");
-    }
+    };
 
-    updateStatus(status) {
+    updateStatus = (progress) => {
         console.log("updateStatus");
-        this.emit("update-status", status);
-    }
+        this.emit("update-progress", progress);
+    };
 
-    setup() {
+    startRound = () => {
+        this.emit("update-state", STATE.COUNTDOWN);
+    };
+
+    endRound = () => {
+        this.emit("update-state", STATE.WAITING);
+    };
+
+    setup = () => {
         this.socket.on("handle-error", (err) => {
             this.dispatch(setError(err));
         });
@@ -107,7 +114,7 @@ class SocketAPI {
             if (!this.onRoomUpdate) return;
             this.onRoomUpdate("updated", update);
         });
-    }
+    };
 }
 
 export default new SocketAPI();

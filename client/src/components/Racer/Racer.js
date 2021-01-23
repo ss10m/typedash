@@ -23,26 +23,24 @@ const Racer = ({ isRunning, setIsRunning, currentQuote, updateStatus }) => {
     const inputRef = useRef(null);
 
     useEffect(() => {
-        /*
-        let b =
-            `"I wish it need not have happened in my time," said Frodo. ` +
-            `"So do I," said Gandalf, "and so do all who live to see ` +
-            `such times. But that is not for them to decide. All we ` +
-            `have to decide is what to do with the time that is given ` +
-            `us."`;
-        */
         const words = currentQuote.split(" ").map((word) => word + " ");
         const lastIndex = words.length - 1;
         words[lastIndex] = words[lastIndex].trim();
 
         setQuote(words);
         setQuoteLength(words.length);
-
-        //setTimeout(() => inputRef.current.focus(), 2000);
     }, [currentQuote]);
 
+    useEffect(() => {
+        if (isRunning) {
+            inputRef.current.focus();
+        } else {
+            setInput("");
+        }
+    }, [isRunning]);
+
     const handleChange = (event) => {
-        if (!isRunning) setIsRunning(true);
+        if (!isRunning) return;
         const input = event.target.value;
         const currentWord = quote[wordIndex];
 
@@ -72,6 +70,7 @@ const Racer = ({ isRunning, setIsRunning, currentQuote, updateStatus }) => {
         setWordIndex(wordIndex + 1);
         setCorrectLength(0);
         setTypoLength(0);
+
         setIsRunning(wordIndex + 1 !== quoteLength);
 
         updateStatus({ progress: wordIndex + 1 });
@@ -91,9 +90,9 @@ const Racer = ({ isRunning, setIsRunning, currentQuote, updateStatus }) => {
                 ref={inputRef}
                 handleChange={handleChange}
                 containsTypo={typoLength > 0}
-                isDisabled={wordIndex >= quoteLength}
+                isDisabled={wordIndex >= quoteLength || !isRunning}
             />
-            <Keyboard />
+            <Keyboard isRunning={isRunning} />
         </div>
     );
 };
@@ -170,11 +169,12 @@ const Letter = ({ letter, letterIndex, correctLength, typoLength }) => {
     );
 };
 
-const Keyboard = () => {
+const Keyboard = ({ isRunning }) => {
     const { width } = useSelector((state) => state.windowSize);
     const [pressed, setPressed] = useState({});
 
     const keyDownHandler = (event) => {
+        if (!isRunning) return;
         if (pressed[event.code] && pressed[event.code].pressed) return;
         setPressed((prevState) => {
             return { ...prevState, [event.code]: { pressed: true } };

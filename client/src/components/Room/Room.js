@@ -3,8 +3,14 @@ import { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import classNames from "classnames";
 
+// Icons
+import { FaTrophy } from "react-icons/fa";
+
 // Socket API
 import SocketAPI from "core/SocketClient";
+
+// Constants
+import { STATE } from "helpers/constants";
 
 // Components
 import Racer from "../Racer/Racer";
@@ -14,9 +20,21 @@ import Error from "../Error/Error";
 import "./Room.scss";
 
 const Room = () => {
-    const { room, players, spectators, quote, error, updateStatus } = useRoomApi();
-    const [isRunning, setIsRunning] = useState(false);
+    const {
+        room,
+        state,
+        players,
+        spectators,
+        quote,
+        error,
+        updateStatus,
+        isRunning,
+        setIsRunning,
+    } = useRoomApi();
+
     const history = useHistory();
+
+    console.log(state);
 
     if (error) return <Error msg={error} goBack={() => history.goBack()} />;
     if (!room) return null;
@@ -24,6 +42,9 @@ const Room = () => {
     return (
         <div className="room">
             <div>{room.name}</div>
+            <button onClick={history.goBack}>LEAVE ROOM</button>
+            <button onClick={SocketAPI.startRound}>PLAY</button>
+            <button onClick={SocketAPI.endRound}>END</button>
             <Players players={players} />
             <div>
                 SPECTATORS:
@@ -31,7 +52,7 @@ const Room = () => {
                     <div key={index}>{user.username}</div>
                 ))}
             </div>
-            <button onClick={() => history.goBack()}>LEAVE ROOM</button>
+
             <Racer
                 isRunning={isRunning}
                 setIsRunning={setIsRunning}
@@ -40,6 +61,20 @@ const Room = () => {
             />
         </div>
     );
+};
+
+const nth = (d) => {
+    if (d > 3 && d < 21) return `${d}th`;
+    switch (d % 10) {
+        case 1:
+            return `${d}st`;
+        case 2:
+            return `${d}nd`;
+        case 3:
+            return `${d}rd`;
+        default:
+            return `${d}th`;
+    }
 };
 
 const Players = ({ players }) => {
@@ -55,7 +90,17 @@ const Players = ({ players }) => {
             <div className="players">
                 {players.map((user) => (
                     <div key={user.id} className="player">
-                        <div className="username">{user.username}</div>
+                        <div className="details">
+                            <div className="username">{user.username}</div>
+                            {user.position && (
+                                <div>
+                                    {nth(user.position)}
+                                    <span>
+                                        <FaTrophy />
+                                    </span>
+                                </div>
+                            )}
+                        </div>
                         <div className="progress" style={{ width: `${user.progress}%` }} />
                     </div>
                 ))}
@@ -67,9 +112,11 @@ const Players = ({ players }) => {
 
 const useRoomApi = () => {
     const [room, setRoom] = useState(null);
+    const [state, setState] = useState(STATE.WAITING);
     const [players, setPlayers] = useState([]);
     const [spectators, setSpectators] = useState([]);
     const [quote, setQuote] = useState("");
+    const [isRunning, setIsRunning] = useState(false);
     const [error, setError] = useState("");
     const { id } = useParams();
 
@@ -80,9 +127,10 @@ const useRoomApi = () => {
             switch (key) {
                 case "joined":
                     setRoom(data.room);
+                    setState(data.state);
                     setPlayers(data.players);
                     setSpectators(data.spectators);
-                    setQuote(data.status.quote);
+                    setQuote(data.quote.value);
                     break;
                 case "updated":
                     const fields = Object.keys(data);
@@ -93,6 +141,9 @@ const useRoomApi = () => {
                                 break;
                             case "spectators":
                                 setSpectators(data[field]);
+                                break;
+                            case "isRunning":
+                                setIsRunning(data[field]);
                                 break;
                             default:
                                 break;
@@ -111,7 +162,17 @@ const useRoomApi = () => {
         return () => SocketAPI.leaveRoom();
     }, [id]);
 
-    return { room, players, spectators, quote, error, updateStatus: SocketAPI.updateStatus };
+    return {
+        room,
+        state,
+        players,
+        spectators,
+        quote,
+        error,
+        updateStatus: SocketAPI.updateStatus,
+        isRunning,
+        setIsRunning,
+    };
 };
 
 export default Room;

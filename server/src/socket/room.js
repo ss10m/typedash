@@ -1,5 +1,7 @@
 import { Connection, Room } from "../core/index.js";
 
+import { STATE } from "../util/constants.js";
+
 export default (io, socket) => {
     if (!socket.handshake.session.user) {
         socket.emit("handle-error", "Session not found");
@@ -40,7 +42,9 @@ export default (io, socket) => {
 
     socket.on("create-room", () => {
         console.log("create-room");
-        const room = new Room(socket.id);
+        const room = new Room((key, data) => {
+            io.in(room.id).emit(key, data);
+        });
         socket.emit("room-created", room.id);
         updateLobby(io);
     });
@@ -65,20 +69,43 @@ export default (io, socket) => {
         socket.emit("joined-room", room.getDetails());
     });
 
-    socket.on("update-status", (status) => {
-        console.log("update-status");
+    socket.on("update-progress", (data) => {
+        console.log("update-progress");
 
         const room = Room.getRoomBySocketId(socket.id);
         if (!room) return;
         const player = room.players[socket.id];
         if (!player) return;
 
-        const progress = status.progress / room.status.quoteLength;
+        const progress = data.progress / room.quote.length;
         player.progress = Math.round(progress * 100);
+
+        if (data.progress === room.quote.length) {
+            player.position = room.getPosition();
+        }
 
         const updatedState = {};
         updatedState.players = room.getPlayers();
         io.in(room.id).emit("updated-room", updatedState);
+    });
+
+    socket.on("update-state", (state) => {
+        console.log("update-state");
+
+        const room = Room.getRoomBySocketId(socket.id);
+        if (!room) return;
+
+        console.log(state, room.state);
+        if (state === room.state) return;
+
+        switch (state) {
+            case STATE.COUNTDOWN:
+                room.startRound();
+                break;
+            case STATE.WAITING:
+                room.endRound();
+                break;
+        }
     });
 
     socket.on("leave-room", () => {

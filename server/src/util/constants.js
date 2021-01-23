@@ -1,3 +1,9 @@
+const STATE = {
+    WAITING: "WAITING",
+    COUNTDOWN: "COUNTDOWN",
+    PLAYING: "PLAYING",
+};
+
 const TEST_TYPE = {
     VALID: "VALID",
     AVAILABLE: "AVAILABLE",
@@ -10,4 +16,4 @@ const FIELD_TYPE = {
     PASSWORD: "PASSWORD",
 };
 
-export { TEST_TYPE, FIELD_TYPE };
+export { STATE, TEST_TYPE, FIELD_TYPE };

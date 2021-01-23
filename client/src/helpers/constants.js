@@ -4,6 +4,12 @@ const ACCOUNT_TYPE = {
     GUEST: 3,
 };
 
+const STATE = {
+    WAITING: "WAITING",
+    COUNTDOWN: "COUNTDOWN",
+    PLAYING: "PLAYING",
+};
+
 const TEST_TYPE = {
     VALID: "VALID",
     AVAILABLE: "AVAILABLE",
@@ -16,4 +22,4 @@ const FIELD_TYPE = {
     PASSWORD: "PASSWORD",
 };
 
-export { ACCOUNT_TYPE, TEST_TYPE, FIELD_TYPE };
+export { ACCOUNT_TYPE, STATE, TEST_TYPE, FIELD_TYPE };
