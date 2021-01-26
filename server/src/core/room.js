@@ -82,6 +82,11 @@ export class Room {
             const diff = this.state.countdown - (Date.now() - this.state.startTime);
             if (diff > 2000) data.state.countdown = diff;
         }
+        if (this.state.current === STATE.PLAYING) {
+            const diff = this.state.timer - (Date.now() - this.state.startTime);
+            if (diff > 2000) data.state.timer = diff;
+            console.log(this.state.timer, Date.now() - this.state.startTime, diff);
+        }
         return data;
     }
 
@@ -113,10 +118,10 @@ export class Room {
         };
         const onSuccess = () => {
             console.log("onSuccess");
-            this.state = { current: STATE.PLAYING };
+            this.state = { current: STATE.PLAYING, timer: 120000, startTime: Date.now() };
             const updatedState = {};
             updatedState.isRunning = true;
-            updatedState.state = { current: STATE.PLAYING };
+            updatedState.state = { current: STATE.PLAYING, timer: 120000 };
             this.callback("updated-room", updatedState);
         };
         this.ticker = new AdjustingInterval(1000, 10, onTick, onSuccess, null);

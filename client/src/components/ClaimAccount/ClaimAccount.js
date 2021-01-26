@@ -87,6 +87,7 @@ const Register = () => {
                     placeholder="Email"
                     initial={email}
                     setIsValid={setEmail}
+                    autofocus
                 />
                 <InputChecker
                     type={FIELD_TYPE.PASSWORD}

@@ -65,6 +65,8 @@ export default (io, socket) => {
             socket.to(room.id).emit("updated-room", updatedState);
         }
 
+        console.log(room.getDetails());
+
         socket.join(room.id);
         socket.emit("joined-room", room.getDetails());
     });

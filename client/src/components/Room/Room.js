@@ -13,7 +13,8 @@ import SocketAPI from "core/SocketClient";
 import { STATE } from "helpers/constants";
 
 // Components
-import Racer from "../Racer/Racer";
+import Racer from "./Racer/Racer";
+import Timer from "./Timer/Timer";
 import Countdown from "../Countdown/Countdown";
 import Error from "../Error/Error";
 
@@ -30,7 +31,6 @@ const Room = () => {
         error,
         updateStatus,
         isRunning,
-        setIsRunning,
     } = useRoomApi();
 
     const history = useHistory();
@@ -58,13 +58,8 @@ const Room = () => {
                     <div key={index}>{user.username}</div>
                 ))}
             </div>
-
-            <Racer
-                isRunning={isRunning}
-                setIsRunning={setIsRunning}
-                currentQuote={quote}
-                updateStatus={updateStatus}
-            />
+            <Timer state={state} />
+            <Racer isRunning={isRunning} currentQuote={quote} updateStatus={updateStatus} />
         </div>
     );
 };
@@ -180,7 +175,6 @@ const useRoomApi = () => {
         error,
         updateStatus: SocketAPI.updateStatus,
         isRunning,
-        setIsRunning,
     };
 };
 

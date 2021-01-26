@@ -12,14 +12,14 @@ import keyboard from "./keyboard";
 // SCSS
 import "./Racer.scss";
 
-const Racer = ({ isRunning, setIsRunning, currentQuote, updateStatus }) => {
+const Racer = ({ isRunning, currentQuote, updateStatus }) => {
+    const [isActive, setIsActive] = useState(false);
     const [input, setInput] = useState("");
     const [quote, setQuote] = useState([]);
     const [quoteLength, setQuoteLength] = useState(0);
     const [wordIndex, setWordIndex] = useState(0);
     const [correctLength, setCorrectLength] = useState(0);
     const [typoLength, setTypoLength] = useState(0);
-
     const inputRef = useRef(null);
 
     useEffect(() => {
@@ -33,14 +33,22 @@ const Racer = ({ isRunning, setIsRunning, currentQuote, updateStatus }) => {
 
     useEffect(() => {
         if (isRunning) {
+            setIsActive(true);
             inputRef.current.focus();
         } else {
+            setIsActive(false);
             setInput("");
         }
     }, [isRunning]);
 
+    useEffect(() => {
+        if (isActive) {
+            inputRef.current.focus();
+        }
+    }, [isActive]);
+
     const handleChange = (event) => {
-        if (!isRunning) return;
+        if (!isActive) return;
         const input = event.target.value;
         const currentWord = quote[wordIndex];
 
@@ -71,14 +79,13 @@ const Racer = ({ isRunning, setIsRunning, currentQuote, updateStatus }) => {
         setCorrectLength(0);
         setTypoLength(0);
 
-        setIsRunning(wordIndex + 1 !== quoteLength);
+        setIsActive(wordIndex + 1 !== quoteLength);
 
         updateStatus({ progress: wordIndex + 1 });
     };
 
     return (
         <div className="race">
-            <Timer isRunning={isRunning} />
             <Quote
                 quote={quote}
                 wordIndex={wordIndex}
@@ -90,9 +97,9 @@ const Racer = ({ isRunning, setIsRunning, currentQuote, updateStatus }) => {
                 ref={inputRef}
                 handleChange={handleChange}
                 containsTypo={typoLength > 0}
-                isDisabled={wordIndex >= quoteLength || !isRunning}
+                isDisabled={wordIndex >= quoteLength || !isActive}
             />
-            <Keyboard isRunning={isRunning} />
+            <Keyboard isActive={isActive} />
         </div>
     );
 };
@@ -169,12 +176,12 @@ const Letter = ({ letter, letterIndex, correctLength, typoLength }) => {
     );
 };
 
-const Keyboard = ({ isRunning }) => {
+const Keyboard = ({ isActive }) => {
     const { width } = useSelector((state) => state.windowSize);
     const [pressed, setPressed] = useState({});
 
     const keyDownHandler = (event) => {
-        if (!isRunning) return;
+        if (!isActive) return;
         if (pressed[event.code] && pressed[event.code].pressed) return;
         setPressed((prevState) => {
             return { ...prevState, [event.code]: { pressed: true } };
@@ -235,77 +242,6 @@ const Keyboard = ({ isRunning }) => {
 };
 
 export default Racer;
-
-function Timer(props) {
-    const [isRunning, setIsRunning] = useState(props.isRunning);
-    const [prevTime, setPrevTime] = useState(null);
-    const [timeInMilliseconds, setTimeInMilliseconds] = useState(0);
-    const [time, setTime] = useState({
-        milliseconds: "000",
-        minutes: "00",
-        seconds: "00",
-    });
-
-    useEffect(() => {
-        setIsRunning(props.isRunning);
-    }, [props.isRunning]);
-
-    useInterval(
-        () => {
-            let prev = prevTime ? prevTime : Date.now();
-            let diffTime = Date.now() - prev;
-            let newMilliTime = timeInMilliseconds + diffTime;
-            let newTime = toTime(newMilliTime);
-            setPrevTime(Date.now());
-            setTimeInMilliseconds(newMilliTime);
-            setTime(newTime);
-        },
-        isRunning ? 11 : null
-    );
-
-    const toTime = (time) => {
-        let milliseconds = parseInt(time % 1000),
-            seconds = Math.floor((time / 1000) % 60),
-            minutes = Math.floor(time / (1000 * 60));
-
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
-        if (milliseconds < 10) milliseconds = "00" + milliseconds;
-        else if (milliseconds < 100) milliseconds = "0" + milliseconds;
-
-        return {
-            milliseconds,
-            seconds,
-            minutes,
-        };
-    };
-
-    return (
-        <div className="timer">
-            <p>{`${time.minutes}:${time.seconds}:${time.milliseconds}`}</p>
-        </div>
-    );
-}
-
-function useInterval(callback, delay) {
-    const savedCallback = useRef();
-
-    // Remember the latest callback.
-    useEffect(() => {
-        savedCallback.current = callback;
-    }, [callback]);
-
-    // Set up the interval.
-    useEffect(() => {
-        function tick() {
-            savedCallback.current();
-        }
-        if (delay !== null) {
-            let id = setInterval(tick, delay);
-            return () => clearInterval(id);
-        }
-    }, [delay]);
-}
 
 function useEventListener(eventName, handler, element = window) {
     const savedHandler = useRef();
