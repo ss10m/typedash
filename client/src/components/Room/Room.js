@@ -14,6 +14,7 @@ import { STATE } from "helpers/constants";
 
 // Components
 import Racer from "../Racer/Racer";
+import Countdown from "../Countdown/Countdown";
 import Error from "../Error/Error";
 
 // SCSS
@@ -34,20 +35,25 @@ const Room = () => {
 
     const history = useHistory();
 
-    console.log(state);
-
     if (error) return <Error msg={error} goBack={() => history.goBack()} />;
     if (!room) return null;
 
     return (
         <div className="room">
-            <div>{room.name}</div>
-            <button onClick={history.goBack}>LEAVE ROOM</button>
-            <button onClick={SocketAPI.startRound}>PLAY</button>
-            <button onClick={SocketAPI.endRound}>END</button>
+            {state.countdown && <Countdown duration={state.countdown} />}
+            <div className="status">
+                <div>{room.name}</div>
+                <div>
+                    <button onClick={history.goBack}>LEAVE ROOM</button>
+                    <button onClick={SocketAPI.startRound}>PLAY</button>
+                    <button onClick={SocketAPI.endRound}>END</button>
+                </div>
+                <div>
+                    <p>{state.current}</p>
+                </div>
+            </div>
             <Players players={players} />
             <div>
-                SPECTATORS:
                 {spectators.map((user, index) => (
                     <div key={index}>{user.username}</div>
                 ))}
@@ -111,14 +117,14 @@ const Players = ({ players }) => {
 };
 
 const useRoomApi = () => {
+    const { id } = useParams();
     const [room, setRoom] = useState(null);
-    const [state, setState] = useState(STATE.WAITING);
+    const [state, setState] = useState({ current: STATE.WAITING });
     const [players, setPlayers] = useState([]);
     const [spectators, setSpectators] = useState([]);
     const [quote, setQuote] = useState("");
     const [isRunning, setIsRunning] = useState(false);
     const [error, setError] = useState("");
-    const { id } = useParams();
 
     useEffect(() => {
         const onUpdate = (key, data) => {
@@ -144,6 +150,9 @@ const useRoomApi = () => {
                                 break;
                             case "isRunning":
                                 setIsRunning(data[field]);
+                                break;
+                            case "state":
+                                setState(data[field]);
                                 break;
                             default:
                                 break;

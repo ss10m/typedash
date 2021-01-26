@@ -1,5 +1,11 @@
 .room {
     color: whitesmoke;
+    position: relative;
+
+    .status {
+        display: flex;
+        justify-content: space-between;
+    }
 }
 
 .room .players-wrapper {
@@ -60,7 +66,7 @@
                 position: absolute;
                 //border-right: 2px solid whitesmoke;
                 //background-color: #3a5068;
-                background-color: purple;
+                background-color: #e91e63;
                 opacity: 0.2;
                 transition: width 1s ease;
                 //transition: width 1s ease-in-out;

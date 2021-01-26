@@ -10,7 +10,7 @@ export class Room {
     constructor(cb) {
         this.callback = cb;
         this.id = nanoid(7);
-        this.state = STATE.WAITING;
+        this.state = { current: STATE.WAITING };
         this.name = this.generateName();
         this.players = {};
         this.spectators = {};
@@ -71,13 +71,18 @@ export class Room {
     }
 
     getDetails() {
-        return {
+        const data = {
             room: { id: this.id, name: this.name },
-            state: this.state,
+            state: { current: this.state.current },
             players: Object.values(this.players),
             spectators: Object.values(this.spectators),
             quote: this.quote,
         };
+        if (this.state.current === STATE.COUNTDOWN) {
+            const diff = this.state.countdown - (Date.now() - this.state.startTime);
+            if (diff > 2000) data.state.countdown = diff;
+        }
+        return data;
     }
 
     getPosition() {
@@ -98,26 +103,34 @@ export class Room {
 
     startRound() {
         console.log("STARTING ROUND");
+        const updatedState = {};
+        updatedState.state = { current: STATE.COUNTDOWN, countdown: 10000 };
+        this.callback("updated-room", updatedState);
 
-        this.state = STATE.COUNTDOWN;
+        this.state = { current: STATE.COUNTDOWN, countdown: 10000, startTime: Date.now() };
         const onTick = () => {
             console.log("TICK");
         };
         const onSuccess = () => {
             console.log("onSuccess");
+            this.state = { current: STATE.PLAYING };
             const updatedState = {};
             updatedState.isRunning = true;
+            updatedState.state = { current: STATE.PLAYING };
             this.callback("updated-room", updatedState);
         };
-        this.ticker = new AdjustingInterval(1000, 5, onTick, onSuccess, null);
+        this.ticker = new AdjustingInterval(1000, 10, onTick, onSuccess, null);
         this.ticker.start();
     }
 
     endRound() {
         console.log("ENDING ROUND");
-
-        this.state = STATE.WAITING;
         if (this.ticker) this.ticker.clear();
+        this.state = { current: STATE.WAITING };
+        const updatedState = {};
+        updatedState.isRunning = false;
+        updatedState.state = { current: STATE.WAITING };
+        this.callback("updated-room", updatedState);
     }
 
     static getRoomById(id) {
