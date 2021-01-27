@@ -1,6 +1,6 @@
 import { Connection, Room } from "../core/index.js";
 
-import { STATE } from "../util/constants.js";
+import { ROOM_ACTION } from "../util/constants.js";
 
 export default (io, socket) => {
     if (!socket.handshake.session.user) {
@@ -91,21 +91,23 @@ export default (io, socket) => {
         io.in(room.id).emit("updated-room", updatedState);
     });
 
-    socket.on("update-state", (state) => {
+    socket.on("update-state", (action) => {
         console.log("update-state");
 
         const room = Room.getRoomBySocketId(socket.id);
         if (!room) return;
 
-        console.log(state, room.state);
-        if (state === room.state) return;
-
-        switch (state) {
-            case STATE.COUNTDOWN:
-                room.startRound();
+        switch (action) {
+            case ROOM_ACTION.START_COUNTDOWN:
+                room.startCountdown();
                 break;
-            case STATE.WAITING:
-                room.endRound();
+            case ROOM_ACTION.CANCEL_COUNTDOWN:
+                room.cancelCountdown();
+                break;
+            case ROOM_ACTION.NEXT_ROUND:
+                room.startNextRound();
+                break;
+            default:
                 break;
         }
     });

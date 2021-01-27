@@ -1,7 +1,8 @@
-import { STATE } from "helpers/constants";
 import io from "socket.io-client";
 
 import { setSession, setError, setRooms } from "store/actions";
+
+import { ROOM_ACTION } from "helpers/constants";
 
 class SocketAPI {
     constructor() {
@@ -77,12 +78,16 @@ class SocketAPI {
         this.emit("update-progress", progress);
     };
 
-    startRound = () => {
-        this.emit("update-state", STATE.COUNTDOWN);
+    startCountdown = () => {
+        this.emit("update-state", ROOM_ACTION.START_COUNTDOWN);
     };
 
-    endRound = () => {
-        this.emit("update-state", STATE.WAITING);
+    cancelCountdown = () => {
+        this.emit("update-state", ROOM_ACTION.CANCEL_COUNTDOWN);
+    };
+
+    nextRound = () => {
+        this.emit("update-state", ROOM_ACTION.NEXT_ROUND);
     };
 
     setup = () => {

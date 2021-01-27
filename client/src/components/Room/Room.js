@@ -15,7 +15,7 @@ import { STATE } from "helpers/constants";
 // Components
 import Racer from "./Racer/Racer";
 import Timer from "./Timer/Timer";
-import Countdown from "../Countdown/Countdown";
+import Countdown from "./Countdown/Countdown";
 import Error from "../Error/Error";
 
 // SCSS
@@ -40,13 +40,16 @@ const Room = () => {
 
     return (
         <div className="room">
-            {state.countdown && <Countdown duration={state.countdown} />}
+            {state.countdown && (
+                <Countdown duration={state.countdown} onCancel={SocketAPI.cancelCountdown} />
+            )}
             <div className="status">
                 <div>{room.name}</div>
                 <div>
                     <button onClick={history.goBack}>LEAVE ROOM</button>
-                    <button onClick={SocketAPI.startRound}>PLAY</button>
-                    <button onClick={SocketAPI.endRound}>END</button>
+                    <button onClick={SocketAPI.startCountdown}>PLAY</button>
+                    <button onClick={SocketAPI.cancelCountdown}>CANCEL</button>
+                    <button onClick={SocketAPI.nextRound}>NEW ROUND</button>
                 </div>
                 <div>
                     <p>{state.current}</p>
@@ -114,7 +117,7 @@ const Players = ({ players }) => {
 const useRoomApi = () => {
     const { id } = useParams();
     const [room, setRoom] = useState(null);
-    const [state, setState] = useState({ current: STATE.WAITING });
+    const [state, setState] = useState({ current: STATE.PREGAME });
     const [players, setPlayers] = useState([]);
     const [spectators, setSpectators] = useState([]);
     const [quote, setQuote] = useState("");

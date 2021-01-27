@@ -10,7 +10,7 @@ export class Room {
     constructor(cb) {
         this.callback = cb;
         this.id = nanoid(7);
-        this.state = { current: STATE.WAITING };
+        this.state = { current: STATE.PREGAME };
         this.name = this.generateName();
         this.players = {};
         this.spectators = {};
@@ -62,7 +62,7 @@ export class Room {
         if (this.players[socketId]) delete this.players[socketId];
         if (this.spectators[socketId]) delete this.spectators[socketId];
         if (!Object.keys(this.players).length && !Object.keys(this.spectators).length) {
-            if (this.ticker) this.ticker.clear();
+            if (this.countdown) clearInterval(this.countdown);
             delete Room.idToRoom[this.id];
             isEmpty = true;
         }
@@ -106,36 +106,40 @@ export class Room {
         return Object.values(this.spectators);
     }
 
-    startRound() {
+    startCountdown() {
         console.log("STARTING ROUND");
-        const updatedState = {};
-        updatedState.state = { current: STATE.COUNTDOWN, countdown: 10000 };
-        this.callback("updated-room", updatedState);
+        if (this.state.current !== STATE.PREGAME) return;
+        const updatedState = { current: STATE.COUNTDOWN, countdown: 6000 };
+        this.state = { ...updatedState, startTime: Date.now() };
+        this.callback("updated-room", { state: updatedState });
 
-        this.state = { current: STATE.COUNTDOWN, countdown: 10000, startTime: Date.now() };
-        const onTick = () => {
-            console.log("TICK");
-        };
         const onSuccess = () => {
-            console.log("onSuccess");
             this.state = { current: STATE.PLAYING, timer: 120000, startTime: Date.now() };
-            const updatedState = {};
-            updatedState.isRunning = true;
-            updatedState.state = { current: STATE.PLAYING, timer: 120000 };
+            const updatedState = {
+                isRunning: true,
+                state: { current: STATE.PLAYING, timer: 120000 },
+            };
             this.callback("updated-room", updatedState);
         };
-        this.ticker = new AdjustingInterval(1000, 10, onTick, onSuccess, null);
-        this.ticker.start();
+        this.countdown = setInterval(onSuccess, 6000);
+    }
+
+    cancelCountdown() {
+        console.log("ENDING ROUND");
+        if (this.state.current !== STATE.COUNTDOWN) return;
+        if (this.countdown) clearInterval(this.countdown);
+        this.state = { current: STATE.PREGAME };
+        const updatedState = {};
+        updatedState.state = { current: STATE.PREGAME };
+        this.callback("updated-room", updatedState);
+    }
+
+    startNextRound() {
+        console.log("startNextRound");
     }
 
     endRound() {
-        console.log("ENDING ROUND");
-        if (this.ticker) this.ticker.clear();
-        this.state = { current: STATE.WAITING };
-        const updatedState = {};
-        updatedState.isRunning = false;
-        updatedState.state = { current: STATE.WAITING };
-        this.callback("updated-room", updatedState);
+        console.log("endRound");
     }
 
     static getRoomById(id) {
@@ -156,33 +160,36 @@ export class Room {
 }
 
 function AdjustingInterval(interval, steps, onStep, onSuccess, onError) {
-    let expected, timeout;
     this.interval = interval;
     this.steps = steps;
+    this.expected = null;
+    this.timeout = null;
 
     this.start = () => {
-        expected = Date.now() + this.interval;
-        timeout = setTimeout(step, this.interval);
+        this.expected = Date.now() + this.interval;
+        this.timeout = setTimeout(this.step, this.interval);
     };
 
     this.clear = () => {
-        clearTimeout(timeout);
+        clearTimeout(this.timeout);
     };
 
-    const step = () => {
-        console.log(--this.steps);
+    this.step = () => {
+        --this.steps;
         if (!this.steps) {
-            this.clear();
             onSuccess();
+            this.clear();
             return;
         }
 
-        const drift = Date.now() - expected;
+        const drift = Date.now() - this.expected;
         if (drift > this.interval) {
             if (onError) onError();
+            this.clear();
+            return;
         }
-        onStep();
-        expected += this.interval;
-        timeout = setTimeout(step, Math.max(0, this.interval - drift));
+        if (onStep) onStep(this.steps);
+        this.expected += this.interval;
+        this.timeout = setTimeout(this.step, Math.max(0, this.interval - drift));
     };
 }
