@@ -1,6 +1,6 @@
 import { nanoid } from "nanoid";
 
-import { STATE } from "../util/constants.js";
+import { STATE, ROUND } from "../util/constants.js";
 
 export class Room {
     static count = 0;
@@ -62,7 +62,8 @@ export class Room {
         if (this.players[socketId]) delete this.players[socketId];
         if (this.spectators[socketId]) delete this.spectators[socketId];
         if (!Object.keys(this.players).length && !Object.keys(this.spectators).length) {
-            if (this.countdown) clearInterval(this.countdown);
+            if (this.countdown) clearTimeout(this.countdown);
+            if (this.ticker) this.ticker.clear();
             delete Room.idToRoom[this.id];
             isEmpty = true;
         }
@@ -76,7 +77,7 @@ export class Room {
             state: { current: this.state.current },
             players: Object.values(this.players),
             spectators: Object.values(this.spectators),
-            quote: this.quote,
+            quote: this.quote.value,
         };
         if (this.state.current === STATE.COUNTDOWN) {
             const diff = this.state.countdown - (Date.now() - this.state.startTime);
@@ -109,25 +110,37 @@ export class Room {
     startCountdown() {
         console.log("STARTING ROUND");
         if (this.state.current !== STATE.PREGAME) return;
-        const updatedState = { current: STATE.COUNTDOWN, countdown: 6000 };
+        const updatedState = { current: STATE.COUNTDOWN, countdown: ROUND.COUNTDOWN };
         this.state = { ...updatedState, startTime: Date.now() };
         this.callback("updated-room", { state: updatedState });
 
         const onSuccess = () => {
-            this.state = { current: STATE.PLAYING, timer: 120000, startTime: Date.now() };
+            console.log("onSuccess");
+            this.state = { current: STATE.PLAYING, timer: ROUND.TIME, startTime: Date.now() };
+
+            const onStep = (steps) => {
+                console.log(`${steps}/${ROUND.TIME / 500}`);
+            };
+            const onSuccess = () => {
+                this.endRound();
+            };
+
+            this.ticker = new AdjustingInterval(500, ROUND.TIME / 500, onStep, onSuccess);
+            this.ticker.start();
+
             const updatedState = {
                 isRunning: true,
-                state: { current: STATE.PLAYING, timer: 120000 },
+                state: { current: STATE.PLAYING, timer: ROUND.TIME },
             };
             this.callback("updated-room", updatedState);
         };
-        this.countdown = setInterval(onSuccess, 6000);
+        this.countdown = setTimeout(onSuccess, ROUND.COUNTDOWN);
     }
 
     cancelCountdown() {
         console.log("ENDING ROUND");
         if (this.state.current !== STATE.COUNTDOWN) return;
-        if (this.countdown) clearInterval(this.countdown);
+        if (this.countdown) clearTimeout(this.countdown);
         this.state = { current: STATE.PREGAME };
         const updatedState = {};
         updatedState.state = { current: STATE.PREGAME };
@@ -136,10 +149,36 @@ export class Room {
 
     startNextRound() {
         console.log("startNextRound");
+        if (this.state.current !== STATE.POSTGAME) return;
+        this.state = { current: STATE.PREGAME };
+        this.finished = 0;
+
+        // for (const [_, player] of Object.entries(this.players)) {
+        //     player.progress = 0;
+        // }
+
+        Object.values(this.players).forEach((player) => (player.progress = 0));
+
+        const value = `"I want to go home," he muttered as he totered down the road beside me.`;
+        const length = value.split(" ").length;
+        this.quote = { value, length };
+
+        const updatedState = {
+            state: { current: STATE.PREGAME },
+            quote: this.quote.value,
+            players: Object.values(this.players),
+        };
+        this.callback("updated-room", updatedState);
     }
 
     endRound() {
         console.log("endRound");
+        this.state = { current: STATE.POSTGAME };
+        const updatedState = {
+            state: { current: STATE.POSTGAME },
+            isRunning: false,
+        };
+        this.callback("updated-room", updatedState);
     }
 
     static getRoomById(id) {
@@ -177,12 +216,13 @@ function AdjustingInterval(interval, steps, onStep, onSuccess, onError) {
     this.step = () => {
         --this.steps;
         if (!this.steps) {
-            onSuccess();
+            if (onSuccess) onSuccess();
             this.clear();
             return;
         }
 
         const drift = Date.now() - this.expected;
+        console.log(drift);
         if (drift > this.interval) {
             if (onError) onError();
             this.clear();

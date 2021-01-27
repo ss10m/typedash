@@ -134,29 +134,31 @@ const useRoomApi = () => {
                     setState(data.state);
                     setPlayers(data.players);
                     setSpectators(data.spectators);
-                    setQuote(data.quote.value);
+                    setQuote(data.quote);
                     break;
                 case "updated":
                     const fields = Object.keys(data);
                     for (let field of fields) {
                         switch (field) {
+                            case "state":
+                                setState(data[field]);
+                                break;
+                            case "isRunning":
+                                setIsRunning(data[field]);
+                                break;
+                            case "quote":
+                                setQuote(data[field]);
+                                break;
                             case "players":
                                 setPlayers(data[field]);
                                 break;
                             case "spectators":
                                 setSpectators(data[field]);
                                 break;
-                            case "isRunning":
-                                setIsRunning(data[field]);
-                                break;
-                            case "state":
-                                setState(data[field]);
-                                break;
                             default:
                                 break;
                         }
                     }
-                    setRoom((room) => ({ ...room, ...data }));
                     break;
                 case "error":
                     setError(data);

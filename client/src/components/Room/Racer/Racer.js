@@ -29,15 +29,22 @@ const Racer = ({ isRunning, currentQuote, updateStatus }) => {
 
         setQuote(words);
         setQuoteLength(words.length);
+        setWordIndex(0);
     }, [currentQuote]);
 
     useEffect(() => {
+        console.log("isRunning changed to: " + isRunning);
         if (isRunning) {
             setIsActive(true);
+            setWordIndex(0);
             inputRef.current.focus();
         } else {
+            console.log("RESET");
             setIsActive(false);
             setInput("");
+            setWordIndex(null);
+            setCorrectLength(0);
+            setTypoLength(0);
         }
     }, [isRunning]);
 
