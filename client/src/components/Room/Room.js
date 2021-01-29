@@ -125,46 +125,39 @@ const useRoomApi = () => {
     const [error, setError] = useState("");
 
     useEffect(() => {
-        const onUpdate = (key, data) => {
-            console.log(key, data);
+        const onUpdate = (data) => {
+            console.log(data);
 
-            switch (key) {
-                case "joined":
-                    setRoom(data.room);
-                    setState(data.state);
-                    setPlayers(data.players);
-                    setSpectators(data.spectators);
-                    setQuote(data.quote);
-                    break;
-                case "updated":
-                    const fields = Object.keys(data);
-                    for (let field of fields) {
-                        switch (field) {
-                            case "state":
-                                setState(data[field]);
-                                break;
-                            case "isRunning":
-                                setIsRunning(data[field]);
-                                break;
-                            case "quote":
-                                setQuote(data[field]);
-                                break;
-                            case "players":
-                                setPlayers(data[field]);
-                                break;
-                            case "spectators":
-                                setSpectators(data[field]);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    break;
-                case "error":
-                    setError(data);
-                    break;
-                default:
-                    break;
+            const fields = Object.keys(data);
+            for (let field of fields) {
+                switch (field) {
+                    case "room":
+                        setRoom(data[field]);
+                        break;
+                    case "state":
+                        setState(data[field]);
+                        break;
+                    case "isRunning":
+                        setIsRunning(data[field]);
+                        break;
+                    case "quote":
+                        setQuote(data[field]);
+                        break;
+                    case "players":
+                        setPlayers(data[field]);
+                        break;
+                    case "spectators":
+                        setSpectators(data[field]);
+                        break;
+                    case "isSpectating":
+                        console.log("isSpectating: " + data[field]);
+                        break;
+                    case "error":
+                        setError(data[field]);
+                        break;
+                    default:
+                        break;
+                }
             }
         };
         SocketAPI.joinRoom(id, onUpdate);

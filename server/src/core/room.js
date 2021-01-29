@@ -43,16 +43,44 @@ export class Room {
         const socketId = socket.id;
         const username = socket.handshake.session.user.displayName;
 
-        this.players[socketId] = { username, id: socketId, progress: 0 };
-        /*
-        if (Math.random() > 0.5) {
-            this.players[socketId] = { username };
-        } else {
-            this.spectators[socketId] = { username };
-        }
-        */
-
         Room.socketIdToRoom[socketId] = this;
+
+        const data = {
+            room: { id: this.id, name: this.name },
+            state: { current: this.state.current },
+            quote: this.quote.value,
+        };
+        const user = { username, id: socketId, progress: 0 };
+
+        switch (this.state.current) {
+            case STATE.PREGAME:
+                this.players[socketId] = user;
+                data.isSpectating = false;
+                break;
+            case STATE.COUNTDOWN:
+                this.players[socketId] = user;
+                const countdownDiff =
+                    this.state.countdown - (Date.now() - this.state.startTime);
+                if (countdownDiff > 2000) data.state.countdown = countdownDiff;
+                data.isSpectating = false;
+                break;
+            case STATE.PLAYING:
+                this.spectators[socketId] = user;
+                const timerDiff = this.state.timer - (Date.now() - this.state.startTime);
+                if (timerDiff > 2000) data.state.timer = timerDiff;
+                data.isSpectating = true;
+                break;
+            case STATE.POSTGAME:
+                this.spectators[socketId] = user;
+                data.isSpectating = true;
+                break;
+            default:
+                break;
+        }
+
+        data.players = Object.values(this.players);
+        data.spectators = Object.values(this.spectators);
+        return data;
     }
 
     leave(socketId) {
@@ -69,26 +97,6 @@ export class Room {
         }
         if (!Object.keys(Room.idToRoom).length) Room.count = 0;
         return isEmpty;
-    }
-
-    getDetails() {
-        const data = {
-            room: { id: this.id, name: this.name },
-            state: { current: this.state.current },
-            players: Object.values(this.players),
-            spectators: Object.values(this.spectators),
-            quote: this.quote.value,
-        };
-        if (this.state.current === STATE.COUNTDOWN) {
-            const diff = this.state.countdown - (Date.now() - this.state.startTime);
-            if (diff > 2000) data.state.countdown = diff;
-        }
-        if (this.state.current === STATE.PLAYING) {
-            const diff = this.state.timer - (Date.now() - this.state.startTime);
-            if (diff > 2000) data.state.timer = diff;
-            console.log(this.state.timer, Date.now() - this.state.startTime, diff);
-        }
-        return data;
     }
 
     getPosition() {

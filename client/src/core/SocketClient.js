@@ -105,19 +105,9 @@ class SocketAPI {
             this.onRoomCreate = null;
         });
 
-        this.socket.on("joined-room", (data) => {
-            if (!this.onRoomUpdate) return;
-            this.onRoomUpdate("joined", data);
-        });
-
-        this.socket.on("failed-to-join", (msg) => {
-            if (!this.onRoomUpdate) return;
-            this.onRoomUpdate("error", msg);
-        });
-
         this.socket.on("updated-room", (update) => {
             if (!this.onRoomUpdate) return;
-            this.onRoomUpdate("updated", update);
+            this.onRoomUpdate(update);
         });
     };
 }

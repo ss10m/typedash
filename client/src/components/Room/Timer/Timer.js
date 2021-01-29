@@ -8,21 +8,22 @@ const Timer = ({ state }) => {
     const [isRunning, setIsRunning] = useState(false);
     const [prevTime, setPrevTime] = useState(null);
     const [timeInMilliseconds, setTimeInMilliseconds] = useState(0);
-    const [time, setTime] = useState({});
+    const [time, setTime] = useState({
+        minutes: "00",
+        seconds: "00",
+        milliseconds: "000",
+    });
 
     useEffect(() => {
-        console.log(state);
         switch (state.current) {
             case STATE.PREGAME:
-                // setTime({
-                //     minutes: "02",
-                //     seconds: "00",
-                //     milliseconds: "000",
-                // });
-
+                setTime({
+                    minutes: "02",
+                    seconds: "00",
+                    milliseconds: "000",
+                });
                 break;
             case STATE.PLAYING:
-                console.log(isRunning, timeInMilliseconds, state.timer);
                 setTimeInMilliseconds(state.timer);
                 setIsRunning(true);
                 break;
@@ -30,12 +31,11 @@ const Timer = ({ state }) => {
                 setIsRunning(false);
                 setPrevTime(null);
                 setTimeInMilliseconds(0);
-                setTime({});
-                // setTime({
-                //     minutes: "00",
-                //     seconds: "00",
-                //     milliseconds: "000",
-                // });
+                setTime({
+                    minutes: "00",
+                    seconds: "00",
+                    milliseconds: "000",
+                });
                 break;
             default:
                 break;
@@ -44,11 +44,12 @@ const Timer = ({ state }) => {
 
     useInterval(
         () => {
+            console.log("TICK");
             let prev = prevTime ? prevTime : Date.now();
             let diffTime = Date.now() - prev;
             let newMilliTime = timeInMilliseconds - diffTime;
             let newTime = toTime(newMilliTime);
-            //if (!newTime) return setIsRunning(false);
+            if (!newTime) return setIsRunning(false);
             setPrevTime(Date.now());
             setTimeInMilliseconds(newMilliTime);
             setTime(newTime);

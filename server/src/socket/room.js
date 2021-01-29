@@ -54,10 +54,10 @@ export default (io, socket) => {
 
         const room = Room.getRoomById(roomId);
         if (!room) {
-            return socket.emit("failed-to-join", "Room not found");
+            return socket.emit("updated-room", { error: "Room not found" });
         }
 
-        room.join(socket);
+        const roomDetails = room.join(socket);
         if (room.getNumOfUsers()) {
             const updatedState = {};
             updatedState.players = room.getPlayers();
@@ -65,10 +65,8 @@ export default (io, socket) => {
             socket.to(room.id).emit("updated-room", updatedState);
         }
 
-        console.log(room.getDetails());
-
         socket.join(room.id);
-        socket.emit("joined-room", room.getDetails());
+        socket.emit("updated-room", roomDetails);
     });
 
     socket.on("update-progress", (data) => {

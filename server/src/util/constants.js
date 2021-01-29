@@ -12,8 +12,8 @@ const ROOM_ACTION = {
 };
 
 const ROUND = {
-    TIME: 10000,
-    COUNTDOWN: 3000,
+    TIME: 120000,
+    COUNTDOWN: 10000,
 };
 
 const TEST_TYPE = {
