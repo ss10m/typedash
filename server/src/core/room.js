@@ -18,7 +18,6 @@ export class Room {
         this.finished = 0;
         Room.count += 1;
         Room.idToRoom[this.id] = this;
-        //this.startRound();
     }
 
     generateName() {
@@ -115,6 +114,14 @@ export class Room {
         return Object.values(this.spectators);
     }
 
+    isCompleted() {
+        const isCompleted = Object.values(this.players).every((player) => player.position);
+        if (!isCompleted) return false;
+        if (this.ticker) this.ticker.clear();
+        this.endRound();
+        return true;
+    }
+
     startCountdown() {
         console.log("STARTING ROUND");
         if (this.state.current !== STATE.PREGAME) return;
@@ -161,11 +168,10 @@ export class Room {
         this.state = { current: STATE.PREGAME };
         this.finished = 0;
 
-        // for (const [_, player] of Object.entries(this.players)) {
-        //     player.progress = 0;
-        // }
-
-        Object.values(this.players).forEach((player) => (player.progress = 0));
+        Object.values(this.players).forEach((player) => {
+            player.progress = 0;
+            delete player.position;
+        });
 
         const value = `"I want to go home," he muttered as he totered down the road beside me.`;
         const length = value.split(" ").length;
@@ -185,6 +191,7 @@ export class Room {
         const updatedState = {
             state: { current: STATE.POSTGAME },
             isRunning: false,
+            players: this.getPlayers(),
         };
         this.callback("updated-room", updatedState);
     }

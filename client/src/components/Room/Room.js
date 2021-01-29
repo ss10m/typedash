@@ -79,20 +79,6 @@ const Room = () => {
     );
 };
 
-const nth = (d) => {
-    if (d > 3 && d < 21) return `${d}th`;
-    switch (d % 10) {
-        case 1:
-            return `${d}st`;
-        case 2:
-            return `${d}nd`;
-        case 3:
-            return `${d}rd`;
-        default:
-            return `${d}th`;
-    }
-};
-
 const Players = ({ players }) => {
     return (
         <div className="players-wrapper">
@@ -109,11 +95,13 @@ const Players = ({ players }) => {
                         <div className="details">
                             <div className="username">{user.username}</div>
                             {user.position && (
-                                <div>
-                                    {nth(user.position)}
-                                    <span>
-                                        <FaTrophy />
-                                    </span>
+                                <div className="position">
+                                    {user.position <= 3 && (
+                                        <span style={{ color: trophyColor(user.position) }}>
+                                            <FaTrophy />
+                                        </span>
+                                    )}
+                                    {ordinalSuffix(user.position)}
                                 </div>
                             )}
                         </div>
@@ -189,6 +177,34 @@ const useRoomApi = () => {
         isRunning,
         setIsRunning,
     };
+};
+
+const ordinalSuffix = (position) => {
+    const j = position % 10;
+    const k = position % 100;
+    if (j === 1 && k !== 11) {
+        return position + "st";
+    }
+    if (j === 2 && k !== 12) {
+        return position + "nd";
+    }
+    if (j === 3 && k !== 13) {
+        return position + "rd";
+    }
+    return position + "th";
+};
+
+const trophyColor = (position) => {
+    switch (position) {
+        case 1:
+            return "#FEE101";
+        case 2:
+            return "#A7a7AD";
+        case 3:
+            return "#A77044";
+        default:
+            return;
+    }
 };
 
 export default Room;

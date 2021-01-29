@@ -82,6 +82,7 @@ export default (io, socket) => {
 
         if (data.progress === room.quote.length) {
             player.position = room.getPosition();
+            if (room.isCompleted()) return;
         }
 
         const updatedState = {};

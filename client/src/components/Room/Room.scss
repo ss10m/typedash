@@ -1,6 +1,6 @@
 .room {
-    color: whitesmoke;
     position: relative;
+    color: whitesmoke;
 
     .status {
         display: flex;
@@ -23,7 +23,6 @@
 .room .players-wrapper {
     margin: 20px 0;
     display: flex;
-    //border: 2px solid #283c4e;
 
     .start {
         width: 25px;
@@ -64,31 +63,35 @@
                 align-items: center;
                 position: absolute;
                 padding: 0 20px;
-                font-size: 20px;
-                font-weight: 600;
+                font-size: 27px;
+                font-weight: 1000;
                 z-index: 2;
 
-                span {
+                .position {
                     display: flex;
+                    align-items: center;
+                    font-size: 30px;
+
+                    span {
+                        display: flex;
+                        margin-right: 10px;
+                        font-size: 27px;
+                    }
                 }
             }
 
             .progress {
                 height: 100%;
                 position: absolute;
-                //border-right: 2px solid whitesmoke;
-                //background-color: #3a5068;
                 background-color: #479fef;
                 opacity: 0.2;
                 transition: width 1s ease;
-                //transition: width 1s ease-in-out;
             }
         }
     }
 
     .flag {
         width: 20px;
-
         background-image: linear-gradient(45deg, #000000 25%, transparent 25%),
             linear-gradient(-45deg, #000000 25%, transparent 25%),
             linear-gradient(45deg, transparent 75%, #000000 75%),
