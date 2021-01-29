@@ -12,11 +12,9 @@ import keyboard from "./keyboard";
 // SCSS
 import "./Racer.scss";
 
-const Racer = ({ isRunning, currentQuote, updateStatus }) => {
-    const [isActive, setIsActive] = useState(false);
+const Racer = ({ isRunning, setIsRunning, currentQuote, updateStatus }) => {
     const [input, setInput] = useState("");
-    const [quote, setQuote] = useState([]);
-    const [quoteLength, setQuoteLength] = useState(0);
+    const [quote, setQuote] = useState({ current: [], length: 0 });
     const [wordIndex, setWordIndex] = useState(0);
     const [correctLength, setCorrectLength] = useState(0);
     const [typoLength, setTypoLength] = useState(0);
@@ -27,20 +25,15 @@ const Racer = ({ isRunning, currentQuote, updateStatus }) => {
         const lastIndex = words.length - 1;
         words[lastIndex] = words[lastIndex].trim();
 
-        setQuote(words);
-        setQuoteLength(words.length);
+        setQuote({ current: words, length: words.length });
         setWordIndex(0);
     }, [currentQuote]);
 
     useEffect(() => {
-        console.log("isRunning changed to: " + isRunning);
         if (isRunning) {
-            setIsActive(true);
             setWordIndex(0);
             inputRef.current.focus();
         } else {
-            console.log("RESET");
-            setIsActive(false);
             setInput("");
             setWordIndex(null);
             setCorrectLength(0);
@@ -48,16 +41,10 @@ const Racer = ({ isRunning, currentQuote, updateStatus }) => {
         }
     }, [isRunning]);
 
-    useEffect(() => {
-        if (isActive) {
-            inputRef.current.focus();
-        }
-    }, [isActive]);
-
     const handleChange = (event) => {
-        if (!isActive) return;
+        if (!isRunning) return;
         const input = event.target.value;
-        const currentWord = quote[wordIndex];
+        const currentWord = quote.current[wordIndex];
 
         if (!currentWord) return;
 
@@ -71,7 +58,6 @@ const Racer = ({ isRunning, currentQuote, updateStatus }) => {
             return nextWord();
         } else {
             const strLen = longestCommonSubstring(currentWord, input);
-
             setInput(input);
             setCorrectLength(strLen);
             setTypoLength(input.length - strLen);
@@ -79,22 +65,19 @@ const Racer = ({ isRunning, currentQuote, updateStatus }) => {
     };
 
     const nextWord = () => {
-        console.log(wordIndex + 1, quoteLength);
-
+        const newIndex = wordIndex + 1;
         setInput("");
-        setWordIndex(wordIndex + 1);
+        setWordIndex(newIndex);
         setCorrectLength(0);
         setTypoLength(0);
-
-        setIsActive(wordIndex + 1 !== quoteLength);
-
-        updateStatus({ progress: wordIndex + 1 });
+        updateStatus({ progress: newIndex });
+        if (newIndex === quote.length) setIsRunning(false);
     };
 
     return (
         <div className="race">
             <Quote
-                quote={quote}
+                quote={quote.current}
                 wordIndex={wordIndex}
                 correctLength={correctLength}
                 typoLength={typoLength}
@@ -104,9 +87,9 @@ const Racer = ({ isRunning, currentQuote, updateStatus }) => {
                 ref={inputRef}
                 handleChange={handleChange}
                 containsTypo={typoLength > 0}
-                isDisabled={wordIndex >= quoteLength || !isActive}
+                isDisabled={!isRunning}
             />
-            <Keyboard isActive={isActive} />
+            <Keyboard isRunning={isRunning} />
         </div>
     );
 };
@@ -124,7 +107,6 @@ const Input = React.forwardRef((props, ref) => (
         value={props.input}
         onChange={props.handleChange}
         disabled={props.isDisabled}
-        autoFocus={true}
     ></input>
 ));
 
@@ -183,12 +165,12 @@ const Letter = ({ letter, letterIndex, correctLength, typoLength }) => {
     );
 };
 
-const Keyboard = ({ isActive }) => {
+const Keyboard = ({ isRunning }) => {
     const { width } = useSelector((state) => state.windowSize);
     const [pressed, setPressed] = useState({});
 
     const keyDownHandler = (event) => {
-        if (!isActive) return;
+        if (!isRunning) return;
         if (pressed[event.code] && pressed[event.code].pressed) return;
         setPressed((prevState) => {
             return { ...prevState, [event.code]: { pressed: true } };

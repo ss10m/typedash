@@ -11,7 +11,6 @@ const Timer = ({ state }) => {
     const [time, setTime] = useState({
         minutes: "00",
         seconds: "00",
-        milliseconds: "000",
     });
 
     useEffect(() => {
@@ -20,7 +19,6 @@ const Timer = ({ state }) => {
                 setTime({
                     minutes: "02",
                     seconds: "00",
-                    milliseconds: "000",
                 });
                 break;
             case STATE.PLAYING:
@@ -34,7 +32,6 @@ const Timer = ({ state }) => {
                 setTime({
                     minutes: "00",
                     seconds: "00",
-                    milliseconds: "000",
                 });
                 break;
             default:
@@ -44,7 +41,6 @@ const Timer = ({ state }) => {
 
     useInterval(
         () => {
-            console.log("TICK");
             let prev = prevTime ? prevTime : Date.now();
             let diffTime = Date.now() - prev;
             let newMilliTime = timeInMilliseconds - diffTime;
@@ -54,30 +50,25 @@ const Timer = ({ state }) => {
             setTimeInMilliseconds(newMilliTime);
             setTime(newTime);
         },
-        isRunning ? 11 : null
+        isRunning ? 100 : null
     );
 
     const toTime = (time) => {
-        let milliseconds = parseInt(time % 1000),
-            seconds = Math.floor((time / 1000) % 60),
+        let seconds = Math.floor((time / 1000) % 60),
             minutes = Math.floor(time / (1000 * 60));
 
-        if (milliseconds < 0) {
+        if (seconds < 0) {
             setTime({
                 minutes: "00",
                 seconds: "00",
-                milliseconds: "000",
             });
             return false;
         }
 
         minutes = minutes < 10 ? "0" + minutes : minutes;
         seconds = seconds < 10 ? "0" + seconds : seconds;
-        if (milliseconds < 10) milliseconds = "00" + milliseconds;
-        else if (milliseconds < 100) milliseconds = "0" + milliseconds;
 
         return {
-            milliseconds,
             seconds,
             minutes,
         };
@@ -85,7 +76,7 @@ const Timer = ({ state }) => {
 
     return (
         <div className="timer">
-            <p>{`${time.minutes}:${time.seconds}:${time.milliseconds}`}</p>
+            <p>{`${time.minutes}:${time.seconds}`}</p>
         </div>
     );
 };

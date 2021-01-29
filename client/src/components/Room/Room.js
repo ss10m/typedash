@@ -25,12 +25,14 @@ const Room = () => {
     const {
         room,
         state,
+        isSpectating,
         players,
         spectators,
         quote,
         error,
         updateStatus,
         isRunning,
+        setIsRunning,
     } = useRoomApi();
 
     const history = useHistory();
@@ -55,14 +57,24 @@ const Room = () => {
                     <p>{state.current}</p>
                 </div>
             </div>
+
             <Players players={players} />
             <div>
                 {spectators.map((user, index) => (
                     <div key={index}>{user.username}</div>
                 ))}
             </div>
-            <Timer state={state} />
-            <Racer isRunning={isRunning} currentQuote={quote} updateStatus={updateStatus} />
+            <div className="stats">
+                <div className="left">{isSpectating ? "SPECTATING" : "NOT SPECTATING"}</div>
+                <Timer state={state} />
+            </div>
+
+            <Racer
+                isRunning={isRunning}
+                setIsRunning={setIsRunning}
+                currentQuote={quote}
+                updateStatus={updateStatus}
+            />
         </div>
     );
 };
@@ -118,6 +130,7 @@ const useRoomApi = () => {
     const { id } = useParams();
     const [room, setRoom] = useState(null);
     const [state, setState] = useState({ current: STATE.PREGAME });
+    const [isSpectating, setIsSpectating] = useState(false);
     const [players, setPlayers] = useState([]);
     const [spectators, setSpectators] = useState([]);
     const [quote, setQuote] = useState("");
@@ -150,7 +163,7 @@ const useRoomApi = () => {
                         setSpectators(data[field]);
                         break;
                     case "isSpectating":
-                        console.log("isSpectating: " + data[field]);
+                        setIsSpectating(data[field]);
                         break;
                     case "error":
                         setError(data[field]);
@@ -167,12 +180,14 @@ const useRoomApi = () => {
     return {
         room,
         state,
+        isSpectating,
         players,
         spectators,
         quote,
         error,
         updateStatus: SocketAPI.updateStatus,
         isRunning,
+        setIsRunning,
     };
 };
 
