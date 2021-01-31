@@ -60,7 +60,7 @@ export default (io, socket) => {
         const roomDetails = room.join(socket);
         if (room.getNumOfUsers()) {
             const updatedState = {};
-            updatedState.players = room.getPlayers();
+            updatedState.scoreboard = room.getScoreboard();
             updatedState.spectators = room.getSpectators();
             socket.to(room.id).emit("updated-room", updatedState);
         }
@@ -74,7 +74,7 @@ export default (io, socket) => {
 
         const room = Room.getRoomBySocketId(socket.id);
         if (!room) return;
-        const player = room.players[socket.id];
+        const player = room.scoreboard[socket.id];
         if (!player) return;
 
         const progress = data.progress / room.quote.length;
@@ -86,7 +86,7 @@ export default (io, socket) => {
         }
 
         const updatedState = {};
-        updatedState.players = room.getPlayers();
+        updatedState.scoreboard = room.getScoreboard();
         io.in(room.id).emit("updated-room", updatedState);
     });
 
@@ -122,7 +122,7 @@ export default (io, socket) => {
         if (isRoomEmpty) return updateLobby(io);
 
         let updatedState = {};
-        updatedState.players = room.getPlayers();
+        updatedState.scoreboard = room.getScoreboard();
         updatedState.spectators = room.getSpectators();
         socket.to(room.id).emit("updated-room", updatedState);
     });
@@ -138,7 +138,7 @@ export default (io, socket) => {
         if (isRoomEmpty) return updateLobby(io);
 
         let updatedState = {};
-        updatedState.players = room.getPlayers();
+        updatedState.scoreboard = room.getScoreboard();
         updatedState.spectators = room.getSpectators();
         socket.to(room.id).emit("updated-room", updatedState);
 

@@ -26,7 +26,7 @@ const Room = () => {
         room,
         state,
         isSpectating,
-        players,
+        scoreboard,
         spectators,
         quote,
         error,
@@ -58,7 +58,7 @@ const Room = () => {
                 </div>
             </div>
 
-            <Players players={players} />
+            <Scoreboard players={scoreboard} />
             <div>
                 {spectators.map((user, index) => (
                     <div key={index}>{user.username}</div>
@@ -79,7 +79,8 @@ const Room = () => {
     );
 };
 
-const Players = ({ players }) => {
+const Scoreboard = ({ players }) => {
+    if (!players.length) return <div>Waiting for players</div>;
     return (
         <div className="players-wrapper">
             <div
@@ -90,22 +91,22 @@ const Players = ({ players }) => {
                 START
             </div>
             <div className="players">
-                {players.map((user) => (
-                    <div key={user.id} className="player">
-                        <div className="details">
-                            <div className="username">{user.username}</div>
-                            {user.position && (
+                {players.map((player) => (
+                    <div key={player.id} className="player">
+                        <div className={classNames("details", { left: player.leftRoom })}>
+                            <div className="username">{player.username}</div>
+                            {player.position && (
                                 <div className="position">
-                                    {user.position <= 3 && (
-                                        <span style={{ color: trophyColor(user.position) }}>
+                                    {player.position <= 3 && (
+                                        <span style={{ color: trophyColor(player.position) }}>
                                             <FaTrophy />
                                         </span>
                                     )}
-                                    {ordinalSuffix(user.position)}
+                                    {ordinalSuffix(player.position)}
                                 </div>
                             )}
                         </div>
-                        <div className="progress" style={{ width: `${user.progress}%` }} />
+                        <div className="progress" style={{ width: `${player.progress}%` }} />
                     </div>
                 ))}
             </div>
@@ -119,7 +120,7 @@ const useRoomApi = () => {
     const [room, setRoom] = useState(null);
     const [state, setState] = useState({ current: STATE.PREGAME });
     const [isSpectating, setIsSpectating] = useState(false);
-    const [players, setPlayers] = useState([]);
+    const [scoreboard, setScoreboard] = useState([]);
     const [spectators, setSpectators] = useState([]);
     const [quote, setQuote] = useState("");
     const [isRunning, setIsRunning] = useState(false);
@@ -144,8 +145,8 @@ const useRoomApi = () => {
                     case "quote":
                         setQuote(data[field]);
                         break;
-                    case "players":
-                        setPlayers(data[field]);
+                    case "scoreboard":
+                        setScoreboard(data[field]);
                         break;
                     case "spectators":
                         setSpectators(data[field]);
@@ -169,7 +170,7 @@ const useRoomApi = () => {
         room,
         state,
         isSpectating,
-        players,
+        scoreboard,
         spectators,
         quote,
         error,

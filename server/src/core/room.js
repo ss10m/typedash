@@ -12,6 +12,7 @@ export class Room {
         this.id = nanoid(7);
         this.state = { current: STATE.PREGAME };
         this.name = this.generateName();
+        this.scoreboard = {};
         this.players = {};
         this.spectators = {};
         this.quote = this.generateQuote();
@@ -49,15 +50,23 @@ export class Room {
             state: { current: this.state.current },
             quote: this.quote.value,
         };
-        const user = { username, id: socketId, progress: 0 };
+        let user = { username, id: socketId };
+        let score = { username, progress: 0, leftRoom: false };
+
+        if (this.scoreboard[socketId]) {
+            score = this.scoreboard[socketId];
+            score.leftRoom = false;
+        }
 
         switch (this.state.current) {
             case STATE.PREGAME:
                 this.players[socketId] = user;
+                this.scoreboard[socketId] = score;
                 data.isSpectating = false;
                 break;
             case STATE.COUNTDOWN:
                 this.players[socketId] = user;
+                this.scoreboard[socketId] = score;
                 const countdownDiff =
                     this.state.countdown - (Date.now() - this.state.startTime);
                 if (countdownDiff > 2000) data.state.countdown = countdownDiff;
@@ -77,8 +86,10 @@ export class Room {
                 break;
         }
 
-        data.players = Object.values(this.players);
+        data.scoreboard = Object.values(this.scoreboard);
         data.spectators = Object.values(this.spectators);
+
+        console.log(data);
         return data;
     }
 
@@ -86,7 +97,10 @@ export class Room {
         let isEmpty = false;
 
         delete Room.socketIdToRoom[socketId];
-        if (this.players[socketId]) delete this.players[socketId];
+        if (this.players[socketId]) {
+            delete this.players[socketId];
+            this.scoreboard[socketId].leftRoom = true;
+        }
         if (this.spectators[socketId]) delete this.spectators[socketId];
         if (!Object.keys(this.players).length && !Object.keys(this.spectators).length) {
             if (this.countdown) clearTimeout(this.countdown);
@@ -106,16 +120,16 @@ export class Room {
         return Object.values(this.players).length + Object.values(this.spectators).length;
     }
 
-    getPlayers() {
-        return Object.values(this.players);
-    }
-
     getSpectators() {
         return Object.values(this.spectators);
     }
 
+    getScoreboard() {
+        return Object.values(this.scoreboard);
+    }
+
     isCompleted() {
-        const isCompleted = Object.values(this.players).every((player) => player.position);
+        const isCompleted = Object.values(this.scoreboard).every((player) => player.position);
         if (!isCompleted) return false;
         if (this.ticker) this.ticker.clear();
         this.endRound();
@@ -168,9 +182,16 @@ export class Room {
         this.state = { current: STATE.PREGAME };
         this.finished = 0;
 
+        this.scoreboard = {};
+
         Object.values(this.players).forEach((player) => {
             player.progress = 0;
             delete player.position;
+            this.scoreboard[player.id] = {
+                username: player.username,
+                progress: 0,
+                leftRoom: false,
+            };
         });
 
         const value = `"I want to go home," he muttered as he totered down the road beside me.`;
@@ -180,7 +201,7 @@ export class Room {
         const updatedState = {
             state: { current: STATE.PREGAME },
             quote: this.quote.value,
-            players: Object.values(this.players),
+            scoreboard: Object.values(this.scoreboard),
         };
         this.callback("updated-room", updatedState);
     }
@@ -191,7 +212,7 @@ export class Room {
         const updatedState = {
             state: { current: STATE.POSTGAME },
             isRunning: false,
-            players: this.getPlayers(),
+            scoreboard: Object.values(this.scoreboard),
         };
         this.callback("updated-room", updatedState);
     }
