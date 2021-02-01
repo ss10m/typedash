@@ -90,6 +90,10 @@ class SocketAPI {
         this.emit("update-state", ROOM_ACTION.NEXT_ROUND);
     };
 
+    togglePlayNext = (status) => {
+        this.emit("toggle-play-next", status);
+    };
+
     setup = () => {
         this.socket.on("handle-error", (err) => {
             this.dispatch(setError(err));

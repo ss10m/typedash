@@ -42,9 +42,7 @@ export default (io, socket) => {
 
     socket.on("create-room", () => {
         console.log("create-room");
-        const room = new Room((key, data) => {
-            io.in(room.id).emit(key, data);
-        });
+        const room = new Room(io);
         socket.emit("room-created", room.id);
         updateLobby(io);
     });
@@ -109,6 +107,13 @@ export default (io, socket) => {
             default:
                 break;
         }
+    });
+
+    socket.on("toggle-play-next", (toggled) => {
+        console.log("toggle-play-next");
+        const room = Room.getRoomBySocketId(socket.id);
+        if (!room) return;
+        room.togglePlayNext(socket, toggled);
     });
 
     socket.on("leave-room", () => {

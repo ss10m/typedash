@@ -65,7 +65,10 @@ const Room = () => {
                 ))}
             </div>
             <div className="stats">
-                <div className="left">{isSpectating ? "SPECTATING" : "NOT SPECTATING"}</div>
+                <Status
+                    isSpectating={isSpectating}
+                    togglePlayNext={SocketAPI.togglePlayNext}
+                />
                 <Timer state={state} />
             </div>
 
@@ -75,6 +78,37 @@ const Room = () => {
                 currentQuote={quote}
                 updateStatus={updateStatus}
             />
+        </div>
+    );
+};
+
+const Status = ({ isSpectating, togglePlayNext }) => {
+    const [playingNext, setPlayingNext] = useState(false);
+    const [isToggleDisabled, setIsToggleDisabled] = useState(false);
+
+    const togglePlay = () => {
+        setIsToggleDisabled(true);
+
+        const toggled = !playingNext;
+        setPlayingNext(toggled);
+        togglePlayNext(toggled);
+
+        setTimeout(() => {
+            setIsToggleDisabled(false);
+        }, 1000);
+    };
+    return (
+        <div className="left">
+            {isSpectating ? (
+                <>
+                    SPECTATING
+                    <button onClick={togglePlay} disabled={isToggleDisabled}>
+                        {playingNext ? "PLAYING NEXT" : "NOT PLAYING NEXT"}
+                    </button>
+                </>
+            ) : (
+                <div>NOT SPECTATING</div>
+            )}
         </div>
     );
 };
