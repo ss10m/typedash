@@ -3,6 +3,7 @@ import { Connection, Room } from "../core/index.js";
 import { ROOM_ACTION } from "../util/constants.js";
 
 export default (io, socket) => {
+    // Error Handlers
     if (!socket.handshake.session.user) {
         socket.emit("handle-error", "Session not found");
         return socket.disconnect();
@@ -22,75 +23,50 @@ export default (io, socket) => {
         return socket.disconnect();
     }
 
+    // Lobby
     socket.on("join-lobby", () => {
-        console.log("join-lobby");
         socket.join("lobby");
         socket.emit("rooms", Room.getRooms());
-        printLobby();
     });
 
     socket.on("refresh-lobby", () => {
-        console.log("refresh-lobby");
         socket.emit("rooms", Room.getRooms());
     });
 
     socket.on("leave-lobby", () => {
-        console.log("leave-lobby");
         socket.leave("lobby");
-        printLobby();
     });
 
+    // Room
     socket.on("create-room", () => {
-        console.log("create-room");
         const room = new Room(io);
         socket.emit("room-created", room.id);
-        updateLobby(io);
+        io.in("lobby").emit("rooms", Room.getRooms());
     });
 
     socket.on("join-room", (roomId) => {
-        console.log("join-room: " + roomId);
-
         const room = Room.getRoomById(roomId);
-        if (!room) {
-            return socket.emit("updated-room", { error: "Room not found" });
-        }
+        if (!room) return socket.emit("updated-room", { error: "Room not found" });
+        room.join(socket.id);
+    });
 
-        const roomDetails = room.join(socket);
-        if (room.getNumOfUsers()) {
-            const updatedState = {};
-            updatedState.scoreboard = room.getScoreboard();
-            updatedState.spectators = room.getSpectators();
-            socket.to(room.id).emit("updated-room", updatedState);
-        }
+    socket.on("leave-room", () => {
+        const room = Room.getRoomBySocketId(socket.id);
+        if (room) room.leave(socket);
+    });
 
-        socket.join(room.id);
-        socket.emit("updated-room", roomDetails);
+    socket.on("disconnect", () => {
+        Connection.removeConnection(socket.id);
+        const room = Room.getRoomBySocketId(socket.id);
+        if (room) room.leave(socket);
     });
 
     socket.on("update-progress", (data) => {
-        console.log("update-progress");
-
         const room = Room.getRoomBySocketId(socket.id);
-        if (!room) return;
-        const player = room.scoreboard[socket.id];
-        if (!player) return;
-
-        const progress = data.progress / room.quote.length;
-        player.progress = Math.round(progress * 100);
-
-        if (data.progress === room.quote.length) {
-            player.position = room.getPosition();
-            if (room.isCompleted()) return;
-        }
-
-        const updatedState = {};
-        updatedState.scoreboard = room.getScoreboard();
-        io.in(room.id).emit("updated-room", updatedState);
+        if (room) room.updateProgress(socket.id, data);
     });
 
     socket.on("update-state", (action) => {
-        console.log("update-state");
-
         const room = Room.getRoomBySocketId(socket.id);
         if (!room) return;
 
@@ -110,53 +86,8 @@ export default (io, socket) => {
     });
 
     socket.on("toggle-play-next", (toggled) => {
-        console.log("toggle-play-next");
         const room = Room.getRoomBySocketId(socket.id);
         if (!room) return;
         room.togglePlayNext(socket, toggled);
     });
-
-    socket.on("leave-room", () => {
-        console.log("leave-room");
-
-        const room = Room.getRoomBySocketId(socket.id);
-        if (!room) return;
-
-        const isRoomEmpty = room.leave(socket.id);
-        socket.leave(room.id);
-        if (isRoomEmpty) return updateLobby(io);
-
-        let updatedState = {};
-        updatedState.scoreboard = room.getScoreboard();
-        updatedState.spectators = room.getSpectators();
-        socket.to(room.id).emit("updated-room", updatedState);
-    });
-
-    socket.on("disconnect", () => {
-        console.log("disconnect");
-        Connection.removeConnection(socket.id);
-        const room = Room.getRoomBySocketId(socket.id);
-        if (!room) return;
-
-        const isRoomEmpty = room.leave(socket.id);
-        socket.leave(room.id);
-        if (isRoomEmpty) return updateLobby(io);
-
-        let updatedState = {};
-        updatedState.scoreboard = room.getScoreboard();
-        updatedState.spectators = room.getSpectators();
-        socket.to(room.id).emit("updated-room", updatedState);
-
-        printLobby();
-    });
-
-    const printLobby = () => {
-        io.in("lobby").clients((err, clients) => {
-            console.log(clients);
-        });
-    };
-};
-
-const updateLobby = (io) => {
-    io.in("lobby").emit("rooms", Room.getRooms());
 };

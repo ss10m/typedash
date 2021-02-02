@@ -73,7 +73,7 @@ const Room = () => {
             </div>
 
             <Racer
-                isRunning={isRunning}
+                isRunning={isRunning && !isSpectating}
                 setIsRunning={setIsRunning}
                 currentQuote={quote}
                 updateStatus={updateStatus}

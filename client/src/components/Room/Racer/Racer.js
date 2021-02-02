@@ -15,7 +15,7 @@ import "./Racer.scss";
 const Racer = ({ isRunning, setIsRunning, currentQuote, updateStatus }) => {
     const [input, setInput] = useState("");
     const [quote, setQuote] = useState({ current: [], length: 0 });
-    const [wordIndex, setWordIndex] = useState(0);
+    const [wordIndex, setWordIndex] = useState(null);
     const [correctLength, setCorrectLength] = useState(0);
     const [typoLength, setTypoLength] = useState(0);
     const inputRef = useRef(null);
@@ -24,9 +24,7 @@ const Racer = ({ isRunning, setIsRunning, currentQuote, updateStatus }) => {
         const words = currentQuote.split(" ").map((word) => word + " ");
         const lastIndex = words.length - 1;
         words[lastIndex] = words[lastIndex].trim();
-
         setQuote({ current: words, length: words.length });
-        setWordIndex(0);
     }, [currentQuote]);
 
     useEffect(() => {

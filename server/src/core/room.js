@@ -45,13 +45,17 @@ export class Room {
         this.io.in(this.id).emit(key, data);
     }
 
-    join(socket) {
-        const socketId = socket.id;
-        const username = socket.handshake.session.user.displayName;
+    join(socketId) {
+        const socket = this.io.sockets.connected[socketId];
+        if (!socket) return;
 
+        const username = socket.handshake.session.user.displayName;
+        const prevUsersInRoom = this.getNumOfUsers();
+
+        socket.join(this.id);
         Room.socketIdToRoom[socketId] = this;
 
-        const data = {
+        const roomData = {
             room: { id: this.id, name: this.name },
             state: { current: this.state.current },
             quote: this.quote.value,
@@ -60,48 +64,73 @@ export class Room {
         let score = { username, progress: 0, leftRoom: false };
 
         if (this.scoreboard[socketId]) {
-            score = this.scoreboard[socketId];
-            score.leftRoom = false;
+            score.progress = this.scoreboard[socketId].progress;
+            if (this.scoreboard[socketId].position) {
+                score.position = this.scoreboard[socketId].position;
+            }
+            this.players[socketId] = user;
+            this.scoreboard[socketId] = score;
+            roomData.isSpectating = false;
+
+            switch (this.state.current) {
+                case STATE.COUNTDOWN:
+                    const countdownDiff =
+                        this.state.countdown - (Date.now() - this.state.startTime);
+                    if (countdownDiff > 2000) roomData.state.countdown = countdownDiff;
+                    break;
+                case STATE.PLAYING:
+                    const timerDiff = this.state.timer - (Date.now() - this.state.startTime);
+                    if (timerDiff > 2000) roomData.state.timer = timerDiff;
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            switch (this.state.current) {
+                case STATE.PREGAME:
+                    this.players[socketId] = user;
+                    this.scoreboard[socketId] = score;
+                    roomData.isSpectating = false;
+                    break;
+                case STATE.COUNTDOWN:
+                    this.players[socketId] = user;
+                    this.scoreboard[socketId] = score;
+                    const countdownDiff =
+                        this.state.countdown - (Date.now() - this.state.startTime);
+                    if (countdownDiff > 2000) roomData.state.countdown = countdownDiff;
+                    roomData.isSpectating = false;
+                    break;
+                case STATE.PLAYING:
+                    this.spectators[socketId] = { ...user, playNext: false };
+                    const timerDiff = this.state.timer - (Date.now() - this.state.startTime);
+                    if (timerDiff > 2000) roomData.state.timer = timerDiff;
+                    roomData.isSpectating = true;
+                    break;
+                case STATE.POSTGAME:
+                    this.spectators[socketId] = { ...user, playNext: false };
+                    roomData.isSpectating = true;
+                    break;
+                default:
+                    break;
+            }
         }
 
-        switch (this.state.current) {
-            case STATE.PREGAME:
-                this.players[socketId] = user;
-                this.scoreboard[socketId] = score;
-                data.isSpectating = false;
-                break;
-            case STATE.COUNTDOWN:
-                this.players[socketId] = user;
-                this.scoreboard[socketId] = score;
-                const countdownDiff =
-                    this.state.countdown - (Date.now() - this.state.startTime);
-                if (countdownDiff > 2000) data.state.countdown = countdownDiff;
-                data.isSpectating = false;
-                break;
-            case STATE.PLAYING:
-                this.spectators[socketId] = { ...user, playNext: false };
-                const timerDiff = this.state.timer - (Date.now() - this.state.startTime);
-                if (timerDiff > 2000) data.state.timer = timerDiff;
-                data.isSpectating = true;
-                break;
-            case STATE.POSTGAME:
-                this.spectators[socketId] = { ...user, playNext: false };
-                data.isSpectating = true;
-                break;
-            default:
-                break;
+        roomData.scoreboard = this.getScoreboard();
+        roomData.spectators = this.getSpectators();
+
+        if (prevUsersInRoom) {
+            const updatedState = {};
+            updatedState.scoreboard = this.getScoreboard();
+            updatedState.spectators = this.getSpectators();
+            socket.to(this.id).emit("updated-room", updatedState);
         }
 
-        data.scoreboard = Object.values(this.scoreboard);
-        data.spectators = Object.values(this.spectators);
-
-        console.log(data);
-        return data;
+        socket.emit("updated-room", roomData);
     }
 
-    leave(socketId) {
-        let isEmpty = false;
-
+    leave(socket) {
+        const socketId = socket.id;
+        socket.leave(this.id);
         delete Room.socketIdToRoom[socketId];
         if (this.players[socketId]) {
             delete this.players[socketId];
@@ -112,30 +141,18 @@ export class Room {
             }
         }
         if (this.spectators[socketId]) delete this.spectators[socketId];
-        if (!Object.keys(this.players).length && !Object.keys(this.spectators).length) {
+        if (!this.getNumOfUsers()) {
             if (this.countdown) clearTimeout(this.countdown);
             if (this.ticker) this.ticker.clear();
             delete Room.idToRoom[this.id];
-            isEmpty = true;
+            this.io.in("lobby").emit("rooms", Room.getRooms());
+        } else {
+            let updatedState = {};
+            updatedState.scoreboard = this.getScoreboard();
+            updatedState.spectators = this.getSpectators();
+            socket.to(this.id).emit("updated-room", updatedState);
         }
         if (!Object.keys(Room.idToRoom).length) Room.count = 0;
-        return isEmpty;
-    }
-
-    getPosition() {
-        return ++this.finished;
-    }
-
-    getNumOfUsers() {
-        return Object.values(this.players).length + Object.values(this.spectators).length;
-    }
-
-    getSpectators() {
-        return Object.values(this.spectators);
-    }
-
-    getScoreboard() {
-        return Object.values(this.scoreboard);
     }
 
     isCompleted() {
@@ -147,14 +164,12 @@ export class Room {
     }
 
     startCountdown() {
-        console.log("STARTING ROUND");
         if (this.state.current !== STATE.PREGAME) return;
         const updatedState = { current: STATE.COUNTDOWN, countdown: ROUND.COUNTDOWN };
         this.state = { ...updatedState, startTime: Date.now() };
         this.updateClients("updated-room", { state: updatedState });
 
         const onSuccess = () => {
-            console.log("onSuccess");
             this.state = { current: STATE.PLAYING, timer: ROUND.TIME, startTime: Date.now() };
 
             const onStep = (steps) => {
@@ -177,7 +192,6 @@ export class Room {
     }
 
     cancelCountdown() {
-        console.log("ENDING ROUND");
         if (this.state.current !== STATE.COUNTDOWN) return;
         if (this.countdown) clearTimeout(this.countdown);
         this.state = { current: STATE.PREGAME };
@@ -186,8 +200,24 @@ export class Room {
         this.updateClients("updated-room", updatedState);
     }
 
+    updateProgress(socketId, data) {
+        const player = this.scoreboard[socketId];
+        if (!player) return;
+
+        const progress = data.progress / this.quote.length;
+        player.progress = Math.round(progress * 100);
+
+        if (data.progress === this.quote.length) {
+            player.position = this.getPosition();
+            if (this.isCompleted()) return;
+        }
+
+        const updatedState = {};
+        updatedState.scoreboard = this.getScoreboard();
+        this.updateClients("updated-room", updatedState);
+    }
+
     startNextRound() {
-        console.log("startNextRound");
         if (this.state.current !== STATE.POSTGAME) return;
         this.state = { current: STATE.PREGAME };
         this.finished = 0;
@@ -236,7 +266,6 @@ export class Room {
     }
 
     endRound() {
-        console.log("endRound");
         this.state = { current: STATE.POSTGAME };
         const updatedState = {
             state: { current: STATE.POSTGAME },
@@ -283,6 +312,30 @@ export class Room {
             socket.emit("updated-room", { ...updatedState, isSpectating: false });
         }
     }
+
+    ///////////////////////////////////////////////
+    ////////////  GETTERS / SETTERS  //////////////
+    ///////////////////////////////////////////////
+
+    getPosition() {
+        return ++this.finished;
+    }
+
+    getNumOfUsers() {
+        return Object.values(this.players).length + Object.values(this.spectators).length;
+    }
+
+    getSpectators() {
+        return Object.values(this.spectators);
+    }
+
+    getScoreboard() {
+        return Object.values(this.scoreboard);
+    }
+
+    ///////////////////////////////////////////////
+    //////////////////  STATIC  ///////////////////
+    ///////////////////////////////////////////////
 
     static getRoomById(id) {
         return this.idToRoom[id];
