@@ -91,9 +91,9 @@ export default (io, socket) => {
         room.toggleSpectate(socket.id);
     });
 
-    socket.on("toggle-play-next", (toggled) => {
+    socket.on("toggle-play-next", () => {
         const room = Room.getRoomBySocketId(socket.id);
         if (!room) return;
-        room.togglePlayNext(socket, toggled);
+        room.togglePlayNext(socket.id);
     });
 };

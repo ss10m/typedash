@@ -1,16 +1,20 @@
 // Libraries & utils
 import { useState, useEffect } from "react";
+import Switch from "react-switch";
 
 // Constants
 import { STATE } from "helpers/constants";
 
-const Status = ({ state, isSpectating, toggleSpectate, togglePlayNext }) => {
+// SCSS
+import "./Status.scss";
+
+const Status = ({ state, isSpectating, playNext, toggleSpectate, togglePlayNext }) => {
     if (state.current === STATE.PREGAME || state.current === STATE.COUNTDOWN) {
         return <InstantToggle isSpectating={isSpectating} toggleSpectate={toggleSpectate} />;
     }
 
     if (isSpectating) {
-        return <QueueToggle />;
+        return <QueueToggle playNext={playNext} togglePlayNext={togglePlayNext} />;
     }
 
     return <div>WPM: 88</div>;
@@ -32,7 +36,7 @@ const InstantToggle = ({ isSpectating, toggleSpectate }) => {
     return <button onClick={toggle}>{isSpectating ? "PLAY" : "SPECTATE"}</button>;
 };
 
-const QueueToggle = () => {
+const QueueToggle = ({ playNext, togglePlayNext }) => {
     // const [queuedToPlay, setQueuedToPlay] = useState(false);
     // const [isToggleDisabled, setIsToggleDisabled] = useState(false);
     // const toggleQueuedToPlay = () => {
@@ -50,6 +54,40 @@ const QueueToggle = () => {
     //         {queuedToPlay ? "PLAYING NEXT" : "NOT PLAYING NEXT"}
     //     </button>
     // );
+
+    // const [isChecked, setIsChecked] = useState(false);
+    // const [isDisabled, setIsDisabled] = useState(false);
+
+    // const handleChange = () => {
+    //     if (isDisabled) return;
+    //     console.log("CHANGE");
+    //     setIsDisabled(true);
+    //     setIsChecked((val) => !val);
+
+    //     setTimeout(() => {
+    //         setIsDisabled(false);
+    //     }, 1000);
+    // };
+
+    console.log(playNext);
+    const [isToggleDisabled, setIsToggleDisabled] = useState(false);
+
+    useEffect(() => {
+        setIsToggleDisabled(false);
+    }, [playNext]);
+
+    const toggle = () => {
+        if (isToggleDisabled) return;
+        setIsToggleDisabled(true);
+        togglePlayNext();
+    };
+
+    return (
+        <label>
+            <span>PLAY NEXT ROUND</span>
+            <Switch onChange={toggle} checked={playNext} />
+        </label>
+    );
 };
 
 export default Status;

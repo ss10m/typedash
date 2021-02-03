@@ -27,11 +27,11 @@ const Room = () => {
         room,
         state,
         isSpectating,
+        playNext,
         scoreboard,
         spectators,
         quote,
         error,
-        updateStatus,
         isRunning,
         setIsRunning,
     } = useRoomApi();
@@ -69,6 +69,7 @@ const Room = () => {
                 <Status
                     state={state}
                     isSpectating={isSpectating}
+                    playNext={playNext}
                     toggleSpectate={SocketAPI.toggleSpectate}
                     togglePlayNext={SocketAPI.togglePlayNext}
                 />
@@ -79,7 +80,7 @@ const Room = () => {
                 isRunning={isRunning && !isSpectating}
                 setIsRunning={setIsRunning}
                 currentQuote={quote}
-                updateStatus={updateStatus}
+                updateStatus={SocketAPI.updateStatus}
             />
         </div>
     );
@@ -125,11 +126,12 @@ const useRoomApi = () => {
     const { id } = useParams();
     const [room, setRoom] = useState(null);
     const [state, setState] = useState({ current: STATE.PREGAME });
+    const [isRunning, setIsRunning] = useState(false);
     const [isSpectating, setIsSpectating] = useState(false);
+    const [playNext, setPlayNext] = useState(false);
+    const [quote, setQuote] = useState("");
     const [scoreboard, setScoreboard] = useState([]);
     const [spectators, setSpectators] = useState([]);
-    const [quote, setQuote] = useState("");
-    const [isRunning, setIsRunning] = useState(false);
     const [error, setError] = useState("");
 
     useEffect(() => {
@@ -148,6 +150,12 @@ const useRoomApi = () => {
                     case "isRunning":
                         setIsRunning(data[field]);
                         break;
+                    case "isSpectating":
+                        setIsSpectating(data[field]);
+                        break;
+                    case "playNext":
+                        setPlayNext(data[field]);
+                        break;
                     case "quote":
                         setQuote(data[field]);
                         break;
@@ -156,9 +164,6 @@ const useRoomApi = () => {
                         break;
                     case "spectators":
                         setSpectators(data[field]);
-                        break;
-                    case "isSpectating":
-                        setIsSpectating(data[field]);
                         break;
                     case "error":
                         setError(data[field]);
@@ -176,11 +181,11 @@ const useRoomApi = () => {
         room,
         state,
         isSpectating,
+        playNext,
         scoreboard,
         spectators,
         quote,
         error,
-        updateStatus: SocketAPI.updateStatus,
         isRunning,
         setIsRunning,
     };

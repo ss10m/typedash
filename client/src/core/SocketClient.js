@@ -94,8 +94,8 @@ class SocketAPI {
         this.emit("toggle-spectate");
     };
 
-    togglePlayNext = (status) => {
-        this.emit("toggle-play-next", status);
+    togglePlayNext = () => {
+        this.emit("toggle-play-next");
     };
 
     setup = () => {

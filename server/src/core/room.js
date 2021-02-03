@@ -261,7 +261,7 @@ export class Room {
         };
 
         switchedIds.forEach((id) => {
-            this.io.to(id).emit("updated-room", { isSpectating: false });
+            this.io.to(id).emit("updated-room", { isSpectating: false, playNext: false });
         });
 
         this.updateClients("updated-room", updatedState);
@@ -307,56 +307,16 @@ export class Room {
         socket.emit("updated-room", { ...updatedState, isSpectating });
     }
 
-    togglePlayNext(socket, toggled) {
-        console.log(toggled);
-
-        /*
-        const updatedState = {};
-        updatedState.scoreboard = this.getScoreboard();
-        updatedState.spectators = this.getSpectators();
-        //socket.to(this.id).emit("updated-room", updatedState);
-
-        socket.emit("updated-room", { ...updatedState, isSpectating: toggled });
-        */
-
-        /*
-
-        const spectator = this.spectators[socket.id];
+    togglePlayNext(socketId) {
+        const socket = this.io.sockets.connected[socketId];
+        if (!socket) return;
+        if (![STATE.PLAYING, STATE.POSTGAME].includes(this.state.current)) return;
+        const spectator = this.spectators[socketId];
         if (!spectator) return;
 
-        const socketId = socket.id;
-
-        let user = { username: spectator.username, id: socketId };
-        let score = { username: spectator.username, progress: 0, leftRoom: false };
-
-        let notify = false;
-        switch (this.state.current) {
-            case STATE.PREGAME:
-                delete this.spectators[socketId];
-                this.players[socketId] = user;
-                this.scoreboard[socketId] = score;
-                notify = true;
-                break;
-            case STATE.COUNTDOWN:
-                delete this.spectators[socketId];
-                this.players[socketId] = user;
-                this.scoreboard[socketId] = score;
-                notify = true;
-                break;
-            default:
-                spectator.playNext = toggled;
-                break;
-        }
-
-        if (notify) {
-            const updatedState = {};
-            updatedState.scoreboard = this.getScoreboard();
-            updatedState.spectators = this.getSpectators();
-            socket.to(this.id).emit("updated-room", updatedState);
-
-            socket.emit("updated-room", { ...updatedState, isSpectating: false });
-        }
-        */
+        const toggled = !spectator.playNext;
+        spectator.playNext = toggled;
+        socket.emit("updated-room", { playNext: toggled });
     }
 
     ///////////////////////////////////////////////
