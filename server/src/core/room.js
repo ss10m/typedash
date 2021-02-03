@@ -156,7 +156,9 @@ export class Room {
     }
 
     isCompleted() {
-        const isCompleted = Object.values(this.scoreboard).every((player) => player.position);
+        const isCompleted = Object.values(this.scoreboard)
+            .filter((player) => !player.leftRoom)
+            .every((player) => player.position);
         if (!isCompleted) return false;
         if (this.ticker) this.ticker.clear();
         this.endRound();
@@ -275,7 +277,50 @@ export class Room {
         this.updateClients("updated-room", updatedState);
     }
 
+    toggleSpectate(socketId) {
+        const socket = this.io.sockets.connected[socketId];
+        if (!socket) return;
+        if (![STATE.PREGAME, STATE.COUNTDOWN].includes(this.state.current)) return;
+
+        const updatedState = {};
+        let isSpectating;
+        if (this.players[socketId]) {
+            this.spectators[socketId] = { ...this.players[socketId], playNext: false };
+            delete this.players[socketId];
+            delete this.scoreboard[socketId];
+            isSpectating = true;
+        } else if (this.spectators[socketId]) {
+            const { username, id } = this.spectators[socketId];
+            let user = { username, id };
+            let score = { username, progress: 0, leftRoom: false };
+            this.players[socketId] = user;
+            this.scoreboard[socketId] = score;
+            delete this.spectators[socketId];
+            isSpectating = false;
+        } else {
+            return;
+        }
+
+        updatedState.scoreboard = this.getScoreboard();
+        updatedState.spectators = this.getSpectators();
+        socket.to(this.id).emit("updated-room", updatedState);
+        socket.emit("updated-room", { ...updatedState, isSpectating });
+    }
+
     togglePlayNext(socket, toggled) {
+        console.log(toggled);
+
+        /*
+        const updatedState = {};
+        updatedState.scoreboard = this.getScoreboard();
+        updatedState.spectators = this.getSpectators();
+        //socket.to(this.id).emit("updated-room", updatedState);
+
+        socket.emit("updated-room", { ...updatedState, isSpectating: toggled });
+        */
+
+        /*
+
         const spectator = this.spectators[socket.id];
         if (!spectator) return;
 
@@ -311,6 +356,7 @@ export class Room {
 
             socket.emit("updated-room", { ...updatedState, isSpectating: false });
         }
+        */
     }
 
     ///////////////////////////////////////////////

@@ -85,6 +85,12 @@ export default (io, socket) => {
         }
     });
 
+    socket.on("toggle-spectate", () => {
+        const room = Room.getRoomBySocketId(socket.id);
+        if (!room) return;
+        room.toggleSpectate(socket.id);
+    });
+
     socket.on("toggle-play-next", (toggled) => {
         const room = Room.getRoomBySocketId(socket.id);
         if (!room) return;

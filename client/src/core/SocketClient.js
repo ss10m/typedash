@@ -90,6 +90,10 @@ class SocketAPI {
         this.emit("update-state", ROOM_ACTION.NEXT_ROUND);
     };
 
+    toggleSpectate = () => {
+        this.emit("toggle-spectate");
+    };
+
     togglePlayNext = (status) => {
         this.emit("toggle-play-next", status);
     };

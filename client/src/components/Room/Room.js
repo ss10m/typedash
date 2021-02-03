@@ -16,6 +16,7 @@ import { STATE } from "helpers/constants";
 import Racer from "./Racer/Racer";
 import Timer from "./Timer/Timer";
 import Countdown from "./Countdown/Countdown";
+import Status from "./Status/Status";
 import Error from "../Error/Error";
 
 // SCSS
@@ -66,7 +67,9 @@ const Room = () => {
             </div>
             <div className="stats">
                 <Status
+                    state={state}
                     isSpectating={isSpectating}
+                    toggleSpectate={SocketAPI.toggleSpectate}
                     togglePlayNext={SocketAPI.togglePlayNext}
                 />
                 <Timer state={state} />
@@ -78,37 +81,6 @@ const Room = () => {
                 currentQuote={quote}
                 updateStatus={updateStatus}
             />
-        </div>
-    );
-};
-
-const Status = ({ isSpectating, togglePlayNext }) => {
-    const [playingNext, setPlayingNext] = useState(false);
-    const [isToggleDisabled, setIsToggleDisabled] = useState(false);
-
-    const togglePlay = () => {
-        setIsToggleDisabled(true);
-
-        const toggled = !playingNext;
-        setPlayingNext(toggled);
-        togglePlayNext(toggled);
-
-        setTimeout(() => {
-            setIsToggleDisabled(false);
-        }, 1000);
-    };
-    return (
-        <div className="left">
-            {isSpectating ? (
-                <>
-                    SPECTATING
-                    <button onClick={togglePlay} disabled={isToggleDisabled}>
-                        {playingNext ? "PLAYING NEXT" : "NOT PLAYING NEXT"}
-                    </button>
-                </>
-            ) : (
-                <div>NOT SPECTATING</div>
-            )}
         </div>
     );
 };
