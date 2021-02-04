@@ -28,7 +28,7 @@ const Room = () => {
         state,
         isSpectating,
         playNext,
-        scoreboard,
+        players,
         spectators,
         quote,
         error,
@@ -59,7 +59,7 @@ const Room = () => {
                 </div>
             </div>
 
-            <Scoreboard players={scoreboard} />
+            <Scoreboard players={players} />
             <div>
                 {spectators.map((user, index) => (
                     <div key={index}>{user.username}</div>
@@ -102,6 +102,7 @@ const Scoreboard = ({ players }) => {
                     <div key={player.id} className="player">
                         <div className={classNames("details", { left: player.leftRoom })}>
                             <div className="username">{player.username}</div>
+                            <div className="username">{player.id}</div>
                             {player.position && (
                                 <div className="position">
                                     {player.position <= 3 && (
@@ -130,7 +131,7 @@ const useRoomApi = () => {
     const [isSpectating, setIsSpectating] = useState(false);
     const [playNext, setPlayNext] = useState(false);
     const [quote, setQuote] = useState("");
-    const [scoreboard, setScoreboard] = useState([]);
+    const [players, setPlayers] = useState([]);
     const [spectators, setSpectators] = useState([]);
     const [error, setError] = useState("");
 
@@ -159,8 +160,8 @@ const useRoomApi = () => {
                     case "quote":
                         setQuote(data[field]);
                         break;
-                    case "scoreboard":
-                        setScoreboard(data[field]);
+                    case "players":
+                        setPlayers(data[field]);
                         break;
                     case "spectators":
                         setSpectators(data[field]);
@@ -182,7 +183,7 @@ const useRoomApi = () => {
         state,
         isSpectating,
         playNext,
-        scoreboard,
+        players,
         spectators,
         quote,
         error,

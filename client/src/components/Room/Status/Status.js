@@ -37,39 +37,6 @@ const InstantToggle = ({ isSpectating, toggleSpectate }) => {
 };
 
 const QueueToggle = ({ playNext, togglePlayNext }) => {
-    // const [queuedToPlay, setQueuedToPlay] = useState(false);
-    // const [isToggleDisabled, setIsToggleDisabled] = useState(false);
-    // const toggleQueuedToPlay = () => {
-    //     if (isToggleDisabled) return;
-    //     setIsToggleDisabled(true);
-    //     const toggled = !queuedToPlay;
-    //     setQueuedToPlay(toggled);
-    //     togglePlayNext(toggled);
-    //     setTimeout(() => {
-    //         setIsToggleDisabled(false);
-    //     }, 1000);
-    // };
-    // return (
-    //     <button onClick={toggleQueuedToPlay} disabled={isToggleDisabled}>
-    //         {queuedToPlay ? "PLAYING NEXT" : "NOT PLAYING NEXT"}
-    //     </button>
-    // );
-
-    // const [isChecked, setIsChecked] = useState(false);
-    // const [isDisabled, setIsDisabled] = useState(false);
-
-    // const handleChange = () => {
-    //     if (isDisabled) return;
-    //     console.log("CHANGE");
-    //     setIsDisabled(true);
-    //     setIsChecked((val) => !val);
-
-    //     setTimeout(() => {
-    //         setIsDisabled(false);
-    //     }, 1000);
-    // };
-
-    console.log(playNext);
     const [isToggleDisabled, setIsToggleDisabled] = useState(false);
 
     useEffect(() => {
