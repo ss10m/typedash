@@ -1,10 +1,7 @@
 // Libraries & utils
 import { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
-import classNames from "classnames";
-
-// Icons
-import { FaTrophy } from "react-icons/fa";
+import Switch from "react-switch";
 
 // Socket API
 import SocketAPI from "core/SocketClient";
@@ -14,6 +11,7 @@ import { STATE } from "helpers/constants";
 
 // Components
 import Racer from "./Racer/Racer";
+import Scoreboard from "./Scoreboard/Scoreboard";
 import Timer from "./Timer/Timer";
 import Countdown from "./Countdown/Countdown";
 import Status from "./Status/Status";
@@ -26,6 +24,7 @@ const Room = () => {
     const {
         room,
         state,
+        isReady,
         isSpectating,
         playNext,
         players,
@@ -41,30 +40,28 @@ const Room = () => {
     if (error) return <Error msg={error} goBack={() => history.goBack()} />;
     if (!room) return null;
 
+    const socketId = SocketAPI.getSocketId();
+
     return (
         <div className="room">
             {state.countdown && (
                 <Countdown duration={state.countdown} onCancel={SocketAPI.cancelCountdown} />
             )}
             <div className="status">
-                <div>{room.name}</div>
-                <div>
-                    <button onClick={history.goBack}>LEAVE ROOM</button>
-                    <button onClick={SocketAPI.startCountdown}>PLAY</button>
-                    <button onClick={SocketAPI.cancelCountdown}>CANCEL</button>
-                    <button onClick={SocketAPI.nextRound}>NEW ROUND</button>
-                </div>
+                <button onClick={history.goBack}>LEAVE ROOM</button>
                 <div>
                     <p>{state.current}</p>
                 </div>
+                <div>{room.name}</div>
             </div>
 
-            <Scoreboard players={players} />
+            <Scoreboard players={players} socketId={socketId} />
             <div>
                 {spectators.map((user, index) => (
                     <div key={index}>{user.username}</div>
                 ))}
             </div>
+
             <div className="stats">
                 <Status
                     state={state}
@@ -73,6 +70,7 @@ const Room = () => {
                     toggleSpectate={SocketAPI.toggleSpectate}
                     togglePlayNext={SocketAPI.togglePlayNext}
                 />
+                <ReadyUp isReady={isReady} toggleReady={SocketAPI.toggleReady} />
                 <Timer state={state} />
             </div>
 
@@ -86,40 +84,24 @@ const Room = () => {
     );
 };
 
-const Scoreboard = ({ players }) => {
-    if (!players.length) return <div>Waiting for players</div>;
+const ReadyUp = ({ isReady, toggleReady }) => {
+    const [isToggleDisabled, setIsToggleDisabled] = useState(false);
+
+    const toggle = () => {
+        if (isToggleDisabled) return;
+        setIsToggleDisabled(true);
+        toggleReady();
+
+        setTimeout(() => {
+            setIsToggleDisabled(false);
+        }, 200);
+    };
+
     return (
-        <div className="players-wrapper">
-            <div
-                className={classNames("start", {
-                    mini: players.length === 1,
-                })}
-            >
-                START
-            </div>
-            <div className="players">
-                {players.map((player) => (
-                    <div key={player.id} className="player">
-                        <div className={classNames("details", { left: player.leftRoom })}>
-                            <div className="username">{player.username}</div>
-                            <div className="username">{player.id}</div>
-                            {player.position && (
-                                <div className="position">
-                                    {player.position <= 3 && (
-                                        <span style={{ color: trophyColor(player.position) }}>
-                                            <FaTrophy />
-                                        </span>
-                                    )}
-                                    {ordinalSuffix(player.position)}
-                                </div>
-                            )}
-                        </div>
-                        <div className="progress" style={{ width: `${player.progress}%` }} />
-                    </div>
-                ))}
-            </div>
-            <div className="flag"></div>
-        </div>
+        <label>
+            <span>READY</span>
+            <Switch onChange={toggle} checked={isReady} />
+        </label>
     );
 };
 
@@ -127,6 +109,7 @@ const useRoomApi = () => {
     const { id } = useParams();
     const [room, setRoom] = useState(null);
     const [state, setState] = useState({ current: STATE.PREGAME });
+    const [isReady, setIsReady] = useState(false);
     const [isRunning, setIsRunning] = useState(false);
     const [isSpectating, setIsSpectating] = useState(false);
     const [playNext, setPlayNext] = useState(false);
@@ -147,6 +130,9 @@ const useRoomApi = () => {
                         break;
                     case "state":
                         setState(data[field]);
+                        break;
+                    case "isReady":
+                        setIsReady(data[field]);
                         break;
                     case "isRunning":
                         setIsRunning(data[field]);
@@ -181,6 +167,7 @@ const useRoomApi = () => {
     return {
         room,
         state,
+        isReady,
         isSpectating,
         playNext,
         players,
@@ -190,34 +177,6 @@ const useRoomApi = () => {
         isRunning,
         setIsRunning,
     };
-};
-
-const ordinalSuffix = (position) => {
-    const j = position % 10;
-    const k = position % 100;
-    if (j === 1 && k !== 11) {
-        return position + "st";
-    }
-    if (j === 2 && k !== 12) {
-        return position + "nd";
-    }
-    if (j === 3 && k !== 13) {
-        return position + "rd";
-    }
-    return position + "th";
-};
-
-const trophyColor = (position) => {
-    switch (position) {
-        case 1:
-            return "#FEE101";
-        case 2:
-            return "#A7a7AD";
-        case 3:
-            return "#A77044";
-        default:
-            return;
-    }
 };
 
 export default Room;

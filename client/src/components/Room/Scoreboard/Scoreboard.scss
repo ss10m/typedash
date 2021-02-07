@@ -1,0 +1,124 @@
+.room .players-wrapper {
+    margin: 20px 0;
+    display: flex;
+
+    .start {
+        width: 25px;
+        background-color: #283c4e;
+        border: 2px solid #3a5068;
+        writing-mode: vertical-rl;
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 21px;
+        text-orientation: mixed;
+        text-align: center;
+
+        &.mini {
+            font-size: 10px;
+        }
+    }
+
+    .players {
+        flex: 1;
+
+        .player {
+            height: 50px;
+            width: 100%;
+            margin-bottom: 10px;
+            background-color: #283c4e;
+            border-right: none;
+            position: relative;
+
+            &:last-of-type {
+                margin: 0;
+            }
+
+            .details {
+                height: 100%;
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                position: absolute;
+                padding: 0 20px;
+                font-size: 20px;
+                font-weight: 1000;
+                z-index: 2;
+
+                &.left {
+                    opacity: 0.2;
+                }
+
+                .username {
+                    display: flex;
+                    align-items: center;
+
+                    .ready {
+                        margin-left: 10px;
+                        border: 1px solid #008800;
+                        color: #008800;
+                        //border-radius: 5px;
+                        padding: 0 4px;
+                        font-size: 15px;
+                        font-weight: 600;
+
+                        &.not {
+                            color: red;
+                            border-color: red;
+                        }
+                    }
+                }
+
+                .position {
+                    display: flex;
+                    align-items: center;
+                    font-size: 20px;
+
+                    span {
+                        display: flex;
+                        margin-left: 10px;
+                    }
+                }
+
+                @media (max-width: 600px) {
+                    flex-direction: column;
+                    justify-content: center;
+                    font-size: 17px;
+
+                    .username {
+                        .ready {
+                            font-size: 10px;
+                        }
+                    }
+
+                    .position {
+                        font-size: 18px;
+
+                        span {
+                            font-size: 18px;
+                            margin-left: 5px;
+                        }
+                    }
+                }
+            }
+
+            .progress {
+                height: 100%;
+                position: absolute;
+                background-color: #479fef;
+                opacity: 0.2;
+                transition: width 1s ease;
+            }
+        }
+    }
+
+    .flag {
+        width: 20px;
+        background-image: linear-gradient(45deg, #000000 25%, transparent 25%),
+            linear-gradient(-45deg, #000000 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, #000000 75%),
+            linear-gradient(-45deg, whitesmoke 75%, #000000 75%);
+        background-size: 20px 20px;
+        background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    }
+}

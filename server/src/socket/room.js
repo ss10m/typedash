@@ -1,7 +1,5 @@
 import { Connection, Room } from "../core/index.js";
 
-import { ROOM_ACTION } from "../util/constants.js";
-
 export default (io, socket) => {
     // Error Handlers
     if (!socket.handshake.session.user) {
@@ -66,23 +64,16 @@ export default (io, socket) => {
         if (room) room.updateProgress(socket.id, data);
     });
 
-    socket.on("update-state", (action) => {
+    socket.on("cancel-countdown", () => {
         const room = Room.getRoomBySocketId(socket.id);
         if (!room) return;
+        room.cancelCountdown();
+    });
 
-        switch (action) {
-            case ROOM_ACTION.START_COUNTDOWN:
-                room.startCountdown();
-                break;
-            case ROOM_ACTION.CANCEL_COUNTDOWN:
-                room.cancelCountdown();
-                break;
-            case ROOM_ACTION.NEXT_ROUND:
-                room.startNextRound();
-                break;
-            default:
-                break;
-        }
+    socket.on("toggle-ready", () => {
+        const room = Room.getRoomBySocketId(socket.id);
+        if (!room) return;
+        room.toggleReady(socket.id);
     });
 
     socket.on("toggle-spectate", () => {

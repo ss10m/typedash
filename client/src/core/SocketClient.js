@@ -2,8 +2,6 @@ import io from "socket.io-client";
 
 import { setSession, setError, setRooms } from "store/actions";
 
-import { ROOM_ACTION } from "helpers/constants";
-
 class SocketAPI {
     constructor() {
         this.socket = null;
@@ -29,6 +27,10 @@ class SocketAPI {
 
     setDispatch = (dispatch) => {
         this.dispatch = dispatch;
+    };
+
+    getSocketId = () => {
+        return this.socket.id;
     };
 
     isConnected = () => {
@@ -78,16 +80,12 @@ class SocketAPI {
         this.emit("update-progress", progress);
     };
 
-    startCountdown = () => {
-        this.emit("update-state", ROOM_ACTION.START_COUNTDOWN);
-    };
-
     cancelCountdown = () => {
-        this.emit("update-state", ROOM_ACTION.CANCEL_COUNTDOWN);
+        this.emit("cancel-countdown");
     };
 
-    nextRound = () => {
-        this.emit("update-state", ROOM_ACTION.NEXT_ROUND);
+    toggleReady = () => {
+        this.emit("toggle-ready");
     };
 
     toggleSpectate = () => {

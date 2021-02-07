@@ -60,7 +60,14 @@ export class Room {
             quote: this.quote.value,
         };
 
-        let player = { username, id: socketId, progress: 0, position: null, leftRoom: false };
+        let player = {
+            username,
+            id: socketId,
+            isReady: false,
+            progress: 0,
+            position: null,
+            leftRoom: false,
+        };
 
         if (this.players[socketId]) {
             player.progress = this.players[socketId].progress;
@@ -179,9 +186,13 @@ export class Room {
             this.ticker = new AdjustingTicker(500, ROUND.TIME / 500, onStep, onSuccess);
             this.ticker.start();
 
+            this.getPlayers().forEach((player) => (player.isReady = false));
+
             const updatedState = {
                 isRunning: true,
+                isReady: false,
                 state: { current: STATE.PLAYING, timer: ROUND.TIME },
+                players: this.getPlayers(),
             };
             this.updateClients("updated-room", updatedState);
         };
@@ -237,6 +248,7 @@ export class Room {
                 this.players[id] = {
                     username,
                     id,
+                    isReady: false,
                     progress: 0,
                     position: null,
                     leftRoom: false,
@@ -261,6 +273,9 @@ export class Room {
         });
 
         this.updateClients("updated-room", updatedState);
+
+        const ready = this.getPlayers().every((player) => player.isReady);
+        if (ready) this.startCountdown();
     }
 
     endRound() {
@@ -271,6 +286,44 @@ export class Room {
             players: this.getPlayers(),
         };
         this.updateClients("updated-room", updatedState);
+    }
+
+    handleReadyChange() {
+        console.log("handleReadyChange");
+
+        const ready = this.getPlayers().every((player) => player.isReady);
+        console.log(ready);
+        if (ready) {
+            //
+            switch (this.state.current) {
+                case STATE.PREGAME:
+                    return this.startCountdown();
+                case STATE.POSTGAME:
+                    return this.startNextRound();
+            }
+        }
+        if (!ready && this.state.current === STATE.COUNTDOWN) this.cancelCountdown();
+    }
+
+    toggleReady(socketId) {
+        const socket = this.io.sockets.connected[socketId];
+        if (!socket) return;
+        if (this.state.current === STATE.PLAYING) return;
+
+        const player = this.players[socketId];
+        if (!player) return;
+
+        const toggled = !player.isReady;
+        console.log(toggled);
+        player.isReady = toggled;
+
+        const updatedState = {
+            isReady: toggled,
+            players: this.getPlayers(),
+        };
+        socket.to(this.id).emit("updated-room", { players: this.getPlayers() });
+        socket.emit("updated-room", updatedState);
+        this.handleReadyChange();
     }
 
     toggleSpectate(socketId) {
@@ -287,7 +340,14 @@ export class Room {
             isSpectating = true;
         } else if (this.spectators[socketId]) {
             const { username, id } = this.spectators[socketId];
-            const player = { username, id, progress: 0, position: null, leftRoom: false };
+            const player = {
+                username,
+                id,
+                isReady: false,
+                progress: 0,
+                position: null,
+                leftRoom: false,
+            };
             this.players[socketId] = player;
             delete this.spectators[socketId];
             isSpectating = false;
