@@ -46,10 +46,8 @@ const Circle = ({ max, remaining }) => {
     const strokeWidth = 10;
     const size = (radius + strokeWidth) * 2;
     const length = Math.ceil(2 * radius * Math.PI);
-    const remainingLength = Math.min(
-        length - Math.ceil(2 * radius * Math.PI) * (remaining / max),
-        length
-    );
+    const remainingLength =
+        Math.min(length - Math.ceil(2 * radius * Math.PI) * (remaining / max), length) || 0;
 
     return (
         <svg

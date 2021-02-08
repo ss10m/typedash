@@ -1,6 +1,5 @@
 // Libraries & utils
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
 import classNames from "classnames";
 import { useHistory } from "react-router-dom";
 
@@ -18,11 +17,6 @@ import keyboard from "./kb.jpg";
 
 const Rooms = () => {
     const [filter, setFilter] = useState("");
-
-    useEffect(() => {
-        SocketAPI.joinLobby();
-        return () => SocketAPI.leaveLobby();
-    }, []);
 
     return (
         <div className="rooms">
@@ -50,13 +44,23 @@ const Navigation = ({ filter, setFilter }) => {
 const CreateRoomButton = () => {
     const [isCreating, setIsCreating] = useState(false);
     const history = useHistory();
+
+    useEffect(() => {
+        const socket = SocketAPI.getSocket();
+        socket.on("room-created", (roomId) => {
+            console.log("room-created");
+            history.push(`/room/${roomId}`);
+        });
+
+        return () => {
+            socket.off("room-created");
+        };
+    }, []);
+
     const createRoom = () => {
         if (isCreating) return;
         setIsCreating(true);
-        const onCreate = (roomId) => {
-            history.push(`/room/${roomId}`);
-        };
-        SocketAPI.createRoom(onCreate);
+        SocketAPI.createRoom();
     };
 
     return (
@@ -124,7 +128,21 @@ const Filter = ({ filter, setFilter }) => {
 };
 
 const RoomList = ({ filter }) => {
-    const rooms = useSelector((state) => state.rooms);
+    const [rooms, setRooms] = useState([]);
+
+    useEffect(() => {
+        const socket = SocketAPI.getSocket();
+        socket.on("rooms", (rooms) => {
+            console.log("ROOMS");
+            setRooms(rooms);
+        });
+
+        SocketAPI.joinLobby();
+        return () => {
+            socket.off("rooms");
+            SocketAPI.leaveLobby();
+        };
+    }, []);
 
     const filterRooms = () => {
         if (!filter) return rooms;
@@ -139,16 +157,9 @@ const RoomList = ({ filter }) => {
         });
     };
 
-    const filteredRooms = filterRooms();
-    // const filteredRooms = [
-    //     { name: "ROOM A", id: "asdv32dsg" },
-    //     { name: "ROOM B", id: "243wdvas" },
-    //     { name: "ROOM C", id: "hkfgh64" },
-    // ];
-
     return (
         <div className="rooms-list">
-            {filteredRooms.map((room) => (
+            {filterRooms().map((room) => (
                 <Room key={room.id} room={room} />
             ))}
         </div>

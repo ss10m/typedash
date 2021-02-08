@@ -35,6 +35,8 @@ const Room = () => {
         setIsRunning,
     } = useRoomApi();
 
+    console.log("RENDER");
+
     const history = useHistory();
 
     if (error) return <Error msg={error} goBack={() => history.goBack()} />;
@@ -87,29 +89,30 @@ const Room = () => {
 const ReadyUp = ({ isReady, toggleReady }) => {
     const [isToggleDisabled, setIsToggleDisabled] = useState(false);
 
+    useEffect(() => {
+        setIsToggleDisabled(false);
+    }, [isReady]);
+
     const toggle = () => {
         if (isToggleDisabled) return;
         setIsToggleDisabled(true);
         toggleReady();
-
-        setTimeout(() => {
-            setIsToggleDisabled(false);
-        }, 200);
     };
 
     return (
         <label>
             <span>READY</span>
-            <Switch onChange={toggle} checked={isReady} />
+            <Switch onChange={toggle} checked={isReady.current} />
         </label>
     );
 };
 
 const useRoomApi = () => {
+    const history = useHistory();
     const { id } = useParams();
     const [room, setRoom] = useState(null);
     const [state, setState] = useState({ current: STATE.PREGAME });
-    const [isReady, setIsReady] = useState(false);
+    const [isReady, setIsReady] = useState({ current: false });
     const [isRunning, setIsRunning] = useState(false);
     const [isSpectating, setIsSpectating] = useState(false);
     const [playNext, setPlayNext] = useState(false);
@@ -119,50 +122,41 @@ const useRoomApi = () => {
     const [error, setError] = useState("");
 
     useEffect(() => {
-        const onUpdate = (data) => {
-            console.log(data);
+        SocketAPI.joinRoom(id);
+        const socket = SocketAPI.getSocket();
 
+        socket.on("updated-room", (data) => {
             const fields = Object.keys(data);
+
+            //console.log("updated-room: " + fields);
+            console.log(fields.length);
+
+            const setFunctions = {
+                room: (data) => setRoom(data),
+                state: (data) => setState(data),
+                isReady: (data) => setIsReady({ current: data }),
+                isRunning: (data) => setIsRunning(data),
+                isSpectating: (data) => setIsSpectating(data),
+                playNext: (data) => setPlayNext(data),
+                quote: (data) => setQuote(data),
+                players: (data) => setPlayers(data),
+                spectators: (data) => setSpectators(data),
+                error: (data) => setError(data),
+                leave: () => history.push(""),
+            };
+
             for (let field of fields) {
-                switch (field) {
-                    case "room":
-                        setRoom(data[field]);
-                        break;
-                    case "state":
-                        setState(data[field]);
-                        break;
-                    case "isReady":
-                        setIsReady(data[field]);
-                        break;
-                    case "isRunning":
-                        setIsRunning(data[field]);
-                        break;
-                    case "isSpectating":
-                        setIsSpectating(data[field]);
-                        break;
-                    case "playNext":
-                        setPlayNext(data[field]);
-                        break;
-                    case "quote":
-                        setQuote(data[field]);
-                        break;
-                    case "players":
-                        setPlayers(data[field]);
-                        break;
-                    case "spectators":
-                        setSpectators(data[field]);
-                        break;
-                    case "error":
-                        setError(data[field]);
-                        break;
-                    default:
-                        break;
-                }
+                const setFunction = setFunctions[field];
+                if (!setFunction) continue;
+                setFunction(data[field]);
             }
+        });
+
+        return () => {
+            socket.off("updated-room");
+            SocketAPI.leaveRoom();
         };
-        SocketAPI.joinRoom(id, onUpdate);
-        return () => SocketAPI.leaveRoom();
-    }, [id]);
+    }, []);
 
     return {
         room,

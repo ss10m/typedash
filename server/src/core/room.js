@@ -289,10 +289,10 @@ export class Room {
     }
 
     handleReadyChange() {
-        console.log("handleReadyChange");
+        //console.log("handleReadyChange");
 
         const ready = this.getPlayers().every((player) => player.isReady);
-        console.log(ready);
+        //console.log(ready);
         if (ready) {
             //
             switch (this.state.current) {
@@ -308,13 +308,15 @@ export class Room {
     toggleReady(socketId) {
         const socket = this.io.sockets.connected[socketId];
         if (!socket) return;
-        if (this.state.current === STATE.PLAYING) return;
 
         const player = this.players[socketId];
-        if (!player) return;
+        if (!player) return socket.emit("updated-room", { leave: true });
+
+        if (this.state.current === STATE.PLAYING) {
+            return socket.emit("updated-room", { isReady: player.isReady });
+        }
 
         const toggled = !player.isReady;
-        console.log(toggled);
         player.isReady = toggled;
 
         const updatedState = {

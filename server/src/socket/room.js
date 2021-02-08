@@ -43,6 +43,7 @@ export default (io, socket) => {
     });
 
     socket.on("join-room", (roomId) => {
+        console.log("JOINED: " + roomId);
         const room = Room.getRoomById(roomId);
         if (!room) return socket.emit("updated-room", { error: "Room not found" });
         room.join(socket.id);

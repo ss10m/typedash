@@ -1,12 +1,10 @@
 import io from "socket.io-client";
 
-import { setSession, setError, setRooms } from "store/actions";
+import { setSession, setError } from "store/actions";
 
 class SocketAPI {
     constructor() {
         this.socket = null;
-        this.onRoomCreate = null;
-        this.onRoomUpdate = null;
     }
 
     connect = () => {
@@ -27,6 +25,10 @@ class SocketAPI {
 
     setDispatch = (dispatch) => {
         this.dispatch = dispatch;
+    };
+
+    getSocket = () => {
+        return this.socket;
     };
 
     getSocketId = () => {
@@ -59,19 +61,16 @@ class SocketAPI {
 
     createRoom = (onCreate) => {
         console.log("createRoom");
-        this.onRoomCreate = onCreate;
         this.emit("create-room");
     };
 
-    joinRoom = (id, onUpdate) => {
+    joinRoom = (id) => {
         console.log("joinRoom");
-        this.onRoomUpdate = onUpdate;
         this.emit("join-room", id);
     };
 
     leaveRoom = () => {
         console.log("leaveRoom");
-        this.onRoomUpdate = null;
         this.emit("leave-room");
     };
 
@@ -99,21 +98,6 @@ class SocketAPI {
     setup = () => {
         this.socket.on("handle-error", (err) => {
             this.dispatch(setError(err));
-        });
-
-        this.socket.on("rooms", (rooms) => {
-            this.dispatch(setRooms(rooms));
-        });
-
-        this.socket.on("room-created", (roomId) => {
-            if (!this.onRoomCreate) return;
-            this.onRoomCreate(roomId);
-            this.onRoomCreate = null;
-        });
-
-        this.socket.on("updated-room", (update) => {
-            if (!this.onRoomUpdate) return;
-            this.onRoomUpdate(update);
         });
     };
 }
