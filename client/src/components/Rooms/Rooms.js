@@ -48,14 +48,13 @@ const CreateRoomButton = () => {
     useEffect(() => {
         const socket = SocketAPI.getSocket();
         socket.on("room-created", (roomId) => {
-            console.log("room-created");
             history.push(`/room/${roomId}`);
         });
 
         return () => {
             socket.off("room-created");
         };
-    }, []);
+    }, [history]);
 
     const createRoom = () => {
         if (isCreating) return;

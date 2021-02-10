@@ -35,8 +35,6 @@ const Room = () => {
         setIsRunning,
     } = useRoomApi();
 
-    console.log("RENDER");
-
     const history = useHistory();
 
     if (error) return <Error msg={error} goBack={() => history.goBack()} />;
@@ -47,7 +45,7 @@ const Room = () => {
     return (
         <div className="room">
             {state.countdown && (
-                <Countdown duration={state.countdown} onCancel={SocketAPI.cancelCountdown} />
+                <Countdown duration={state.countdown} onCancel={SocketAPI.toggleReady} />
             )}
             <div className="status">
                 <button onClick={history.goBack}>LEAVE ROOM</button>
@@ -128,9 +126,6 @@ const useRoomApi = () => {
         socket.on("updated-room", (data) => {
             const fields = Object.keys(data);
 
-            //console.log("updated-room: " + fields);
-            console.log(fields.length);
-
             const setFunctions = {
                 room: (data) => setRoom(data),
                 state: (data) => setState(data),
@@ -156,7 +151,7 @@ const useRoomApi = () => {
             socket.off("updated-room");
             SocketAPI.leaveRoom();
         };
-    }, []);
+    }, [id, history]);
 
     return {
         room,

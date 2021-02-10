@@ -79,10 +79,6 @@ class SocketAPI {
         this.emit("update-progress", progress);
     };
 
-    cancelCountdown = () => {
-        this.emit("cancel-countdown");
-    };
-
     toggleReady = () => {
         this.emit("toggle-ready");
     };

@@ -65,12 +65,6 @@ export default (io, socket) => {
         if (room) room.updateProgress(socket.id, data);
     });
 
-    socket.on("cancel-countdown", () => {
-        const room = Room.getRoomBySocketId(socket.id);
-        if (!room) return;
-        room.cancelCountdown();
-    });
-
     socket.on("toggle-ready", () => {
         const room = Room.getRoomBySocketId(socket.id);
         if (!room) return;

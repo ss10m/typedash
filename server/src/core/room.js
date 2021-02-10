@@ -120,41 +120,34 @@ export class Room {
 
         roomData.players = this.getPlayers();
         roomData.spectators = this.getSpectators();
-
-        if (prevUsersInRoom) {
-            const updatedState = {};
-            updatedState.players = this.getPlayers();
-            updatedState.spectators = this.getSpectators();
-            socket.to(this.id).emit("updated-room", updatedState);
-        }
-
         socket.emit("updated-room", roomData);
+        this.checkStateChange();
     }
 
     leave(socket) {
         const socketId = socket.id;
         socket.leave(this.id);
         delete Room.socketIdToRoom[socketId];
+
         if (this.players[socketId]) {
             if ([STATE.PREGAME, STATE.COUNTDOWN].includes(this.state.current)) {
                 delete this.players[socketId];
             } else {
                 this.players[socketId].leftRoom = true;
             }
+        } else if (this.spectators[socketId]) {
+            delete this.spectators[socketId];
         }
-        if (this.spectators[socketId]) delete this.spectators[socketId];
+
         if (!this.getNumOfUsers()) {
             if (this.countdown) clearTimeout(this.countdown);
             if (this.ticker) this.ticker.clear();
             delete Room.idToRoom[this.id];
-            this.io.in("lobby").emit("rooms", Room.getRooms());
-        } else {
-            let updatedState = {};
-            updatedState.players = this.getPlayers();
-            updatedState.spectators = this.getSpectators();
-            socket.to(this.id).emit("updated-room", updatedState);
+            if (!Object.keys(Room.idToRoom).length) Room.count = 0;
+            return this.io.in("lobby").emit("rooms", Room.getRooms());
         }
-        if (!Object.keys(Room.idToRoom).length) Room.count = 0;
+
+        this.checkStateChange();
     }
 
     isCompleted() {
@@ -167,11 +160,11 @@ export class Room {
         return true;
     }
 
-    startCountdown() {
+    startCountdown(updatedState) {
         if (this.state.current !== STATE.PREGAME) return;
-        const updatedState = { current: STATE.COUNTDOWN, countdown: ROUND.COUNTDOWN };
-        this.state = { ...updatedState, startTime: Date.now() };
-        this.updateClients("updated-room", { state: updatedState });
+        const newState = { current: STATE.COUNTDOWN, countdown: ROUND.COUNTDOWN };
+        this.state = { ...newState, startTime: Date.now() };
+        this.updateClients("updated-room", { ...updatedState, state: newState });
 
         const onSuccess = () => {
             this.state = { current: STATE.PLAYING, timer: ROUND.TIME, startTime: Date.now() };
@@ -204,7 +197,9 @@ export class Room {
         if (this.countdown) clearTimeout(this.countdown);
         this.state = { current: STATE.PREGAME };
         const updatedState = {};
-        updatedState.state = { current: STATE.PREGAME };
+        updatedState.state = this.state;
+        updatedState.players = this.getPlayers();
+        updatedState.spectators = this.getSpectators();
         this.updateClients("updated-room", updatedState);
     }
 
@@ -230,6 +225,7 @@ export class Room {
         this.state = { current: STATE.PREGAME };
         this.finished = 0;
 
+        // reset current players, remove players that left room
         Object.values(this.players).forEach((player) => {
             if (player.leftRoom) {
                 delete this.players[player.id];
@@ -240,6 +236,7 @@ export class Room {
             }
         });
 
+        // move spectators with playNext flag to players
         const switchedIds = [];
         Object.values(this.spectators)
             .filter((spectator) => spectator.playNext)
@@ -257,25 +254,27 @@ export class Room {
                 switchedIds.push(id);
             });
 
+        // generate new quote
         const value = `"I want to go home," he muttered as he totered down the road beside me.`;
         const length = value.split(" ").length;
         this.quote = { value, length };
-
-        const updatedState = {
-            state: { current: STATE.PREGAME },
-            quote: this.quote.value,
-            players: this.getPlayers(),
-            spectators: Object.values(this.spectators),
-        };
 
         switchedIds.forEach((id) => {
             this.io.to(id).emit("updated-room", { isSpectating: false, playNext: false });
         });
 
-        this.updateClients("updated-room", updatedState);
+        const updatedState = {
+            state: { current: STATE.PREGAME },
+            quote: this.quote.value,
+            players: this.getPlayers(),
+            spectators: this.getSpectators(),
+        };
 
-        const ready = this.getPlayers().every((player) => player.isReady);
-        if (ready) this.startCountdown();
+        if (this.checkPlayersReady()) {
+            this.startCountdown(updatedState);
+        } else {
+            this.updateClients("updated-room", updatedState);
+        }
     }
 
     endRound() {
@@ -288,24 +287,42 @@ export class Room {
         this.updateClients("updated-room", updatedState);
     }
 
-    handleReadyChange() {
-        //console.log("handleReadyChange");
+    checkPlayersReady() {
+        const players = this.getPlayers();
+        return (
+            players.filter((player) => !player.leftRoom).every((player) => player.isReady) &&
+            players.length
+        );
+    }
 
-        const ready = this.getPlayers().every((player) => player.isReady);
-        //console.log(ready);
-        if (ready) {
-            //
+    checkStateChange() {
+        if (this.checkPlayersReady()) {
             switch (this.state.current) {
                 case STATE.PREGAME:
-                    return this.startCountdown();
+                    this.startCountdown({ players: this.getPlayers() });
                 case STATE.POSTGAME:
-                    return this.startNextRound();
+                    this.startNextRound();
+                default:
+                    this.updateClients("updated-room", {
+                        players: this.getPlayers(),
+                        spectators: this.getSpectators(),
+                    });
+            }
+        } else {
+            if (this.state.current === STATE.COUNTDOWN) {
+                this.cancelCountdown();
+            } else {
+                this.updateClients("updated-room", {
+                    players: this.getPlayers(),
+                    spectators: this.getSpectators(),
+                });
             }
         }
-        if (!ready && this.state.current === STATE.COUNTDOWN) this.cancelCountdown();
     }
 
     toggleReady(socketId) {
+        // change to setPlayerReady(true || false)
+
         const socket = this.io.sockets.connected[socketId];
         if (!socket) return;
 
@@ -318,14 +335,10 @@ export class Room {
 
         const toggled = !player.isReady;
         player.isReady = toggled;
-
-        const updatedState = {
+        socket.emit("updated-room", {
             isReady: toggled,
-            players: this.getPlayers(),
-        };
-        socket.to(this.id).emit("updated-room", { players: this.getPlayers() });
-        socket.emit("updated-room", updatedState);
-        this.handleReadyChange();
+        });
+        this.checkStateChange();
     }
 
     toggleSpectate(socketId) {
@@ -357,10 +370,8 @@ export class Room {
             return;
         }
 
-        updatedState.players = this.getPlayers();
-        updatedState.spectators = this.getSpectators();
-        socket.to(this.id).emit("updated-room", updatedState);
-        socket.emit("updated-room", { ...updatedState, isSpectating });
+        socket.emit("updated-room", { isSpectating, isReady: false });
+        this.checkStateChange();
     }
 
     togglePlayNext(socketId) {
