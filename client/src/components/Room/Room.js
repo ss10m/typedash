@@ -45,7 +45,7 @@ const Room = () => {
     return (
         <div className="room">
             {state.countdown && (
-                <Countdown duration={state.countdown} onCancel={SocketAPI.toggleReady} />
+                <Countdown duration={state.countdown} onCancel={SocketAPI.setReady} />
             )}
             <div className="status">
                 <button onClick={history.goBack}>LEAVE ROOM</button>
@@ -66,11 +66,11 @@ const Room = () => {
                 <Status
                     state={state}
                     isSpectating={isSpectating}
-                    playNext={playNext}
                     toggleSpectate={SocketAPI.toggleSpectate}
-                    togglePlayNext={SocketAPI.togglePlayNext}
+                    playNext={playNext}
+                    setPlayNext={SocketAPI.setPlayNext}
                 />
-                <ReadyUp isReady={isReady} toggleReady={SocketAPI.toggleReady} />
+                <ReadyUp isReady={isReady} setReady={SocketAPI.setReady} />
                 <Timer state={state} />
             </div>
 
@@ -84,7 +84,7 @@ const Room = () => {
     );
 };
 
-const ReadyUp = ({ isReady, toggleReady }) => {
+const ReadyUp = ({ isReady, setReady }) => {
     const [isToggleDisabled, setIsToggleDisabled] = useState(false);
 
     useEffect(() => {
@@ -94,7 +94,7 @@ const ReadyUp = ({ isReady, toggleReady }) => {
     const toggle = () => {
         if (isToggleDisabled) return;
         setIsToggleDisabled(true);
-        toggleReady();
+        setReady(!isReady.current);
     };
 
     return (

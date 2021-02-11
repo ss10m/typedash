@@ -320,23 +320,22 @@ export class Room {
         }
     }
 
-    toggleReady(socketId) {
-        // change to setPlayerReady(true || false)
-
+    setPlayerReady(socketId, isReady) {
         const socket = this.io.sockets.connected[socketId];
         if (!socket) return;
 
         const player = this.players[socketId];
-        if (!player) return socket.emit("updated-room", { leave: true });
+        if (!player) {
+            return socket.emit("updated-room", { leave: true });
+        }
 
-        if (this.state.current === STATE.PLAYING) {
+        if (player.isReady === isReady || this.state.current === STATE.PLAYING) {
             return socket.emit("updated-room", { isReady: player.isReady });
         }
 
-        const toggled = !player.isReady;
-        player.isReady = toggled;
+        player.isReady = isReady;
         socket.emit("updated-room", {
-            isReady: toggled,
+            isReady: isReady,
         });
         this.checkStateChange();
     }
@@ -346,7 +345,6 @@ export class Room {
         if (!socket) return;
         if (![STATE.PREGAME, STATE.COUNTDOWN].includes(this.state.current)) return;
 
-        const updatedState = {};
         let isSpectating;
         if (this.players[socketId]) {
             const { username, id } = this.players[socketId];
@@ -374,16 +372,26 @@ export class Room {
         this.checkStateChange();
     }
 
-    togglePlayNext(socketId) {
+    setPlayNext(socketId, playNext) {
+        console.log(playNext);
+
         const socket = this.io.sockets.connected[socketId];
         if (!socket) return;
-        if (![STATE.PLAYING, STATE.POSTGAME].includes(this.state.current)) return;
-        const spectator = this.spectators[socketId];
-        if (!spectator) return;
 
-        const toggled = !spectator.playNext;
-        spectator.playNext = toggled;
-        socket.emit("updated-room", { playNext: toggled });
+        const spectator = this.spectators[socketId];
+        if (!spectator) {
+            return socket.emit("updated-room", { leave: true });
+        }
+
+        if (
+            spectator.playNext === playNext ||
+            ![STATE.PLAYING, STATE.POSTGAME].includes(this.state.current)
+        ) {
+            return socket.emit("updated-room", { playNext: spectator.playNext });
+        }
+
+        spectator.playNext = playNext;
+        socket.emit("updated-room", { playNext: playNext });
     }
 
     ///////////////////////////////////////////////

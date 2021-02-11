@@ -33,7 +33,7 @@ const Countdown = ({ duration, onCancel }) => {
             <Circle max={totalTime} remaining={timeLeft} />
             <div className="starting">STARTING IN</div>
             <div className="value">{timeLeft !== null && timeLeft + 1}</div>
-            <div className="cancel" onClick={onCancel}>
+            <div className="cancel" onClick={() => onCancel(false)}>
                 CANCEL
             </div>
         </div>

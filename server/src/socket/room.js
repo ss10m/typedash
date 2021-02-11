@@ -65,10 +65,10 @@ export default (io, socket) => {
         if (room) room.updateProgress(socket.id, data);
     });
 
-    socket.on("toggle-ready", () => {
+    socket.on("set-ready", (isReady) => {
         const room = Room.getRoomBySocketId(socket.id);
         if (!room) return;
-        room.toggleReady(socket.id);
+        room.setPlayerReady(socket.id, isReady);
     });
 
     socket.on("toggle-spectate", () => {
@@ -77,9 +77,9 @@ export default (io, socket) => {
         room.toggleSpectate(socket.id);
     });
 
-    socket.on("toggle-play-next", () => {
+    socket.on("set-play-next", (playNext) => {
         const room = Room.getRoomBySocketId(socket.id);
         if (!room) return;
-        room.togglePlayNext(socket.id);
+        room.setPlayNext(socket.id, playNext);
     });
 };

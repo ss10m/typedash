@@ -79,16 +79,16 @@ class SocketAPI {
         this.emit("update-progress", progress);
     };
 
-    toggleReady = () => {
-        this.emit("toggle-ready");
+    setReady = (isReady) => {
+        this.emit("set-ready", isReady);
     };
 
     toggleSpectate = () => {
         this.emit("toggle-spectate");
     };
 
-    togglePlayNext = () => {
-        this.emit("toggle-play-next");
+    setPlayNext = (playNext) => {
+        this.emit("set-play-next", playNext);
     };
 
     setup = () => {

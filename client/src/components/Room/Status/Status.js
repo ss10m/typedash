@@ -8,13 +8,13 @@ import { STATE } from "helpers/constants";
 // SCSS
 import "./Status.scss";
 
-const Status = ({ state, isSpectating, playNext, toggleSpectate, togglePlayNext }) => {
+const Status = ({ state, isSpectating, toggleSpectate, playNext, setPlayNext }) => {
     if (state.current === STATE.PREGAME || state.current === STATE.COUNTDOWN) {
         return <InstantToggle isSpectating={isSpectating} toggleSpectate={toggleSpectate} />;
     }
 
     if (isSpectating) {
-        return <QueueToggle playNext={playNext} togglePlayNext={togglePlayNext} />;
+        return <QueueToggle playNext={playNext} setPlayNext={setPlayNext} />;
     }
 
     return <div>WPM: 88</div>;
@@ -36,7 +36,7 @@ const InstantToggle = ({ isSpectating, toggleSpectate }) => {
     return <button onClick={toggle}>{isSpectating ? "PLAY" : "SPECTATE"}</button>;
 };
 
-const QueueToggle = ({ playNext, togglePlayNext }) => {
+const QueueToggle = ({ playNext, setPlayNext }) => {
     const [isToggleDisabled, setIsToggleDisabled] = useState(false);
 
     useEffect(() => {
@@ -46,7 +46,7 @@ const QueueToggle = ({ playNext, togglePlayNext }) => {
     const toggle = () => {
         if (isToggleDisabled) return;
         setIsToggleDisabled(true);
-        togglePlayNext();
+        setPlayNext(!playNext);
     };
 
     return (
