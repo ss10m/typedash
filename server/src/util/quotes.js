@@ -21,7 +21,7 @@ const quotes = [
     },
     {
         text: `"I want to go home," he muttered as he totered down the road beside me. "Me, too," I told him. And yet it was not Buckkeep that came to my mind, but a meadow overlooking the sea, and a girl in bright red skirts who beckoned me. A time, rather than a place. No road led there anymore.`,
-        author: "Robin Hobb,",
+        author: "Robin Hobb",
         source: "Fool's Fate",
     },
     {

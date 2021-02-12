@@ -27,9 +27,7 @@ export class Room {
     async createRoom(socketId) {
         const socket = this.io.sockets.connected[socketId];
         if (!socket) return;
-
-        const quote = await this.generateQuote();
-        this.quote = quote;
+        this.quote = await this.generateQuote();
         socket.emit("room-created", this.id);
         this.io.in("lobby").emit("rooms", Room.getRooms());
     }
@@ -51,9 +49,9 @@ export class Room {
         const query = "SELECT * FROM quote WHERE id = $1";
         const values = [randomId];
         const result = await db.query(query, values);
-        const value = result.rows[0].text;
-        const length = value.split(" ").length;
-        return { value, length };
+        const { text, author, source } = result.rows[0];
+        const length = text.split(" ").length;
+        return { text, author, source, length };
     }
 
     updateClients(key, data) {
@@ -72,7 +70,7 @@ export class Room {
         const roomData = {
             room: { id: this.id, name: this.name },
             state: { current: this.state.current },
-            quote: this.quote.value,
+            quote: this.quote,
         };
 
         let player = {
@@ -271,8 +269,7 @@ export class Room {
                 switchedIds.push(id);
             });
 
-        const quote = await this.generateQuote();
-        this.quote = quote;
+        this.quote = await this.generateQuote();
 
         switchedIds.forEach((id) => {
             this.io.to(id).emit("updated-room", { isSpectating: false, playNext: false });
@@ -280,7 +277,7 @@ export class Room {
 
         const updatedState = {
             state: { current: STATE.PREGAME },
-            quote: this.quote.value,
+            quote: this.quote,
             players: this.getPlayers(),
             spectators: this.getSpectators(),
         };

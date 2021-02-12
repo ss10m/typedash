@@ -7,34 +7,43 @@ import { useSelector } from "react-redux";
 
 // Helpers
 import { longestCommonSubstring } from "helpers";
+import { STATE } from "helpers/constants";
 import keyboard from "./keyboard";
 
 // SCSS
 import "./Racer.scss";
 
-const Racer = ({ isRunning, setIsRunning, currentQuote, updateStatus }) => {
+const Racer = ({
+    state,
+    isRunning,
+    isSpectating,
+    setIsRunning,
+    currentQuote,
+    updateStatus,
+}) => {
     const [input, setInput] = useState("");
-    const [quote, setQuote] = useState({ current: [], length: 0 });
+    const [quote, setQuote] = useState({ current: [], length: 0, author: "", source: "" });
     const [wordIndex, setWordIndex] = useState(null);
     const [correctLength, setCorrectLength] = useState(0);
     const [typoLength, setTypoLength] = useState(0);
     const inputRef = useRef(null);
 
     useEffect(() => {
-        const words = currentQuote.split(" ").map((word) => word + " ");
-        const lastIndex = words.length - 1;
+        if (!currentQuote) return;
+        const { text, length, author, source } = currentQuote;
+        const words = text.split(" ").map((word) => word + " ");
+        const lastIndex = length - 1;
         words[lastIndex] = words[lastIndex].trim();
-        setQuote({ current: words, length: words.length });
+        setQuote({ current: words, length, author, source });
+        setWordIndex(0);
+        setCorrectLength(0);
     }, [currentQuote]);
 
     useEffect(() => {
         if (isRunning) {
-            setWordIndex(0);
             inputRef.current.focus();
         } else {
             setInput("");
-            setWordIndex(null);
-            setCorrectLength(0);
             setTypoLength(0);
         }
     }, [isRunning]);
@@ -75,14 +84,18 @@ const Racer = ({ isRunning, setIsRunning, currentQuote, updateStatus }) => {
     return (
         <div className="race">
             <Quote
-                quote={quote.current}
+                isRunning={isRunning}
+                quote={quote}
                 wordIndex={wordIndex}
                 correctLength={correctLength}
                 typoLength={typoLength}
             />
             <Input
-                input={input}
                 ref={inputRef}
+                state={state}
+                isRunning={isRunning}
+                isSpectating={isSpectating}
+                input={input}
                 handleChange={handleChange}
                 containsTypo={typoLength > 0}
                 isDisabled={!isRunning}
@@ -92,28 +105,52 @@ const Racer = ({ isRunning, setIsRunning, currentQuote, updateStatus }) => {
     );
 };
 
-const Input = React.forwardRef((props, ref) => (
-    <input
-        className={classNames({
-            typo: props.containsTypo,
-        })}
-        ref={ref}
-        type="text"
-        spellCheck={false}
-        placeholder="Type the above text"
-        autoComplete="off"
-        value={props.input}
-        onChange={props.handleChange}
-        disabled={props.isDisabled}
-    ></input>
-));
+const Input = React.forwardRef((props, ref) => {
+    //"Type the above text"
+    let placeholder = "";
+    if (props.isSpectating) {
+        placeholder = "You are spectating";
+    } else if (!props.isRunning) {
+        switch (props.state.current) {
+            case STATE.PREGAME:
+                placeholder = "Waiting for players to ready up";
+                break;
+            case STATE.PLAYING:
+                placeholder = "Waiting for players to finish";
+                break;
+            case STATE.POSTGAME:
+                placeholder = "Waiting for players to ready up";
+                break;
+            default:
+                placeholder = "Type the above text";
+                break;
+        }
+    }
 
-const Quote = ({ quote, wordIndex, correctLength, typoLength }) => {
+    return (
+        <input
+            className={classNames({
+                typo: props.containsTypo,
+            })}
+            ref={ref}
+            type="text"
+            spellCheck={false}
+            placeholder={placeholder}
+            autoComplete="off"
+            value={props.input}
+            onChange={props.handleChange}
+            disabled={props.isDisabled}
+        ></input>
+    );
+});
+
+const Quote = ({ isRunning, quote, wordIndex, correctLength, typoLength }) => {
     return (
         <div className="quote">
-            {quote.map((word, i) => (
+            {quote.current.map((word, i) => (
                 <Word
                     key={i}
+                    isRunning={isRunning}
                     word={word}
                     id={i}
                     wordIndex={wordIndex}
@@ -121,15 +158,19 @@ const Quote = ({ quote, wordIndex, correctLength, typoLength }) => {
                     typoLength={typoLength}
                 />
             ))}
+            <div className="author">
+                <p>{`${quote.author} - ${quote.source}`}</p>
+            </div>
         </div>
     );
 };
 
-const Word = ({ word, id, wordIndex, correctLength, typoLength }) => {
+const Word = ({ isRunning, word, id, wordIndex, correctLength, typoLength }) => {
     if (id === wordIndex) {
         return [...word].map((letter, i) => (
             <Letter
                 key={i}
+                isRunning={isRunning}
                 letter={letter}
                 letterIndex={i}
                 correctLength={correctLength}
@@ -141,21 +182,20 @@ const Word = ({ word, id, wordIndex, correctLength, typoLength }) => {
     return <span className={classNames({ "word-correct": id < wordIndex })}>{word}</span>;
 };
 
-const Letter = ({ letter, letterIndex, correctLength, typoLength }) => {
+const Letter = ({ isRunning, letter, letterIndex, correctLength, typoLength }) => {
     let letterClass = "";
     if (letterIndex < correctLength) {
         letterClass = "letter-correct";
     } else if (letterIndex < correctLength + typoLength) {
         letterClass = "letter-typo";
-    } else if (letter !== " ") {
-        letterClass = "word-current";
     }
 
     return (
         <span
             className={classNames({
                 [letterClass]: letterClass,
-                "letter-current": letterIndex === correctLength + typoLength,
+                "word-current": isRunning && letter !== " ",
+                "letter-current": isRunning && letterIndex === correctLength + typoLength,
             })}
         >
             {letter}

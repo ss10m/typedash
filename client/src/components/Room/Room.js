@@ -75,7 +75,9 @@ const Room = () => {
             </div>
 
             <Racer
+                state={state}
                 isRunning={isRunning && !isSpectating}
+                isSpectating={isSpectating}
                 setIsRunning={setIsRunning}
                 currentQuote={quote}
                 updateStatus={SocketAPI.updateStatus}
