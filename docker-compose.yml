@@ -12,21 +12,21 @@ services:
             LETSENCRYPT_EMAIL: "fastf20@gmail.com"
         networks:
             - service-network
-            - typing-network
+            - typedash-network
     db:
         image: postgres:11.2-alpine
         environment:
-            POSTGRES_DB: typing
-            POSTGRES_USER: typing
+            POSTGRES_DB: typedash
+            POSTGRES_USER: typedash
             POSTGRES_PASSWORD: pw
         networks:
-            - typing-network
+            - typedash-network
         volumes:
-            - ~/db_typing:/var/lib/postgresql/data
+            - ~/db_typedash:/var/lib/postgresql/data
             - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
 networks:
     service-network:
         external: true
-    typing-network:
+    typedash-network:
         driver: bridge

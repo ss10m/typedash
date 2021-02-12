@@ -30,4 +30,10 @@ CREATE TABLE "users" (
     "created_at" TIMESTAMP DEFAULT NOW()
 );
 
-
+CREATE TABLE "quote" (
+    "id" SERIAL PRIMARY KEY,
+    "text" TEXT NOT NULL,
+    "author" TEXT,
+    "source" TEXT,
+    "added_at" TIMESTAMP DEFAULT NOW()
+);

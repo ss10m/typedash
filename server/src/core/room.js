@@ -2,6 +2,8 @@ import { nanoid } from "nanoid";
 
 import { STATE, ROUND } from "../util/constants.js";
 
+import db, { TOTAL_QUOTES } from ".././config/db.js";
+
 import AdjustingTicker from "./adjustingTicker.js";
 
 export class Room {
@@ -16,10 +18,20 @@ export class Room {
         this.name = this.generateName();
         this.players = {};
         this.spectators = {};
-        this.quote = this.generateQuote();
+        this.quote = null;
         this.finished = 0;
         Room.count += 1;
         Room.idToRoom[this.id] = this;
+    }
+
+    async createRoom(socketId) {
+        const socket = this.io.sockets.connected[socketId];
+        if (!socket) return;
+
+        const quote = await this.generateQuote();
+        this.quote = quote;
+        socket.emit("room-created", this.id);
+        this.io.in("lobby").emit("rooms", Room.getRooms());
     }
 
     generateName() {
@@ -34,8 +46,12 @@ export class Room {
         return "ROOM " + nameGenerator(Room.count);
     }
 
-    generateQuote() {
-        const value = `"I wish it need not have happened in my time," said Frodo.`;
+    async generateQuote() {
+        const randomId = Math.floor(Math.random() * TOTAL_QUOTES) + 1;
+        const query = "SELECT * FROM quote WHERE id = $1";
+        const values = [randomId];
+        const result = await db.query(query, values);
+        const value = result.rows[0].text;
         const length = value.split(" ").length;
         return { value, length };
     }
@@ -49,7 +65,6 @@ export class Room {
         if (!socket) return;
 
         const username = socket.handshake.session.user.displayName;
-        const prevUsersInRoom = this.getNumOfUsers();
 
         socket.join(this.id);
         Room.socketIdToRoom[socketId] = this;
@@ -147,6 +162,8 @@ export class Room {
             return this.io.in("lobby").emit("rooms", Room.getRooms());
         }
 
+        // check if possible to end round early
+
         this.checkStateChange();
     }
 
@@ -220,7 +237,7 @@ export class Room {
         this.updateClients("updated-room", updatedState);
     }
 
-    startNextRound() {
+    async startNextRound() {
         if (this.state.current !== STATE.POSTGAME) return;
         this.state = { current: STATE.PREGAME };
         this.finished = 0;
@@ -254,10 +271,8 @@ export class Room {
                 switchedIds.push(id);
             });
 
-        // generate new quote
-        const value = `"I want to go home," he muttered as he totered down the road beside me.`;
-        const length = value.split(" ").length;
-        this.quote = { value, length };
+        const quote = await this.generateQuote();
+        this.quote = quote;
 
         switchedIds.forEach((id) => {
             this.io.to(id).emit("updated-room", { isSpectating: false, playNext: false });
@@ -373,8 +388,6 @@ export class Room {
     }
 
     setPlayNext(socketId, playNext) {
-        console.log(playNext);
-
         const socket = this.io.sockets.connected[socketId];
         if (!socket) return;
 

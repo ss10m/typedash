@@ -38,8 +38,7 @@ export default (io, socket) => {
     // Room
     socket.on("create-room", () => {
         const room = new Room(io);
-        socket.emit("room-created", room.id);
-        io.in("lobby").emit("rooms", Room.getRooms());
+        room.createRoom(socket.id);
     });
 
     socket.on("join-room", (roomId) => {
