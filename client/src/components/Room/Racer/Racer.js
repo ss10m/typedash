@@ -106,7 +106,6 @@ const Racer = ({
 };
 
 const Input = React.forwardRef((props, ref) => {
-    //"Type the above text"
     let placeholder = "";
     if (props.isSpectating) {
         placeholder = "You are spectating";

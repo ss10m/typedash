@@ -241,7 +241,7 @@ export class Room {
         this.finished = 0;
 
         // reset current players, remove players that left room
-        Object.values(this.players).forEach((player) => {
+        this.getPlayers().forEach((player) => {
             if (player.leftRoom) {
                 delete this.players[player.id];
             } else {
@@ -253,7 +253,7 @@ export class Room {
 
         // move spectators with playNext flag to players
         const switchedIds = [];
-        Object.values(this.spectators)
+        this.getSpectators()
             .filter((spectator) => spectator.playNext)
             .forEach((spectator) => {
                 const { username, id } = spectator;
@@ -291,6 +291,13 @@ export class Room {
 
     endRound() {
         this.state = { current: STATE.POSTGAME };
+
+        this.getPlayers().forEach((player) => {
+            if (!player.position) {
+                player.position = "DNF";
+            }
+        });
+
         const updatedState = {
             state: { current: STATE.POSTGAME },
             isRunning: false,

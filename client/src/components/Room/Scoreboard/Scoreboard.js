@@ -67,6 +67,7 @@ const Scoreboard = ({ players, socketId }) => {
 };
 
 const ordinalSuffix = (position) => {
+    if (!Number.isInteger(position)) return position;
     const j = position % 10;
     const k = position % 100;
     if (j === 1 && k !== 11) {
