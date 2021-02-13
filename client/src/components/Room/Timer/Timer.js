@@ -16,6 +16,9 @@ const Timer = ({ state }) => {
     useEffect(() => {
         switch (state.current) {
             case STATE.PREGAME:
+                setIsRunning(false);
+                setPrevTime(null);
+                setTimeInMilliseconds(0);
                 setTime({
                     minutes: "02",
                     seconds: "00",

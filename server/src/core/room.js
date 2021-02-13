@@ -147,6 +147,9 @@ export class Room {
                 delete this.players[socketId];
             } else {
                 this.players[socketId].leftRoom = true;
+                if (!this.players[socketId].position) {
+                    this.players[socketId].position = "DNF";
+                }
             }
         } else if (this.spectators[socketId]) {
             delete this.spectators[socketId];
@@ -160,19 +163,26 @@ export class Room {
             return this.io.in("lobby").emit("rooms", Room.getRooms());
         }
 
-        // check if possible to end round early
+        if (
+            !this.getPlayers().filter((player) => !player.leftRoom).length &&
+            this.getSpectators().length &&
+            this.state.current === STATE.PLAYING
+        ) {
+            if (this.ticker) this.ticker.clear();
+            this.state = { current: STATE.POSTGAME };
+            this.startNextRound();
+        }
 
         this.checkStateChange();
     }
 
     isCompleted() {
-        const isCompleted = Object.values(this.players)
-            .filter((player) => !player.leftRoom)
-            .every((player) => player.position);
-        if (!isCompleted) return false;
-        if (this.ticker) this.ticker.clear();
-        this.endRound();
-        return true;
+        return (
+            this.state.current === STATE.PLAYING &&
+            Object.values(this.players)
+                .filter((player) => !player.leftRoom)
+                .every((player) => player.position)
+        );
     }
 
     startCountdown(updatedState) {
@@ -227,7 +237,7 @@ export class Room {
 
         if (data.progress === this.quote.length) {
             player.position = this.getPosition();
-            if (this.isCompleted()) return;
+            if (this.isCompleted()) return this.endRound();
         }
 
         const updatedState = {};
@@ -290,6 +300,7 @@ export class Room {
     }
 
     endRound() {
+        if (this.ticker) this.ticker.clear();
         this.state = { current: STATE.POSTGAME };
 
         this.getPlayers().forEach((player) => {
@@ -315,7 +326,9 @@ export class Room {
     }
 
     checkStateChange() {
-        if (this.checkPlayersReady()) {
+        if (this.isCompleted()) {
+            this.endRound();
+        } else if (this.checkPlayersReady()) {
             switch (this.state.current) {
                 case STATE.PREGAME:
                     this.startCountdown({ players: this.getPlayers() });
