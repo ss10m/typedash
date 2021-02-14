@@ -49,9 +49,9 @@ export class Room {
         const query = "SELECT * FROM quote WHERE id = $1";
         const values = [randomId];
         const result = await db.query(query, values);
-        const { text, author, source } = result.rows[0];
+        const { id, text, author, source } = result.rows[0];
         const length = text.split(" ").length;
-        return { text, author, source, length };
+        return { id, text, author, source, length };
     }
 
     updateClients(key, data) {
@@ -78,6 +78,8 @@ export class Room {
             id: socketId,
             isReady: false,
             progress: 0,
+            wordIndex: 0,
+            endTime: null,
             position: null,
             leftRoom: false,
         };
@@ -158,6 +160,7 @@ export class Room {
         if (!this.getNumOfUsers()) {
             if (this.countdown) clearTimeout(this.countdown);
             if (this.ticker) this.ticker.clear();
+            if (this.state.current === STATE.PLAYING) this.saveScores();
             delete Room.idToRoom[this.id];
             if (!Object.keys(Room.idToRoom).length) Room.count = 0;
             return this.io.in("lobby").emit("rooms", Room.getRooms());
@@ -169,6 +172,7 @@ export class Room {
             this.state.current === STATE.PLAYING
         ) {
             if (this.ticker) this.ticker.clear();
+            this.saveScores();
             this.state = { current: STATE.POSTGAME };
             this.startNextRound();
         }
@@ -234,9 +238,11 @@ export class Room {
 
         const progress = data.progress / this.quote.length;
         player.progress = Math.round(progress * 100);
+        player.wordIndex = data.progress;
 
         if (data.progress === this.quote.length) {
             player.position = this.getPosition();
+            player.endTime = new Date();
             if (this.isCompleted()) return this.endRound();
         }
 
@@ -257,6 +263,8 @@ export class Room {
             } else {
                 player.progress = 0;
                 player.position = null;
+                player.wordIndex = 0;
+                player.endTime = null;
                 player.leftRoom = false;
             }
         });
@@ -273,6 +281,8 @@ export class Room {
                     isReady: false,
                     progress: 0,
                     position: null,
+                    wordIndex: 0,
+                    endTime: null,
                     leftRoom: false,
                 };
                 delete this.spectators[id];
@@ -301,7 +311,6 @@ export class Room {
 
     endRound() {
         if (this.ticker) this.ticker.clear();
-        this.state = { current: STATE.POSTGAME };
 
         this.getPlayers().forEach((player) => {
             if (!player.position) {
@@ -309,12 +318,46 @@ export class Room {
             }
         });
 
+        this.saveScores();
+        this.state = { current: STATE.POSTGAME };
+
         const updatedState = {
             state: { current: STATE.POSTGAME },
             isRunning: false,
             players: this.getPlayers(),
         };
         this.updateClients("updated-room", updatedState);
+    }
+
+    saveScores() {
+        const scores = [];
+        this.getPlayers().forEach((player) => {
+            let time;
+            if (player.endTime) {
+                time = player.endTime - this.state.startTime;
+            } else {
+                time = ROUND.TIME;
+            }
+            const wpm = player.wordIndex / (time / (1000 * 60));
+            console.log(wpm, time / 1000, time / (1000 * 60), player.position);
+            scores.push({ id: player.id, wpm });
+        });
+
+        setTimeout(() => this.saveToDb(scores, this.quote.id));
+    }
+
+    saveToDb(scores, quoteId) {
+        const currentTime = new Date().getTime();
+        while (currentTime + 3000 >= new Date().getTime()) {}
+
+        let topScore;
+        scores.forEach((score) => {
+            if (!topScore || topScore.wpm < score.wpm) topScore = score;
+        });
+
+        console.log(quoteId);
+        console.log(scores);
+        console.log(topScore);
     }
 
     checkPlayersReady() {
@@ -391,6 +434,8 @@ export class Room {
                 isReady: false,
                 progress: 0,
                 position: null,
+                wordIndex: 0,
+                endTime: null,
                 leftRoom: false,
             };
             this.players[socketId] = player;

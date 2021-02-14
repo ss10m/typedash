@@ -8,7 +8,7 @@ const STATE = {
 const ROUND = {
     // TIME: 120000,
     // COUNTDOWN: 10000,
-    TIME: 40000,
+    TIME: 60000,
     COUNTDOWN: 4000,
 };
 
