@@ -2,7 +2,7 @@ import { nanoid } from "nanoid";
 
 import { STATE, ROUND } from "../util/constants.js";
 
-import db, { TOTAL_QUOTES } from ".././config/db.js";
+import { generateQuote, saveScores } from "../controllers/room.js";
 
 import AdjustingTicker from "./adjustingTicker.js";
 
@@ -27,7 +27,7 @@ export class Room {
     async createRoom(socketId) {
         const socket = this.io.sockets.connected[socketId];
         if (!socket) return;
-        this.quote = await this.generateQuote();
+        this.quote = await generateQuote();
         socket.emit("room-created", this.id);
         this.io.in("lobby").emit("rooms", Room.getRooms());
     }
@@ -42,16 +42,6 @@ export class Room {
             }
         };
         return "ROOM " + nameGenerator(Room.count);
-    }
-
-    async generateQuote() {
-        const randomId = Math.floor(Math.random() * TOTAL_QUOTES) + 1;
-        const query = "SELECT * FROM quote WHERE id = $1";
-        const values = [randomId];
-        const result = await db.query(query, values);
-        const { id, text, author, source } = result.rows[0];
-        const length = text.split(" ").length;
-        return { id, text, author, source, length };
     }
 
     updateClients(key, data) {
@@ -160,7 +150,7 @@ export class Room {
         if (!this.getNumOfUsers()) {
             if (this.countdown) clearTimeout(this.countdown);
             if (this.ticker) this.ticker.clear();
-            if (this.state.current === STATE.PLAYING) this.saveScores();
+            if (this.state.current === STATE.PLAYING) this.generateScores();
             delete Room.idToRoom[this.id];
             if (!Object.keys(Room.idToRoom).length) Room.count = 0;
             return this.io.in("lobby").emit("rooms", Room.getRooms());
@@ -172,7 +162,7 @@ export class Room {
             this.state.current === STATE.PLAYING
         ) {
             if (this.ticker) this.ticker.clear();
-            this.saveScores();
+            this.generateScores();
             this.state = { current: STATE.POSTGAME };
             this.startNextRound();
         }
@@ -289,7 +279,7 @@ export class Room {
                 switchedIds.push(id);
             });
 
-        this.quote = await this.generateQuote();
+        this.quote = await generateQuote();
 
         switchedIds.forEach((id) => {
             this.io.to(id).emit("updated-room", { isSpectating: false, playNext: false });
@@ -318,7 +308,7 @@ export class Room {
             }
         });
 
-        this.saveScores();
+        this.generateScores();
         this.state = { current: STATE.POSTGAME };
 
         const updatedState = {
@@ -329,7 +319,7 @@ export class Room {
         this.updateClients("updated-room", updatedState);
     }
 
-    saveScores() {
+    generateScores() {
         const scores = [];
         this.getPlayers().forEach((player) => {
             let time;
@@ -338,26 +328,13 @@ export class Room {
             } else {
                 time = ROUND.TIME;
             }
-            const wpm = player.wordIndex / (time / (1000 * 60));
+            const wpm = Math.round(player.wordIndex / (time / (1000 * 60)));
             console.log(wpm, time / 1000, time / (1000 * 60), player.position);
-            scores.push({ id: player.id, wpm });
+            scores.push([1, this.quote.id, wpm]);
         });
 
-        setTimeout(() => this.saveToDb(scores, this.quote.id));
-    }
-
-    saveToDb(scores, quoteId) {
-        const currentTime = new Date().getTime();
-        while (currentTime + 3000 >= new Date().getTime()) {}
-
-        let topScore;
-        scores.forEach((score) => {
-            if (!topScore || topScore.wpm < score.wpm) topScore = score;
-        });
-
-        console.log(quoteId);
-        console.log(scores);
-        console.log(topScore);
+        console.log("QUOTEID: " + this.quote.id);
+        setTimeout(() => saveScores(scores));
     }
 
     checkPlayersReady() {

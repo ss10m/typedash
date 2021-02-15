@@ -37,3 +37,13 @@ CREATE TABLE "quote" (
     "source" TEXT,
     "added_at" TIMESTAMP DEFAULT NOW()
 );
+
+
+CREATE TABLE "results" (
+    "id" SERIAL PRIMARY KEY,
+    "user_id" INTEGER REFERENCES "users"("id"),
+    "quote_id" INTEGER REFERENCES "quote"("id"),
+    "wpm" INTEGER NOT NULL,
+    "played_at" TIMESTAMP DEFAULT NOW()
+);
+

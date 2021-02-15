@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import Switch from "react-switch";
+import moment from "moment";
+import classnames from "classnames";
 
 // Socket API
 import SocketAPI from "core/SocketClient";
@@ -82,6 +84,8 @@ const Room = () => {
                 currentQuote={quote}
                 updateStatus={SocketAPI.updateStatus}
             />
+
+            <Results quote={quote} />
         </div>
     );
 };
@@ -107,6 +111,58 @@ const ReadyUp = ({ isReady, setReady }) => {
     );
 };
 
+const Results = ({ quote }) => {
+    const [selected, setSelected] = useState("top");
+    if (!quote) return <div>No recent results</div>;
+
+    return (
+        <div className="recent-results">
+            <div className="tabs">
+                <div
+                    className={classnames({ selected: selected === "top" })}
+                    onClick={() => setSelected("top")}
+                >
+                    TOP
+                </div>
+                <div
+                    className={classnames({ selected: selected === "recent" })}
+                    onClick={() => setSelected("recent")}
+                >
+                    RECENT
+                </div>
+                <div
+                    className={classnames({ selected: selected === "playerTop" })}
+                    onClick={() => setSelected("playerTop")}
+                >
+                    YOUR TOP
+                </div>
+                <div
+                    className={classnames({ selected: selected === "playerRecent" })}
+                    onClick={() => setSelected("playerRecent")}
+                >
+                    YOUR RECENT
+                </div>
+            </div>
+            <div className="results">
+                <div className="header">
+                    <div className="username">USERNAME</div>
+                    <div className="accuracy">ACCURACY</div>
+                    <div className="wpm">WPM</div>
+                    <div className="time">TIME</div>
+                </div>
+                {quote.recent.map((score) => (
+                    <div className="result">
+                        <div className="username">{score.display_name}</div>
+                        <div className="accuracy">100%</div>
+                        <div className="wpm">{`${score.wpm}wpm`}</div>
+                        <div className="time">{moment(score.played_at).fromNow()}</div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 const useRoomApi = () => {
     const history = useHistory();
     const { id } = useParams();
@@ -116,7 +172,7 @@ const useRoomApi = () => {
     const [isRunning, setIsRunning] = useState(false);
     const [isSpectating, setIsSpectating] = useState(false);
     const [playNext, setPlayNext] = useState(false);
-    const [quote, setQuote] = useState("");
+    const [quote, setQuote] = useState(null);
     const [players, setPlayers] = useState([]);
     const [spectators, setSpectators] = useState([]);
     const [error, setError] = useState("");
