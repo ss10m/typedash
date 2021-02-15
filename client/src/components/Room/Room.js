@@ -153,7 +153,7 @@ const Results = ({ quote }) => {
                 {quote.recent.map((score) => (
                     <div className="result">
                         <div className="username">{score.display_name}</div>
-                        <div className="accuracy">100%</div>
+                        <div className="accuracy">{`${score.accuracy}%`}</div>
                         <div className="wpm">{`${score.wpm}wpm`}</div>
                         <div className="time">{moment(score.played_at).fromNow()}</div>
                     </div>

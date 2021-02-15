@@ -330,7 +330,7 @@ export class Room {
             }
             const wpm = Math.round(player.wordIndex / (time / (1000 * 60)));
             console.log(wpm, time / 1000, time / (1000 * 60), player.position);
-            scores.push([1, this.quote.id, wpm]);
+            scores.push([1, this.quote.id, wpm, 97]);
         });
 
         console.log("QUOTEID: " + this.quote.id);

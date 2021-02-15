@@ -44,6 +44,7 @@ CREATE TABLE "results" (
     "user_id" INTEGER REFERENCES "users"("id"),
     "quote_id" INTEGER REFERENCES "quote"("id"),
     "wpm" INTEGER NOT NULL,
+    "accuracy" INTEGER NOT NULL,
     "played_at" TIMESTAMP DEFAULT NOW()
 );
 

@@ -5,7 +5,7 @@ const generateQuote = async () => {
     const query = "SELECT * FROM quote WHERE id = $1";
     const values = [randomId];
     const result = await db.query(query, values);
-    const query2 = `SELECT users.display_name, results.wpm, results.played_at
+    const query2 = `SELECT users.display_name, results.wpm, results.played_at, results.accuracy
                     FROM results 
                     INNER JOIN users ON users.id = results.user_id 
                     WHERE quote_id = $1
@@ -21,19 +21,17 @@ const generateQuote = async () => {
 const saveScores = async (scores) => {
     if (!scores.length) return;
     console.log("===================================================");
-    const currentTime = new Date().getTime();
-    while (currentTime + 3000 >= new Date().getTime()) {}
+    // const currentTime = new Date().getTime();
+    // while (currentTime + 3000 >= new Date().getTime()) {}
 
     let topScore;
     scores.forEach((score) => {
         if (!topScore || topScore.wpm < score.wpm) topScore = score;
     });
 
-    console.log(generateExpressions(scores.length, 3));
-    const query = `INSERT INTO results(user_id, quote_id, wpm) VALUES ${generateExpressions(
-        scores.length,
-        3
-    )}`;
+    console.log(generateExpressions(scores.length, 4));
+    const query = `INSERT INTO results(user_id, quote_id, wpm, accuracy) 
+                   VALUES ${generateExpressions(scores.length, 4)}`;
     const values = scores.flat();
     db.query(query, values);
 
