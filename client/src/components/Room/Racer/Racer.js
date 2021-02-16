@@ -26,6 +26,7 @@ const Racer = ({
     const [wordIndex, setWordIndex] = useState(null);
     const [correctLength, setCorrectLength] = useState(0);
     const [typoLength, setTypoLength] = useState(0);
+    const [accuracy, setAccuracy] = useState({ correct: 0, incorrect: 0 });
     const inputRef = useRef(null);
 
     useEffect(() => {
@@ -37,6 +38,7 @@ const Racer = ({
         setQuote({ current: words, length, author, source });
         setWordIndex(0);
         setCorrectLength(0);
+        setAccuracy({ correct: 0, incorrect: 0 });
     }, [currentQuote]);
 
     useEffect(() => {
@@ -56,18 +58,45 @@ const Racer = ({
         if (!currentWord) return;
 
         if (currentWord === input) {
+            updateAccuracy(input.length, null);
             return nextWord();
         } else if (currentWord.startsWith(input)) {
+            updateAccuracy(input.length, null);
             setInput(input);
             setCorrectLength(input.length);
             setTypoLength(0);
         } else if (currentWord === input.slice(0, currentWord.length)) {
+            updateAccuracy(input.length, null);
             return nextWord();
         } else {
             const strLen = longestCommonSubstring(currentWord, input);
+            updateAccuracy(strLen, input.length - strLen);
             setInput(input);
             setCorrectLength(strLen);
             setTypoLength(input.length - strLen);
+        }
+    };
+
+    const updateAccuracy = (correct, incorrect) => {
+        if (correct > correctLength && incorrect > typoLength) {
+            return setAccuracy((current) => ({
+                correct: current.correct + 1,
+                incorrect: current.incorrect + 1,
+            }));
+        }
+
+        if (correct > correctLength) {
+            return setAccuracy((current) => ({
+                ...current,
+                correct: current.correct + 1,
+            }));
+        }
+
+        if (incorrect > typoLength) {
+            return setAccuracy((current) => ({
+                ...current,
+                incorrect: current.incorrect + 1,
+            }));
         }
     };
 
@@ -81,8 +110,21 @@ const Racer = ({
         if (newIndex === quote.length) setIsRunning(false);
     };
 
+    const roundedToFixed = (number, digits = 1) => {
+        let rounded = Math.pow(10, digits);
+        let viewers = (Math.round(number * rounded) / rounded).toFixed(digits);
+        if (viewers % 1 === 0) viewers = parseInt(viewers);
+        return isNaN(viewers) ? "100%" : viewers + "%";
+    };
+
     return (
         <div className="race">
+            <div>
+                {roundedToFixed(
+                    (accuracy.correct / (accuracy.correct + accuracy.incorrect)) * 100
+                )}
+            </div>
+            <div>{accuracy.correct + " " + accuracy.incorrect}</div>
             <Quote
                 isRunning={isRunning}
                 quote={quote}

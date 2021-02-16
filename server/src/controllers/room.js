@@ -9,7 +9,8 @@ const generateQuote = async () => {
                     FROM results 
                     INNER JOIN users ON users.id = results.user_id 
                     WHERE quote_id = $1
-                    ORDER BY results.wpm DESC`;
+                    ORDER BY results.wpm DESC
+                    LIMIT 10`;
     const values2 = [randomId];
     const result2 = await db.query(query2, values2);
     console.log(result2.rows);
