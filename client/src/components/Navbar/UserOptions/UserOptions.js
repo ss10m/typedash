@@ -1,5 +1,6 @@
 // Libraries & utils
 import React, { forwardRef, useEffect } from "react";
+import { withRouter } from "react-router-dom";
 
 // Redux
 import { useDispatch, useSelector } from "react-redux";
@@ -30,6 +31,11 @@ const UserOptions = withClickWatcher(
         useEffect(() => {
             if (!isVisible) hideUserOptions();
         }, [isVisible, hideUserOptions]);
+
+        const handleLogout = () => {
+            props.history.push("");
+            return logout();
+        };
 
         return (
             <div className="dropdown-options" ref={ref}>
@@ -65,7 +71,7 @@ const UserOptions = withClickWatcher(
                 <Button
                     icon={<FaSignOutAlt />}
                     name="LOGOUT"
-                    onClick={logout}
+                    onClick={handleLogout}
                     hideUserOptions={hideUserOptions}
                 />
             </div>
@@ -106,4 +112,4 @@ const Button = ({ icon, name, onClick, hideUserOptions }) => {
     );
 };
 
-export default UserOptions;
+export default withRouter(UserOptions);
