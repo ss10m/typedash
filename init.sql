@@ -38,6 +38,7 @@ CREATE TABLE "quote" (
     "added_at" TIMESTAMP DEFAULT NOW()
 );
 
+ALTER SEQUENCE quote_id_seq RESTART WITH 1001;
 
 CREATE TABLE "results" (
     "id" SERIAL PRIMARY KEY,

@@ -10,6 +10,8 @@ import "./Scoreboard.scss";
 const Scoreboard = ({ players, socketId }) => {
     if (!players.length) return <div>Waiting for players</div>;
 
+    const dot = String.fromCharCode(183);
+
     return (
         <div className="players-wrapper">
             <div
@@ -21,13 +23,13 @@ const Scoreboard = ({ players, socketId }) => {
             </div>
             <div className="players">
                 {players.map((player) => {
-                    const username =
-                        player.id === socketId ? `${player.username} [ME]` : player.username;
                     return (
                         <div key={player.id} className="player">
                             <div className={classNames("details", { left: player.leftRoom })}>
                                 <div className="username">
-                                    <div>{username}</div>
+                                    {player.username}
+                                    {player.socketId === socketId && <span>[ME]</span>}
+
                                     <div
                                         className={classNames("ready", {
                                             not: !player.isReady,
@@ -36,26 +38,29 @@ const Scoreboard = ({ players, socketId }) => {
                                         {player.isReady ? "READY" : "NOT READY"}
                                     </div>
                                 </div>
-
-                                {player.position && (
+                                {player.stats.position && (
                                     <div className="position">
-                                        {"77 WPM"} &#183;
-                                        {` ${ordinalSuffix(player.position)}  `}
-                                        {player.position <= 3 && (
+                                        {player.stats.position <= 3 && (
                                             <span
                                                 style={{
-                                                    color: trophyColor(player.position),
+                                                    color: trophyColor(player.stats.position),
                                                 }}
                                             >
                                                 <FaTrophy />
                                             </span>
                                         )}
+                                        {`${ordinalSuffix(player.stats.position)}`}
+                                        {`  ${dot}  ${player.stats.wpm}wpm`}
+                                        {`  ${dot}  ${player.stats.accuracy}%`}
                                     </div>
+                                )}
+                                {player.stats.wpm && !player.stats.position && (
+                                    <div>{`${player.stats.wpm}wpm`}</div>
                                 )}
                             </div>
                             <div
                                 className="progress"
-                                style={{ width: `${player.progress}%` }}
+                                style={{ width: `${player.stats.progress}%` }}
                             />
                         </div>
                     );

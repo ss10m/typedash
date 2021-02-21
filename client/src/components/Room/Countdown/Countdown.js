@@ -5,7 +5,7 @@ import CountdownInterval from "core/CountdownInterval";
 // SCSS
 import "./Countdown.scss";
 
-const Countdown = ({ duration, onCancel }) => {
+const Countdown = ({ duration, isSpectating, onCancel }) => {
     const [totalTime, setTotalTime] = useState(0);
     const [timeLeft, setTimeLeft] = useState(null);
 
@@ -33,9 +33,11 @@ const Countdown = ({ duration, onCancel }) => {
             <Circle max={totalTime} remaining={timeLeft} />
             <div className="starting">STARTING IN</div>
             <div className="value">{timeLeft !== null && timeLeft + 1}</div>
-            <div className="cancel" onClick={() => onCancel(false)}>
-                CANCEL
-            </div>
+            {!isSpectating && (
+                <div className="cancel" onClick={() => onCancel(false)}>
+                    CANCEL
+                </div>
+            )}
         </div>
     );
 };

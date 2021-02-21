@@ -52,7 +52,7 @@ export class Room {
         const socket = this.io.sockets.connected[socketId];
         if (!socket) return;
 
-        const username = socket.handshake.session.user.displayName;
+        const { id, displayName } = socket.handshake.session.user;
 
         socket.join(this.id);
         Room.socketIdToRoom[socketId] = this;
@@ -63,24 +63,9 @@ export class Room {
             quote: this.quote,
         };
 
-        let player = {
-            username,
-            id: socketId,
-            isReady: false,
-            progress: 0,
-            wordIndex: 0,
-            endTime: null,
-            position: null,
-            leftRoom: false,
-        };
-
         if (this.players[socketId]) {
-            player.progress = this.players[socketId].progress;
-            if (this.players[socketId].position) {
-                player.position = this.players[socketId].position;
-            }
-            this.players[socketId] = player;
-            roomData.isSpectating = false;
+            const player = this.players[socketId];
+            player.leftRoom = false;
 
             switch (this.state.current) {
                 case STATE.COUNTDOWN:
@@ -90,32 +75,60 @@ export class Room {
                     break;
                 case STATE.PLAYING:
                     const timerDiff = this.state.timer - (Date.now() - this.state.startTime);
-                    if (timerDiff > 2000) roomData.state.timer = timerDiff;
+                    if (timerDiff > 2000) {
+                        roomData.state.timer = timerDiff;
+                    }
+                    if (player.stats.wordIndex) {
+                        roomData.state.wordIndex = player.stats.wordIndex;
+                    }
                     break;
                 default:
                     break;
             }
         } else {
+            let player = {
+                id,
+                socketId,
+                username: displayName,
+                isReady: false,
+                leftRoom: false,
+                stats: {
+                    progress: 0,
+                    wordIndex: 0,
+                    wpm: null,
+                    accuracy: null,
+                    totalTime: null,
+                    position: null,
+                },
+            };
             switch (this.state.current) {
                 case STATE.PREGAME:
                     this.players[socketId] = player;
-                    roomData.isSpectating = false;
                     break;
                 case STATE.COUNTDOWN:
                     this.players[socketId] = player;
                     const countdownDiff =
                         this.state.countdown - (Date.now() - this.state.startTime);
                     if (countdownDiff > 2000) roomData.state.countdown = countdownDiff;
-                    roomData.isSpectating = false;
                     break;
                 case STATE.PLAYING:
-                    this.spectators[socketId] = { username, id: socketId, playNext: false };
+                    this.spectators[socketId] = {
+                        username: displayName,
+                        id,
+                        socketId,
+                        playNext: false,
+                    };
                     const timerDiff = this.state.timer - (Date.now() - this.state.startTime);
                     if (timerDiff > 2000) roomData.state.timer = timerDiff;
                     roomData.isSpectating = true;
                     break;
                 case STATE.POSTGAME:
-                    this.spectators[socketId] = { username, id: socketId, playNext: false };
+                    this.spectators[socketId] = {
+                        username: displayName,
+                        id,
+                        socketId,
+                        playNext: false,
+                    };
                     roomData.isSpectating = true;
                     break;
                 default:
@@ -138,9 +151,17 @@ export class Room {
             if ([STATE.PREGAME, STATE.COUNTDOWN].includes(this.state.current)) {
                 delete this.players[socketId];
             } else {
-                this.players[socketId].leftRoom = true;
-                if (!this.players[socketId].position) {
-                    this.players[socketId].position = "DNF";
+                const player = this.players[socketId];
+                player.leftRoom = true;
+                if (!player.stats.position) {
+                    player.stats = {
+                        progress: 0,
+                        wordIndex: 0,
+                        wpm: null,
+                        accuracy: null,
+                        totalTime: null,
+                        position: "DNF",
+                    };
                 }
             }
         } else if (this.spectators[socketId]) {
@@ -175,7 +196,7 @@ export class Room {
             this.state.current === STATE.PLAYING &&
             Object.values(this.players)
                 .filter((player) => !player.leftRoom)
-                .every((player) => player.position)
+                .every((player) => player.stats.position)
         );
     }
 
@@ -227,12 +248,16 @@ export class Room {
         if (!player) return;
 
         const progress = data.progress / this.quote.length;
-        player.progress = Math.round(progress * 100);
-        player.wordIndex = data.progress;
+        player.stats.wordIndex = data.progress;
+        player.stats.progress = Math.round(progress * 100);
+        const time = new Date() - this.state.startTime;
+        const wpm = Math.round(player.stats.wordIndex / (time / (1000 * 60)));
+        player.stats.wpm = wpm;
 
         if (data.progress === this.quote.length) {
-            player.position = this.getPosition();
-            player.endTime = new Date();
+            player.stats.position = this.getPosition();
+            player.stats.totalTime = time;
+            player.stats.accuracy = data.accuracy;
             if (this.isCompleted()) return this.endRound();
         }
 
@@ -249,13 +274,17 @@ export class Room {
         // reset current players, remove players that left room
         this.getPlayers().forEach((player) => {
             if (player.leftRoom) {
-                delete this.players[player.id];
+                delete this.players[player.socketId];
             } else {
-                player.progress = 0;
-                player.position = null;
-                player.wordIndex = 0;
-                player.endTime = null;
                 player.leftRoom = false;
+                player.stats = {
+                    progress: 0,
+                    wordIndex: 0,
+                    wpm: null,
+                    accuracy: null,
+                    totalTime: null,
+                    position: null,
+                };
             }
         });
 
@@ -264,19 +293,24 @@ export class Room {
         this.getSpectators()
             .filter((spectator) => spectator.playNext)
             .forEach((spectator) => {
-                const { username, id } = spectator;
-                this.players[id] = {
-                    username,
+                const { id, socketId, username } = spectator;
+                this.players[socketId] = {
                     id,
+                    socketId,
+                    username,
                     isReady: false,
-                    progress: 0,
-                    position: null,
-                    wordIndex: 0,
-                    endTime: null,
                     leftRoom: false,
+                    stats: {
+                        progress: 0,
+                        wordIndex: 0,
+                        wpm: null,
+                        accuracy: null,
+                        totalTime: null,
+                        position: null,
+                    },
                 };
-                delete this.spectators[id];
-                switchedIds.push(id);
+                delete this.spectators[socketId];
+                switchedIds.push(socketId);
             });
 
         this.quote = await generateQuote();
@@ -303,8 +337,16 @@ export class Room {
         if (this.ticker) this.ticker.clear();
 
         this.getPlayers().forEach((player) => {
-            if (!player.position) {
-                player.position = "DNF";
+            if (!player.stats.position) {
+                const progress = player.stats.progress;
+                player.stats = {
+                    progress,
+                    wordIndex: 0,
+                    wpm: null,
+                    accuracy: null,
+                    totalTime: null,
+                    position: "DNF",
+                };
             }
         });
 
@@ -322,15 +364,9 @@ export class Room {
     generateScores() {
         const scores = [];
         this.getPlayers().forEach((player) => {
-            let time;
-            if (player.endTime) {
-                time = player.endTime - this.state.startTime;
-            } else {
-                time = ROUND.TIME;
-            }
-            const wpm = Math.round(player.wordIndex / (time / (1000 * 60)));
-            console.log(wpm, time / 1000, time / (1000 * 60), player.position);
-            scores.push([1, this.quote.id, wpm, 97]);
+            if (!player.stats.totalTime) return;
+            const { wpm, accuracy } = player.stats;
+            scores.push([player.id, this.quote.id, wpm, accuracy]);
         });
 
         console.log("QUOTEID: " + this.quote.id);
@@ -399,21 +435,26 @@ export class Room {
 
         let isSpectating;
         if (this.players[socketId]) {
-            const { username, id } = this.players[socketId];
-            this.spectators[socketId] = { username, id, playNext: false };
+            const { id, username } = this.players[socketId];
+            this.spectators[socketId] = { id, socketId, username, playNext: false };
             delete this.players[socketId];
             isSpectating = true;
         } else if (this.spectators[socketId]) {
-            const { username, id } = this.spectators[socketId];
+            const { id, username } = this.spectators[socketId];
             const player = {
-                username,
                 id,
+                socketId,
+                username,
                 isReady: false,
-                progress: 0,
-                position: null,
-                wordIndex: 0,
-                endTime: null,
                 leftRoom: false,
+                stats: {
+                    progress: 0,
+                    wordIndex: 0,
+                    wpm: null,
+                    accuracy: null,
+                    totalTime: null,
+                    position: null,
+                },
             };
             this.players[socketId] = player;
             delete this.spectators[socketId];

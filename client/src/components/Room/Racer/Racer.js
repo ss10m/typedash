@@ -26,8 +26,13 @@ const Racer = ({
     const [wordIndex, setWordIndex] = useState(null);
     const [correctLength, setCorrectLength] = useState(0);
     const [typoLength, setTypoLength] = useState(0);
-    const [accuracy, setAccuracy] = useState({ correct: 0, incorrect: 0 });
+    const [accuracy, setAccuracy] = useState(100);
     const inputRef = useRef(null);
+    const wordIndexRef = useRef(0);
+    const [wpm, setWpm] = useState(0);
+    const [startTime, setStartTime] = useState(null);
+    const wpmIntervalRef = useRef(null);
+    const accuracyRef = useRef({ correct: 0, incorrect: 0 });
 
     useEffect(() => {
         if (!currentQuote) return;
@@ -38,15 +43,26 @@ const Racer = ({
         setQuote({ current: words, length, author, source });
         setWordIndex(0);
         setCorrectLength(0);
-        setAccuracy({ correct: 0, incorrect: 0 });
+        accuracyRef.current = { correct: 0, incorrect: 0 };
+        setAccuracy(100);
+        setWpm(0);
     }, [currentQuote]);
 
     useEffect(() => {
         if (isRunning) {
             inputRef.current.focus();
+            const startTime = new Date();
+            setStartTime(startTime);
+            wpmIntervalRef.current = setInterval(() => {
+                const time = new Date() - startTime;
+                const wpm = Math.round(wordIndexRef.current / (time / (1000 * 60)));
+                console.log("CALCULAING WPM: " + wpm);
+                setWpm(wpm);
+            }, 1000);
         } else {
             setInput("");
             setTypoLength(0);
+            clearInterval(wpmIntervalRef.current);
         }
     }, [isRunning]);
 
@@ -77,27 +93,31 @@ const Racer = ({
         }
     };
 
-    const updateAccuracy = (correct, incorrect) => {
-        if (correct > correctLength && incorrect > typoLength) {
-            return setAccuracy((current) => ({
-                correct: current.correct + 1,
-                incorrect: current.incorrect + 1,
-            }));
+    const updateAccuracy = (newCorrectLength, newIncorrectLetters) => {
+        const { correct, incorrect } = accuracyRef.current;
+
+        if (newCorrectLength > correctLength && newIncorrectLetters > typoLength) {
+            accuracyRef.current = {
+                correct: correct + 1,
+                incorrect: incorrect + 1,
+            };
+        } else if (newCorrectLength > correctLength) {
+            accuracyRef.current = {
+                correct: correct + 1,
+                incorrect,
+            };
+        } else if (newIncorrectLetters > typoLength) {
+            accuracyRef.current = {
+                correct,
+                incorrect: incorrect + 1,
+            };
         }
 
-        if (correct > correctLength) {
-            return setAccuracy((current) => ({
-                ...current,
-                correct: current.correct + 1,
-            }));
-        }
-
-        if (incorrect > typoLength) {
-            return setAccuracy((current) => ({
-                ...current,
-                incorrect: current.incorrect + 1,
-            }));
-        }
+        const floatAccuracy =
+            accuracyRef.current.correct /
+            (accuracyRef.current.correct + accuracyRef.current.incorrect);
+        const actualAccuracy = roundedToFixed(floatAccuracy * 100);
+        setAccuracy(actualAccuracy);
     };
 
     const nextWord = () => {
@@ -106,25 +126,37 @@ const Racer = ({
         setWordIndex(newIndex);
         setCorrectLength(0);
         setTypoLength(0);
-        updateStatus({ progress: newIndex });
-        if (newIndex === quote.length) setIsRunning(false);
+
+        wordIndexRef.current = newIndex;
+        if (newIndex === quote.length) {
+            setIsRunning(false);
+
+            const time = new Date() - startTime;
+            clearInterval(wpmIntervalRef.current);
+            const wpm = Math.round(wordIndexRef.current / (time / (1000 * 60)));
+            setWpm(wpm);
+            const floatAccuracy =
+                accuracyRef.current.correct /
+                (accuracyRef.current.correct + accuracyRef.current.incorrect);
+            const actualAccuracy = roundedToFixed(floatAccuracy * 100);
+            console.log(wpm, time);
+            updateStatus({ progress: newIndex, wpm, time, accuracy: actualAccuracy });
+        } else {
+            updateStatus({ progress: newIndex });
+        }
     };
 
     const roundedToFixed = (number, digits = 1) => {
         let rounded = Math.pow(10, digits);
         let viewers = (Math.round(number * rounded) / rounded).toFixed(digits);
         if (viewers % 1 === 0) viewers = parseInt(viewers);
-        return isNaN(viewers) ? "100%" : viewers + "%";
+        return isNaN(viewers) ? 100 : viewers;
     };
 
     return (
         <div className="race">
-            <div>
-                {roundedToFixed(
-                    (accuracy.correct / (accuracy.correct + accuracy.incorrect)) * 100
-                )}
-            </div>
-            <div>{accuracy.correct + " " + accuracy.incorrect}</div>
+            <div>{accuracy + "%"}</div>
+            <div>{wpm + "wpm"}</div>
             <Quote
                 isRunning={isRunning}
                 quote={quote}

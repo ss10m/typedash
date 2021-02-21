@@ -47,7 +47,11 @@ const Room = () => {
     return (
         <div className="room">
             {state.countdown && (
-                <Countdown duration={state.countdown} onCancel={SocketAPI.setReady} />
+                <Countdown
+                    duration={state.countdown}
+                    isSpectating={isSpectating}
+                    onCancel={SocketAPI.setReady}
+                />
             )}
             <div className="status">
                 <button onClick={history.goBack}>LEAVE ROOM</button>
