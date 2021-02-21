@@ -50,8 +50,10 @@ const Scoreboard = ({ players, socketId }) => {
                                             </span>
                                         )}
                                         {`${ordinalSuffix(player.stats.position)}`}
-                                        {`  ${dot}  ${player.stats.wpm}wpm`}
-                                        {`  ${dot}  ${player.stats.accuracy}%`}
+                                        {player.stats.wpm &&
+                                            `  ${dot}  ${player.stats.wpm}wpm`}
+                                        {player.stats.accuracy &&
+                                            `  ${dot}  ${player.stats.accuracy}%`}
                                     </div>
                                 )}
                                 {player.stats.wpm && !player.stats.position && (

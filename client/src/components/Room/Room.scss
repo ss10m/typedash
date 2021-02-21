@@ -62,20 +62,24 @@
                 line-height: 40px;
             }
 
-            .username {
-                flex-basis: 30%;
+            .rank {
+                flex-basis: 8%;
             }
 
-            .accuracy {
-                flex-basis: 20%;
+            .username {
+                flex-basis: 26%;
             }
 
             .wpm {
                 flex-basis: 20%;
             }
 
+            .accuracy {
+                flex-basis: 20%;
+            }
+
             .time {
-                flex-basis: 30%;
+                flex-basis: 26%;
             }
         }
 
@@ -89,20 +93,26 @@
                 text-align: center;
             }
 
-            .username {
-                flex-basis: 30%;
+            .rank {
+                flex-basis: 8%;
+                font-weight: 600;
+                background-color: #2c3f54;
             }
 
-            .accuracy {
-                flex-basis: 20%;
+            .username {
+                flex-basis: 26%;
             }
 
             .wpm {
                 flex-basis: 20%;
             }
 
+            .accuracy {
+                flex-basis: 20%;
+            }
+
             .time {
-                flex-basis: 30%;
+                flex-basis: 26%;
             }
 
             &:nth-child(odd) {
@@ -111,6 +121,9 @@
 
             &:nth-child(11) {
                 border-radius: 0 0 7px 7px;
+                .rank {
+                    border-radius: 0 0 0 5px;
+                }
             }
         }
     }

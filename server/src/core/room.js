@@ -256,7 +256,16 @@ export class Room {
 
         if (data.progress === this.quote.length) {
             player.stats.position = this.getPosition();
-            player.stats.totalTime = time;
+
+            if (time - data.time < 1000) {
+                player.stats.totalTime = data.time;
+                player.stats.wpm = Math.round(
+                    player.stats.wordIndex / (data.time / (1000 * 60))
+                );
+            } else {
+                player.stats.totalTime = time;
+            }
+
             player.stats.accuracy = data.accuracy;
             if (this.isCompleted()) return this.endRound();
         }
@@ -363,13 +372,13 @@ export class Room {
 
     generateScores() {
         const scores = [];
+        console.log("===========================");
+        console.log("QUOTEID: " + this.quote.id);
         this.getPlayers().forEach((player) => {
             if (!player.stats.totalTime) return;
             const { wpm, accuracy } = player.stats;
             scores.push([player.id, this.quote.id, wpm, accuracy]);
         });
-
-        console.log("QUOTEID: " + this.quote.id);
         setTimeout(() => saveScores(scores));
     }
 

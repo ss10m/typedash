@@ -149,16 +149,18 @@ const Results = ({ quote }) => {
             </div>
             <div className="results">
                 <div className="header">
+                    <div className="rank">#</div>
                     <div className="username">USERNAME</div>
-                    <div className="accuracy">ACCURACY</div>
                     <div className="wpm">WPM</div>
+                    <div className="accuracy">ACCURACY</div>
                     <div className="time">TIME</div>
                 </div>
                 {quote.recent.map((score) => (
                     <div className="result">
+                        <div className="rank">{score.rank}</div>
                         <div className="username">{score.display_name}</div>
-                        <div className="accuracy">{`${score.accuracy}%`}</div>
                         <div className="wpm">{`${score.wpm}wpm`}</div>
+                        <div className="accuracy">{`${score.accuracy}%`}</div>
                         <div className="time">{moment(score.played_at).fromNow()}</div>
                     </div>
                 ))}

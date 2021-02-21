@@ -56,7 +56,6 @@ const Racer = ({
             wpmIntervalRef.current = setInterval(() => {
                 const time = new Date() - startTime;
                 const wpm = Math.round(wordIndexRef.current / (time / (1000 * 60)));
-                console.log("CALCULAING WPM: " + wpm);
                 setWpm(wpm);
             }, 1000);
         } else {
@@ -139,7 +138,6 @@ const Racer = ({
                 accuracyRef.current.correct /
                 (accuracyRef.current.correct + accuracyRef.current.incorrect);
             const actualAccuracy = roundedToFixed(floatAccuracy * 100);
-            console.log(wpm, time);
             updateStatus({ progress: newIndex, wpm, time, accuracy: actualAccuracy });
         } else {
             updateStatus({ progress: newIndex });
@@ -150,7 +148,7 @@ const Racer = ({
         let rounded = Math.pow(10, digits);
         let viewers = (Math.round(number * rounded) / rounded).toFixed(digits);
         if (viewers % 1 === 0) viewers = parseInt(viewers);
-        return isNaN(viewers) ? 100 : viewers;
+        return isNaN(viewers) ? 100 : parseFloat(viewers);
     };
 
     return (
