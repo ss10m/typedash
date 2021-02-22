@@ -2,8 +2,6 @@
 import { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 import Switch from "react-switch";
-import moment from "moment";
-import classnames from "classnames";
 
 // Socket API
 import SocketAPI from "core/SocketClient";
@@ -17,6 +15,7 @@ import Scoreboard from "./Scoreboard/Scoreboard";
 import Timer from "./Timer/Timer";
 import Countdown from "./Countdown/Countdown";
 import Status from "./Status/Status";
+import Results from "./Results/Results";
 import Error from "../Error/Error";
 
 // SCSS
@@ -89,7 +88,7 @@ const Room = () => {
                 updateStatus={SocketAPI.updateStatus}
             />
 
-            <Results quote={quote} />
+            <Results quote={quote} state={state} updateResults={SocketAPI.updateResults} />
         </div>
     );
 };
@@ -112,60 +111,6 @@ const ReadyUp = ({ isReady, setReady }) => {
             <span>READY</span>
             <Switch onChange={toggle} checked={isReady.current} />
         </label>
-    );
-};
-
-const Results = ({ quote }) => {
-    const [selected, setSelected] = useState("top");
-    if (!quote) return <div>No recent results</div>;
-
-    return (
-        <div className="recent-results">
-            <div className="tabs">
-                <div
-                    className={classnames({ selected: selected === "top" })}
-                    onClick={() => setSelected("top")}
-                >
-                    TOP
-                </div>
-                <div
-                    className={classnames({ selected: selected === "recent" })}
-                    onClick={() => setSelected("recent")}
-                >
-                    RECENT
-                </div>
-                <div
-                    className={classnames({ selected: selected === "playerTop" })}
-                    onClick={() => setSelected("playerTop")}
-                >
-                    YOUR TOP
-                </div>
-                <div
-                    className={classnames({ selected: selected === "playerRecent" })}
-                    onClick={() => setSelected("playerRecent")}
-                >
-                    YOUR RECENT
-                </div>
-            </div>
-            <div className="results">
-                <div className="header">
-                    <div className="rank">#</div>
-                    <div className="username">USERNAME</div>
-                    <div className="wpm">WPM</div>
-                    <div className="accuracy">ACCURACY</div>
-                    <div className="time">TIME</div>
-                </div>
-                {quote.recent.map((score) => (
-                    <div className="result">
-                        <div className="rank">{score.rank}</div>
-                        <div className="username">{score.display_name}</div>
-                        <div className="wpm">{`${score.wpm}wpm`}</div>
-                        <div className="accuracy">{`${score.accuracy}%`}</div>
-                        <div className="time">{moment(score.played_at).fromNow()}</div>
-                    </div>
-                ))}
-            </div>
-        </div>
     );
 };
 

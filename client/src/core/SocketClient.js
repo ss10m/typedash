@@ -59,7 +59,7 @@ class SocketAPI {
         this.emit("leave-lobby");
     };
 
-    createRoom = (onCreate) => {
+    createRoom = () => {
         console.log("createRoom");
         this.emit("create-room");
     };
@@ -89,6 +89,10 @@ class SocketAPI {
 
     setPlayNext = (playNext) => {
         this.emit("set-play-next", playNext);
+    };
+
+    updateResults = (resultType) => {
+        this.emit("update-results", resultType);
     };
 
     setup = () => {

@@ -81,4 +81,10 @@ export default (io, socket) => {
         if (!room) return;
         room.setPlayNext(socket.id, playNext);
     });
+
+    socket.on("update-results", (resultType) => {
+        const room = Room.getRoomBySocketId(socket.id);
+        if (!room) return;
+        room.updateResults(socket.id, resultType);
+    });
 };

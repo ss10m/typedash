@@ -1,8 +1,8 @@
 import { nanoid } from "nanoid";
 
-import { STATE, ROUND } from "../util/constants.js";
+import { STATE, ROUND, RESULT_TYPE } from "../util/constants.js";
 
-import { generateQuote, saveScores } from "../controllers/room.js";
+import * as RoomController from "../controllers/room.js";
 
 import AdjustingTicker from "./adjustingTicker.js";
 
@@ -27,7 +27,7 @@ export class Room {
     async createRoom(socketId) {
         const socket = this.io.sockets.connected[socketId];
         if (!socket) return;
-        this.quote = await generateQuote();
+        this.quote = await RoomController.generateQuote();
         socket.emit("room-created", this.id);
         this.io.in("lobby").emit("rooms", Room.getRooms());
     }
@@ -183,7 +183,7 @@ export class Room {
             this.state.current === STATE.PLAYING
         ) {
             if (this.ticker) this.ticker.clear();
-            this.generateScores();
+            this.generateScores(true);
             this.state = { current: STATE.POSTGAME };
             this.startNextRound();
         }
@@ -322,7 +322,7 @@ export class Room {
                 switchedIds.push(socketId);
             });
 
-        this.quote = await generateQuote();
+        this.quote = await RoomController.generateQuote();
 
         switchedIds.forEach((id) => {
             this.io.to(id).emit("updated-room", { isSpectating: false, playNext: false });
@@ -359,7 +359,7 @@ export class Room {
             }
         });
 
-        this.generateScores();
+        this.generateScores(true);
         this.state = { current: STATE.POSTGAME };
 
         const updatedState = {
@@ -370,16 +370,59 @@ export class Room {
         this.updateClients("updated-room", updatedState);
     }
 
-    generateScores() {
+    generateScores(updateClients = false) {
+        const quoteId = this.quote.id;
         const scores = [];
+        console.log("updateClients: " + updateClients);
         console.log("===========================");
-        console.log("QUOTEID: " + this.quote.id);
+        console.log("QUOTEID: " + quoteId);
         this.getPlayers().forEach((player) => {
             if (!player.stats.totalTime) return;
             const { wpm, accuracy } = player.stats;
-            scores.push([player.id, this.quote.id, wpm, accuracy]);
+            scores.push([player.id, quoteId, wpm, accuracy]);
         });
-        setTimeout(() => saveScores(scores));
+        setTimeout(async () => {
+            await RoomController.saveScores(scores);
+            const data = await RoomController.getRecentResults(quoteId);
+            this.updateClients("updated-results", {
+                id: quoteId,
+                type: RESULT_TYPE.RECENT,
+                data,
+            });
+        });
+    }
+
+    async updateResults(socketId, resultType) {
+        const player = this.players[socketId];
+        if (!player) return;
+
+        console.log("updateResults: " + resultType);
+
+        const quoteId = this.quote.id;
+        let data = [];
+
+        switch (resultType) {
+            case RESULT_TYPE.TOP:
+                data = await RoomController.getTopResults(quoteId);
+                break;
+            case RESULT_TYPE.RECENT:
+                data = await RoomController.getRecentResults(quoteId);
+                break;
+            case RESULT_TYPE.PLAYER_TOP:
+                data = await RoomController.getPlayerTopResults(quoteId, player.id);
+                break;
+            case RESULT_TYPE.PLAYER_RECENT:
+                data = await RoomController.getPlayerRecentResults(quoteId, player.id);
+                break;
+            default:
+                break;
+        }
+
+        this.updateClients("updated-results", {
+            id: quoteId,
+            type: resultType,
+            data,
+        });
     }
 
     checkPlayersReady() {

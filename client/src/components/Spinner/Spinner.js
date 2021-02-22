@@ -4,7 +4,7 @@ import React from "react";
 // SCSS
 import "./Spinner.scss";
 
-const Spinner = ({ size }) => {
+const Spinner = React.memo(({ size }) => {
     const style = { width: size, height: size };
 
     return (
@@ -27,6 +27,6 @@ const Spinner = ({ size }) => {
             </svg>
         </div>
     );
-};
+});
 
 export default Spinner;
