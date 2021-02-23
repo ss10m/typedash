@@ -4,13 +4,6 @@ const generateQuote = async () => {
     const randomId = Math.floor(Math.random() * TOTAL_QUOTES) + 1001;
     const quoteQuery = `SELECT * FROM quote 
                         WHERE id = $1`;
-    const topQuery = `SELECT users.display_name, results.wpm, results.accuracy, results.played_at,
-                      RANK () OVER (ORDER BY results.wpm DESC, results.accuracy DESC)
-                      FROM results
-                      INNER JOIN users ON users.id = results.user_id
-                      WHERE quote_id = $1
-                      ORDER BY results.wpm DESC, results.accuracy DESC, results.played_at
-                      LIMIT 10`;
     const values = [randomId];
 
     const [quoteResult, topResults] = await Promise.all([
@@ -20,7 +13,7 @@ const generateQuote = async () => {
 
     const { id, text, author, source } = quoteResult.rows[0];
     const length = text.split(" ").length;
-    return { id, text, author, source, length, recent: topResults };
+    return { id, text, author, source, length, results: topResults };
 };
 
 const getTopResults = async (quoteId) => {

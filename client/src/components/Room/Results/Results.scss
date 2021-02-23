@@ -14,15 +14,15 @@
             flex-grow: 1;
             text-align: center;
             line-height: 50px;
+            border-radius: 7px 7px 0 0;
 
             &.selected {
                 background-color: #3a5068;
-                border-radius: 7px 7px 0 0;
             }
 
             &:not(.selected):hover {
                 cursor: pointer;
-                text-decoration: underline;
+                background-color: #203140;
             }
         }
     }
@@ -115,8 +115,9 @@
                     background: #1a2a35;
                 }
 
-                &:nth-child(11) {
+                &:nth-child(10) {
                     border-radius: 0 0 7px 7px;
+
                     .rank {
                         border-radius: 0 0 0 5px;
                     }

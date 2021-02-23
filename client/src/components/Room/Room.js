@@ -88,7 +88,7 @@ const Room = () => {
                 updateStatus={SocketAPI.updateStatus}
             />
 
-            <Results quote={quote} state={state} updateResults={SocketAPI.updateResults} />
+            <Results quote={quote} updateResults={SocketAPI.updateResults} />
         </div>
     );
 };

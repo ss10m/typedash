@@ -1,5 +1,5 @@
 // Libraries & utils
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import moment from "moment";
 import classnames from "classnames";
 
@@ -15,18 +15,23 @@ import { RESULT_TYPE } from "helpers/constants";
 // SCSS
 import "./Results.scss";
 
-const Results = ({ quote, state, updateResults }) => {
+const Results = ({ quote, updateResults }) => {
     const [view, setView] = useState(RESULT_TYPE.TOP);
+    const viewRef = useRef(RESULT_TYPE.TOP);
+    const quoteRef = useRef(null);
     const [isFetching, setIsFetching] = useState(false);
     const [data, setData] = useState([]);
 
     useEffect(() => {
-        console.log("SOCKET");
         const socket = SocketAPI.getSocket();
-        socket.on("updated-results", ({ type, data }) => {
-            setIsFetching(false);
-            setView(type);
+        socket.on("updated-results", ({ id, type, data, force }) => {
+            if (quoteRef.current.id !== id) return;
+            if (viewRef.current !== type) {
+                if (!force) return;
+                setView(type);
+            }
             setData(data);
+            setIsFetching(false);
         });
 
         return () => {
@@ -35,21 +40,18 @@ const Results = ({ quote, state, updateResults }) => {
     }, []);
 
     useEffect(() => {
-        if (quote) {
-            setData(quote.recent);
-            console.log("quote changed");
-        }
+        if (!quote) return;
+        setIsFetching(false);
+        setView(RESULT_TYPE.TOP);
+        setData(quote.results);
+        quoteRef.current = quote;
     }, [quote]);
-
-    useEffect(() => {
-        console.log("state changed");
-        console.log(state);
-    }, [state]);
 
     const changeView = (newView) => {
         if (view === newView) return;
         setIsFetching(true);
         setView(newView);
+        viewRef.current = newView;
         updateResults(newView);
     };
 

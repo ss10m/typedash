@@ -373,9 +373,6 @@ export class Room {
     generateScores(updateClients = false) {
         const quoteId = this.quote.id;
         const scores = [];
-        console.log("updateClients: " + updateClients);
-        console.log("===========================");
-        console.log("QUOTEID: " + quoteId);
         this.getPlayers().forEach((player) => {
             if (!player.stats.totalTime) return;
             const { wpm, accuracy } = player.stats;
@@ -384,19 +381,21 @@ export class Room {
         setTimeout(async () => {
             await RoomController.saveScores(scores);
             const data = await RoomController.getRecentResults(quoteId);
+            if (!updateClients) return;
             this.updateClients("updated-results", {
                 id: quoteId,
                 type: RESULT_TYPE.RECENT,
                 data,
+                force: true,
             });
         });
     }
 
-    async updateResults(socketId, resultType) {
+    async updateResults(socketId, resultType, force = false) {
         const player = this.players[socketId];
-        if (!player) return;
-
-        console.log("updateResults: " + resultType);
+        const spectator = this.spectators[socketId];
+        if (!player && !spectator) return;
+        const userId = player ? player.id : spectator.id;
 
         const quoteId = this.quote.id;
         let data = [];
@@ -409,19 +408,20 @@ export class Room {
                 data = await RoomController.getRecentResults(quoteId);
                 break;
             case RESULT_TYPE.PLAYER_TOP:
-                data = await RoomController.getPlayerTopResults(quoteId, player.id);
+                data = await RoomController.getPlayerTopResults(quoteId, userId);
                 break;
             case RESULT_TYPE.PLAYER_RECENT:
-                data = await RoomController.getPlayerRecentResults(quoteId, player.id);
+                data = await RoomController.getPlayerRecentResults(quoteId, userId);
                 break;
             default:
                 break;
         }
 
-        this.updateClients("updated-results", {
+        this.io.to(socketId).emit("updated-results", {
             id: quoteId,
             type: resultType,
             data,
+            force,
         });
     }
 
