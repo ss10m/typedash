@@ -20,6 +20,8 @@ const Racer = ({
     setIsRunning,
     currentQuote,
     updateStatus,
+    setGraphWpm,
+    setGraphAccuracy,
 }) => {
     const [input, setInput] = useState("");
     const [quote, setQuote] = useState({ current: [], length: 0, author: "", source: "" });
@@ -127,17 +129,31 @@ const Racer = ({
         setTypoLength(0);
 
         wordIndexRef.current = newIndex;
+
+        const time = new Date() - startTime;
+        const wpm = Math.round(wordIndexRef.current / (time / (1000 * 60)));
+        const progress = Math.ceil((wordIndexRef.current / quote.length) * 100);
+
+        const floatAccuracy =
+            accuracyRef.current.correct /
+            (accuracyRef.current.correct + accuracyRef.current.incorrect);
+        const actualAccuracy = roundedToFixed(floatAccuracy * 100);
+
+        setGraphWpm(({ data }) => ({
+            data: wordIndex === 0 ? [[0, wpm]] : [...data, [progress, wpm]],
+        }));
+
+        setGraphAccuracy(({ data }) => ({
+            data:
+                wordIndex === 0
+                    ? [[0, actualAccuracy]]
+                    : [...data, [progress, actualAccuracy]],
+        }));
+
         if (newIndex === quote.length) {
             setIsRunning(false);
-
-            const time = new Date() - startTime;
             clearInterval(wpmIntervalRef.current);
-            const wpm = Math.round(wordIndexRef.current / (time / (1000 * 60)));
             setWpm(wpm);
-            const floatAccuracy =
-                accuracyRef.current.correct /
-                (accuracyRef.current.correct + accuracyRef.current.incorrect);
-            const actualAccuracy = roundedToFixed(floatAccuracy * 100);
             updateStatus({ progress: newIndex, wpm, time, accuracy: actualAccuracy });
         } else {
             updateStatus({ progress: newIndex });
