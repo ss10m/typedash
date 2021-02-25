@@ -48,6 +48,8 @@ const Racer = ({
         accuracyRef.current = { correct: 0, incorrect: 0 };
         setAccuracy(100);
         setWpm(0);
+        setGraphWpm([]);
+        setGraphAccuracy([]);
     }, [currentQuote]);
 
     useEffect(() => {
@@ -139,16 +141,11 @@ const Racer = ({
             (accuracyRef.current.correct + accuracyRef.current.incorrect);
         const actualAccuracy = roundedToFixed(floatAccuracy * 100);
 
-        setGraphWpm(({ data }) => ({
-            data: wordIndex === 0 ? [[0, wpm]] : [...data, [progress, wpm]],
-        }));
+        setGraphWpm((data) => (wordIndex === 0 ? [[0, wpm]] : [...data, [progress, wpm]]));
 
-        setGraphAccuracy(({ data }) => ({
-            data:
-                wordIndex === 0
-                    ? [[0, actualAccuracy]]
-                    : [...data, [progress, actualAccuracy]],
-        }));
+        setGraphAccuracy((data) =>
+            wordIndex === 0 ? [[0, actualAccuracy]] : [...data, [progress, actualAccuracy]]
+        );
 
         if (newIndex === quote.length) {
             setIsRunning(false);
@@ -201,6 +198,9 @@ const Input = React.forwardRef((props, ref) => {
         switch (props.state.current) {
             case STATE.PREGAME:
                 placeholder = "Waiting for players to ready up";
+                break;
+            case STATE.COUNTDOWN:
+                placeholder = "Starting soon...";
                 break;
             case STATE.PLAYING:
                 placeholder = "Waiting for players to finish";

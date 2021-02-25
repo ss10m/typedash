@@ -6,7 +6,7 @@
         padding: 20px;
         margin-top: 20px;
         font-size: 23px;
-        border: 3px solid #202e3a;
+        border: 3px solid #203140;
         border-radius: 7px;
         color: whitesmoke;
         line-height: 28px;
@@ -22,7 +22,7 @@
             p {
                 float: right;
                 font-size: 15px;
-                color: #ffffff59;
+                color: #3a5068;
             }
         }
 
@@ -55,10 +55,15 @@
         overflow: hidden;
         box-sizing: border-box;
         outline: none;
-        border: 3px solid #202e3a;
+        border: 3px solid #203140;
         font-size: 35px;
-        background-color: #202e3a;
+        background-color: #203140;
         color: whitesmoke;
+
+        &::placeholder {
+            color: whitesmoke;
+            opacity: 0.2;
+        }
 
         &.typo {
             border: 3px solid red;
@@ -68,6 +73,17 @@
     input[type] {
         -webkit-appearance: none;
         border-radius: 7px;
+    }
+
+    @media (max-width: 600px) {
+        .quote {
+            font-size: 18px;
+        }
+
+        input {
+            height: 50px;
+            font-size: 25px;
+        }
     }
 }
 

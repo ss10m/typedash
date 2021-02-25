@@ -87,6 +87,9 @@
 
                 div {
                     text-align: center;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
 
                 .rank {
@@ -135,8 +138,4 @@
             font-size: 12px;
         }
     }
-}
-
-.select-graph {
-    width: 200px;
 }

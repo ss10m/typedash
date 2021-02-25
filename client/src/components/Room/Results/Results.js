@@ -62,7 +62,7 @@ const Results = ({ quote, updateResults }) => {
                     className={classnames({ selected: view === RESULT_TYPE.TOP })}
                     onClick={() => changeView(RESULT_TYPE.TOP)}
                 >
-                    TOP
+                    TOP 10
                 </div>
                 <div
                     className={classnames({ selected: view === RESULT_TYPE.RECENT })}
@@ -74,7 +74,7 @@ const Results = ({ quote, updateResults }) => {
                     className={classnames({ selected: view === RESULT_TYPE.PLAYER_TOP })}
                     onClick={() => changeView(RESULT_TYPE.PLAYER_TOP)}
                 >
-                    YOUR TOP
+                    YOUR TOP 10
                 </div>
                 <div
                     className={classnames({ selected: view === RESULT_TYPE.PLAYER_RECENT })}
