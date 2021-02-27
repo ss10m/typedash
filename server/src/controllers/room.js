@@ -1,10 +1,14 @@
-import db, { TOTAL_QUOTES } from ".././config/db.js";
+import db, { QUOTE_IDS } from ".././config/db.js";
 
-const generateQuote = async () => {
-    const randomId = Math.floor(Math.random() * TOTAL_QUOTES) + 1001;
+const generateQuote = async (recentQuotes) => {
+    const available = QUOTE_IDS.filter((id) => !recentQuotes.includes(id));
+    const randomId = available[Math.floor(Math.random() * available.length)];
     const quoteQuery = `SELECT * FROM quote 
                         WHERE id = $1`;
     const values = [randomId];
+
+    recentQuotes.push(randomId);
+    if (recentQuotes.length > 5) recentQuotes.shift();
 
     const [quoteResult, topResults] = await Promise.all([
         db.query(quoteQuery, values),

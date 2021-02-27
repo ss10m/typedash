@@ -35,7 +35,8 @@ CREATE TABLE "quote" (
     "text" TEXT NOT NULL,
     "author" TEXT,
     "source" TEXT,
-    "added_at" TIMESTAMP DEFAULT NOW()
+    "added_at" TIMESTAMP DEFAULT NOW(),
+    "tokens" TSVECTOR
 );
 
 ALTER SEQUENCE quote_id_seq RESTART WITH 1001;

@@ -19,6 +19,7 @@ export class Room {
         this.players = {};
         this.spectators = {};
         this.quote = null;
+        this.recentQuotes = [];
         this.finished = 0;
         Room.count += 1;
         Room.idToRoom[this.id] = this;
@@ -27,7 +28,7 @@ export class Room {
     async createRoom(socketId) {
         const socket = this.io.sockets.connected[socketId];
         if (!socket) return;
-        this.quote = await RoomController.generateQuote();
+        this.quote = await RoomController.generateQuote(this.recentQuotes);
         socket.emit("room-created", this.id);
         this.io.in("lobby").emit("rooms", Room.getRooms());
     }
@@ -322,7 +323,7 @@ export class Room {
                 switchedIds.push(socketId);
             });
 
-        this.quote = await RoomController.generateQuote();
+        this.quote = await RoomController.generateQuote(this.recentQuotes);
 
         switchedIds.forEach((id) => {
             this.io.to(id).emit("updated-room", { isSpectating: false, playNext: false });
