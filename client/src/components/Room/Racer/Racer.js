@@ -50,7 +50,7 @@ const Racer = ({
         setWpm(0);
         setGraphWpm([]);
         setGraphAccuracy([]);
-    }, [currentQuote]);
+    }, [currentQuote, setGraphWpm, setGraphAccuracy]);
 
     useEffect(() => {
         if (isRunning) {
