@@ -1,5 +1,6 @@
 .footer {
     height: 60px;
+    flex-shrink: 0;
     background-color: #2c3f54;
     border: 2px solid #3a5068;
     border-radius: 0 0 7px 7px;
@@ -7,6 +8,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    //margin-bottom: 30px;
+
+    &.disabled .cus-btn {
+        opacity: 0.7;
+    }
 
     .cus-btn {
         background-color: #3a5068;

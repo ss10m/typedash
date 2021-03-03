@@ -1,4 +1,4 @@
-import db, { QUOTE_IDS } from ".././config/db.js";
+import db, { QUOTE_IDS, TOTAL_RESULTS } from ".././config/db.js";
 
 const generateQuote = async (recentQuotes) => {
     const available = QUOTE_IDS.filter((id) => !recentQuotes.includes(id));
@@ -78,6 +78,7 @@ const saveScores = async (scores) => {
                    VALUES ${generateExpressions(scores.length, 4)}`;
     const values = scores.flat();
     await db.query(query, values);
+    TOTAL_RESULTS.current += scores.length;
     console.log(scores);
 };
 

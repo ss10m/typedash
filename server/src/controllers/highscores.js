@@ -1,24 +1,27 @@
-import db from ".././config/db.js";
+import db, { TOTAL_RESULTS } from ".././config/db.js";
 
-const getHighscores = async (page, cb) => {
-    console.log(page);
+const getHighscores = async (page, rowCount, cb) => {
+    const pageCount = Math.ceil(TOTAL_RESULTS.current / rowCount);
+    console.log(`${page} / ${pageCount}`);
     const query = `SELECT users.display_name, res.wpm, res.accuracy, res.played_at, quote.text,
                    RANK () OVER (ORDER BY res.wpm DESC, res.accuracy DESC)
                    FROM results as res
                    INNER JOIN users ON users.id = res.user_id
                    INNER JOIN quote ON quote.id = res.quote_id
                    ORDER BY res.wpm DESC, res.accuracy DESC, res.played_at
-                   LIMIT 20 OFFSET $1`;
-    const values = [(page - 1) * 20];
+                   LIMIT $1 OFFSET $2`;
+    const values = [rowCount, (page - 1) * rowCount];
     const results = await db.query(query, values);
     //console.log(results.rows);
+
+    console.log("TOTAL RESULTS: " + TOTAL_RESULTS.current);
 
     setTimeout(() => {
         cb({
             meta: { ok: true, message: "" },
-            data: results.rows,
+            data: { page, results: results.rows, pageCount },
         });
-    }, 200);
+    }, 1000);
 };
 
 export default getHighscores;

@@ -1,5 +1,6 @@
 // Libraries & utils
 import { useEffect, useState } from "react";
+import classnames from "classnames";
 
 // Icons
 import {
@@ -12,42 +13,46 @@ import {
 // SCSS
 import "./Pagination.scss";
 
-const Pagination = ({ page, setPage }) => {
-    const [pageCount, setPageCount] = useState(3);
-
+const Pagination = ({ page, updatePage, pageCount, disabled, marginBottom }) => {
     const handlePreviousClick = () => {
         if (page <= 1) return;
-        setPage((current) => current - 1);
+        updatePage(page - 1);
     };
 
     const handleNextClick = () => {
         if (page >= pageCount) return;
-        setPage((current) => current + 1);
+        updatePage(page + 1);
     };
 
     const handleBackwardClick = () => {
         if (page === 1) return;
-        setPage(1);
+        updatePage(1);
     };
 
     const handleForwardClick = () => {
         if (page === pageCount) return;
-        setPage(pageCount);
-    };
-
-    const updatePage = (updatedPage) => {
-        setPage(updatedPage);
+        updatePage(pageCount);
     };
 
     return (
-        <div className="footer">
+        <div
+            className={classnames("footer", {
+                disabled,
+            })}
+            style={{ marginBottom }}
+        >
             <div className="cus-btn left" onClick={handleBackwardClick}>
                 <FaAngleDoubleLeft />
             </div>
             <div className="cus-btn left" onClick={handlePreviousClick}>
                 <FaAngleLeft />
             </div>
-            <Input page={page} updatePage={updatePage} pageCount={pageCount} />
+            <Input
+                page={page}
+                updatePage={updatePage}
+                pageCount={pageCount}
+                disabled={disabled}
+            />
             <div className="cus-btn right" onClick={handleNextClick}>
                 <FaAngleRight />
             </div>
@@ -58,7 +63,7 @@ const Pagination = ({ page, setPage }) => {
     );
 };
 
-const Input = ({ page, updatePage, pageCount }) => {
+const Input = ({ page, updatePage, pageCount, disabled }) => {
     const [inputValue, setInputValue] = useState(page);
 
     useEffect(() => {
@@ -81,8 +86,6 @@ const Input = ({ page, updatePage, pageCount }) => {
     };
 
     const handleFocus = (event) => {
-        //event.target.select();
-        //event.target.setSelectionRange(0, 1);
         event.target.select();
     };
 
@@ -93,6 +96,7 @@ const Input = ({ page, updatePage, pageCount }) => {
                 onChange={onChange}
                 onBlur={confirmValue}
                 onFocus={handleFocus}
+                disabled={disabled}
             />
             {` / ${pageCount}`}
         </div>

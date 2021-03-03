@@ -3,6 +3,7 @@ import Pool from "pg-pool";
 import quotes from "../util/quotes.js";
 
 let QUOTE_IDS = [];
+let TOTAL_RESULTS = { current: 0 };
 
 const pgPool = new Pool({
     host: "db",
@@ -12,19 +13,6 @@ const pgPool = new Pool({
     password: "pw",
 });
 
-function getRandom(arr, n) {
-    var result = new Array(n),
-        len = arr.length,
-        taken = new Array(len);
-    if (n > len) throw new RangeError("getRandom: more elements taken than available");
-    while (n--) {
-        var x = Math.floor(Math.random() * len);
-        result[n] = arr[x in taken ? taken[x] : x];
-        taken[x] = --len in taken ? taken[len] : len;
-    }
-    return result;
-}
-
 pgPool.connect(async (err) => {
     if (err) {
         console.error("connection error", err.stack);
@@ -33,6 +21,10 @@ pgPool.connect(async (err) => {
         const result = await pgPool.query(query, null);
         const ids = result.rows[0].ids;
         console.log(ids);
+
+        const query2 = `SELECT count(*) FROM results;`;
+        const result2 = await pgPool.query(query2, null);
+        TOTAL_RESULTS.current = parseInt(result2.rows[0].count);
 
         if (!ids || !ids.length) {
             for (const quote of quotes) {
@@ -48,12 +40,6 @@ pgPool.connect(async (err) => {
         } else {
             QUOTE_IDS = ids;
         }
-
-        // const query3 = `SELECT *
-        //             FROM quote
-        //             WHERE tokens @@ to_tsquery('can & a & man');`;
-        // const result3 = await pgPool.query(query3, null);
-        // console.log(result3.rows);
     }
 });
 
@@ -63,4 +49,4 @@ export default {
     },
 };
 
-export { pgPool, QUOTE_IDS };
+export { pgPool, QUOTE_IDS, TOTAL_RESULTS };

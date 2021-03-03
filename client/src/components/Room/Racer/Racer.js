@@ -132,7 +132,7 @@ const Racer = ({
 
         wordIndexRef.current = newIndex;
 
-        const time = new Date() - startTime;
+        const time = Math.max(new Date() - startTime, 800);
         const wpm = Math.round(wordIndexRef.current / (time / (1000 * 60)));
         const progress = Math.ceil((wordIndexRef.current / quote.length) * 100);
 
