@@ -14,13 +14,14 @@
     }
 
     .cus-btn {
-        background-color: #3a5068;
+        background-color: #2c3f54;
         display: flex;
         font-size: 25px;
         border-radius: 5px;
         position: relative;
         cursor: pointer;
-        margin: 0 2px;
+        margin: 0 3px;
+        box-shadow: 0px 0px 2px 1px #080808;
 
         &.left {
             padding: 5px 8px 5px 7px;
@@ -43,7 +44,7 @@
     }
 
     .input {
-        margin: 0 9px 0 7px;
+        margin: 0 7px 0 6px;
         height: 30px;
         font-size: 16px;
         font-weight: 600;
@@ -64,6 +65,12 @@
             &::placeholder {
                 color: #d6d5d5;
             }
+        }
+    }
+
+    @media (max-width: 400px) {
+        .cus-btn {
+            font-size: 15px;
         }
     }
 }

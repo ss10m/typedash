@@ -9,19 +9,15 @@
     .tabs {
         height: 50px;
         display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 18px;
         font-weight: 600;
         background-color: #2c3f54;
         border-radius: 7px 7px 0 0;
         border: 2px solid #3a5068;
         border-bottom: none;
-
-        div {
-            flex-grow: 1;
-            text-align: center;
-            line-height: 50px;
-            border-radius: 7px 7px 0 0;
-        }
+        position: relative;
     }
 
     .header {
@@ -76,57 +72,93 @@
         &::-webkit-scrollbar-thumb {
             background: #2c3f54;
         }
+    }
 
+    @media (max-width: 500px) {
+        .tabs {
+            font-size: 16px;
+        }
+
+        .header,
         .results {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            font-size: 12px;
+        }
 
-            .empty {
-                height: 100%;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
+        .icon {
+            justify-content: center;
+        }
+    }
+}
 
-            .result-wrapper {
-                width: 100%;
-                display: flex;
-                cursor: pointer;
+.highscores .refresh-btn {
+    position: absolute;
+    right: 10px;
+    display: flex;
+    padding: 7px;
+    border-radius: 5px;
+    font-size: 20px;
+    color: whitesmoke;
+    background-color: #233545;
+    box-shadow: 0px 0px 2px 1px #080808;
 
-                &:nth-child(even) {
-                    background: #1a2a35;
-                }
+    &.refresh-btn-disabled {
+        opacity: 0.7;
+    }
 
-                .num {
-                    width: 8%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-weight: 600;
-                    background-color: #2c3f54;
-                }
+    &:hover:not(.refresh-btn-disabled) {
+        cursor: pointer;
+    }
 
-                .details {
-                    flex: 1;
+    span {
+        display: flex;
+    }
 
-                    .icon {
-                        width: 30px;
-                        display: flex;
-                        align-items: center;
+    .current {
+        animation: spin 0.8s linear 1;
+    }
 
-                        &.expanded {
-                            color: red;
-                        }
-                    }
+    @keyframes spin {
+        100% {
+            -webkit-transform: rotate(360deg);
+            transform: rotate(360deg);
+        }
+    }
+}
 
-                    .quote {
-                        padding: 0px 10px 5px 10px;
-                    }
-                }
-            }
+.results-wrapper .results {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    .empty {
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .result-wrapper {
+        width: 100%;
+        display: flex;
+        cursor: pointer;
+
+        &:nth-child(even) {
+            background: #1a2a35;
+        }
+
+        .num {
+            width: 8%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            background-color: #2c3f54;
+        }
+
+        .details {
+            flex: 1;
 
             .result {
                 display: flex;
@@ -156,22 +188,21 @@
                 .time {
                     flex-basis: 26%;
                 }
+
+                .icon {
+                    width: 30px;
+                    display: flex;
+                    align-items: center;
+
+                    &.expanded {
+                        color: red;
+                    }
+                }
             }
-        }
-    }
 
-    @media (max-width: 500px) {
-        .tabs {
-            font-size: 16px;
-        }
-
-        .header,
-        .results {
-            font-size: 12px;
-        }
-
-        .icon {
-            justify-content: center;
+            .quote {
+                padding: 0px 10px 5px 10px;
+            }
         }
     }
 }

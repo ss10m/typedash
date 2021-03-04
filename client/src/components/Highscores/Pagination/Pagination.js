@@ -1,5 +1,5 @@
 // Libraries & utils
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import classnames from "classnames";
 
 // Icons
@@ -70,17 +70,24 @@ const Input = ({ page, updatePage, pageCount, disabled }) => {
         setInputValue(page);
     }, [page]);
 
+    const keyDownHandler = (event) => {
+        if (event.code !== "Enter") return;
+        event.target.blur();
+    };
+
+    useEventListener("keydown", keyDownHandler);
+
     const onChange = (event) => {
-        console.log("ON CHANGE: " + event.target.value);
         setInputValue(event.target.value);
     };
 
     const confirmValue = () => {
         let value = parseInt(inputValue);
-        if (!Number.isInteger(value)) value = 1;
+        if (!Number.isInteger(value)) {
+            return setInputValue(page);
+        }
         value = Math.min(value, pageCount);
         value = Math.max(1, value);
-        console.log("SET TO: " + value);
         updatePage(value);
         setInputValue(value);
     };
@@ -101,6 +108,26 @@ const Input = ({ page, updatePage, pageCount, disabled }) => {
             {` / ${pageCount}`}
         </div>
     );
+};
+
+const useEventListener = (eventName, handler, element = window) => {
+    const savedHandler = useRef();
+
+    useEffect(() => {
+        savedHandler.current = handler;
+    }, [handler]);
+
+    useEffect(() => {
+        const isSupported = element && element.addEventListener;
+        if (!isSupported) return;
+
+        const eventListener = (event) => savedHandler.current(event);
+        element.addEventListener(eventName, eventListener);
+
+        return () => {
+            element.removeEventListener(eventName, eventListener);
+        };
+    }, [eventName, element]);
 };
 
 export default Pagination;

@@ -1,11 +1,12 @@
 // Libraries & utils
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import moment from "moment";
 import { Collapse } from "react-collapse";
 import classnames from "classnames";
 
-// ICONS
-import { FaChevronDown, FaChevronUp, FaAngleUp, FaAngleDown } from "react-icons/fa";
+// Icons
+import { FaAngleUp, FaAngleDown } from "react-icons/fa";
+import { FiRefreshCw } from "react-icons/fi";
 
 // Components
 import MoonLoader from "react-spinners/MoonLoader";
@@ -27,18 +28,11 @@ const Highscores = () => {
     const containerRef = useRef(null);
     const rowCountRef = useRef(null);
 
-    useEffect(() => {
-        const containerHeight = containerRef.current.clientHeight;
-        const rowCount = Math.floor(containerHeight / 40);
-        setMarginBottom(containerHeight % 40);
-        rowCountRef.current = rowCount;
-    }, []);
-
-    useEffect(() => {
+    const fetchData = useCallback(() => {
         setIsFetching(true);
         fetch("/api/highscores", {
             method: "POST",
-            body: JSON.stringify({ page, rowCount: rowCountRef.current }),
+            body: JSON.stringify({ page: pageRef.current, rowCount: rowCountRef.current }),
             headers: {
                 "Content-Type": "application/json",
             },
@@ -51,7 +45,18 @@ const Highscores = () => {
                 setIsFetching(false);
             })
             .catch(() => {});
-    }, [page]);
+    }, []);
+
+    useEffect(() => {
+        const containerHeight = containerRef.current.clientHeight;
+        const rowCount = Math.floor(containerHeight / 40);
+        setMarginBottom(containerHeight % 40);
+        rowCountRef.current = rowCount;
+    }, []);
+
+    useEffect(() => {
+        fetchData();
+    }, [page, fetchData]);
 
     const updatePage = (updatedPage) => {
         if (isFetching) return;
@@ -63,6 +68,7 @@ const Highscores = () => {
         <div className="highscores">
             <div className="tabs">
                 <div>HIGHSCORES</div>
+                <RefreshButton fetchData={fetchData} />
             </div>
             <div className="header">
                 <div className="rank">#</div>
@@ -83,6 +89,35 @@ const Highscores = () => {
                 disabled={isFetching}
                 marginBottom={marginBottom}
             />
+        </div>
+    );
+};
+
+const RefreshButton = ({ fetchData }) => {
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const refresh = () => {
+        if (isRefreshing) return;
+        setIsRefreshing(true);
+        fetchData();
+        setTimeout(() => {
+            setIsRefreshing(false);
+        }, 800);
+    };
+
+    return (
+        <div
+            className={classnames("refresh-btn", {
+                "refresh-btn-disabled": isRefreshing,
+            })}
+            onClick={refresh}
+        >
+            <span
+                className={classnames({
+                    current: isRefreshing,
+                })}
+            >
+                <FiRefreshCw />
+            </span>
         </div>
     );
 };
