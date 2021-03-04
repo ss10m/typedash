@@ -91,6 +91,43 @@
                 align-items: center;
             }
 
+            .result-wrapper {
+                width: 100%;
+                display: flex;
+                cursor: pointer;
+
+                &:nth-child(even) {
+                    background: #1a2a35;
+                }
+
+                .num {
+                    width: 8%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: 600;
+                    background-color: #2c3f54;
+                }
+
+                .details {
+                    flex: 1;
+
+                    .icon {
+                        width: 30px;
+                        display: flex;
+                        align-items: center;
+
+                        &.expanded {
+                            color: red;
+                        }
+                    }
+
+                    .quote {
+                        padding: 0px 10px 5px 10px;
+                    }
+                }
+            }
+
             .result {
                 display: flex;
                 height: 40px;
@@ -102,12 +139,6 @@
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
-                }
-
-                .rank {
-                    flex-basis: 8%;
-                    font-weight: 600;
-                    background-color: #2c3f54;
                 }
 
                 .username {
@@ -125,10 +156,6 @@
                 .time {
                     flex-basis: 26%;
                 }
-
-                &:nth-child(even) {
-                    background: #1a2a35;
-                }
             }
         }
     }
@@ -142,5 +169,13 @@
         .results {
             font-size: 12px;
         }
+
+        .icon {
+            justify-content: center;
+        }
     }
+}
+
+.ReactCollapse--collapse {
+    transition: height 300ms;
 }

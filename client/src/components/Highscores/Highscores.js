@@ -1,6 +1,11 @@
 // Libraries & utils
 import React, { useState, useEffect, useRef } from "react";
 import moment from "moment";
+import { Collapse } from "react-collapse";
+import classnames from "classnames";
+
+// ICONS
+import { FaChevronDown, FaChevronUp, FaAngleUp, FaAngleDown } from "react-icons/fa";
 
 // Components
 import MoonLoader from "react-spinners/MoonLoader";
@@ -25,16 +30,11 @@ const Highscores = () => {
     useEffect(() => {
         const containerHeight = containerRef.current.clientHeight;
         const rowCount = Math.floor(containerHeight / 40);
-        console.log(containerHeight, 25 * 40, rowCount);
-
-        console.log(containerHeight % 40);
         setMarginBottom(containerHeight % 40);
         rowCountRef.current = rowCount;
     }, []);
 
     useEffect(() => {
-        console.log("FETCHING: " + page);
-
         setIsFetching(true);
         fetch("/api/highscores", {
             method: "POST",
@@ -45,9 +45,6 @@ const Highscores = () => {
         })
             .then(handleResponse)
             .then((data) => {
-                console.log(
-                    "CURRENT: " + page + " REF: " + pageRef.current + " FETCHED: " + data.page
-                );
                 if (pageRef.current !== data.page) return;
                 setHighscores(data.results);
                 setPageCount(data.pageCount);
@@ -107,15 +104,34 @@ const HighscoresData = ({ isFetching, data }) => {
         return <div className="empty">No results found</div>;
     }
 
-    return data.map((score, index) => (
-        <div key={index} className="result">
-            <div className="rank">{score.rank}</div>
-            <div className="username">{score.display_name}</div>
-            <div className="wpm">{`${score.wpm}wpm`}</div>
-            <div className="accuracy">{`${score.accuracy}%`}</div>
-            <div className="time">{moment(score.played_at).fromNow()}</div>
+    return data.map((score, index) => <Score key={index} score={score} />);
+};
+
+const Score = ({ score }) => {
+    const [expanded, setExpanded] = useState(false);
+    return (
+        <div className="result-wrapper" onClick={() => setExpanded(!expanded)}>
+            <div className="num">{score.rank}</div>
+            <div className="details">
+                <div className="result">
+                    <div className="username">{score.display_name}</div>
+                    <div className="wpm">{`${score.wpm}wpm`}</div>
+                    <div className="accuracy">{`${score.accuracy}%`}</div>
+                    <div className="time">{moment(score.played_at).fromNow()}</div>
+                    <span
+                        className={classnames("icon", {
+                            expanded,
+                        })}
+                    >
+                        {expanded ? <FaAngleUp /> : <FaAngleDown />}
+                    </span>
+                </div>
+                <Collapse isOpened={expanded}>
+                    <div className="quote">{`${score.text} (ID ${score.id})`}</div>
+                </Collapse>
+            </div>
         </div>
-    ));
+    );
 };
 
 export default Highscores;
