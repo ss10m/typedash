@@ -21,6 +21,21 @@ export default (io, socket) => {
         return socket.disconnect();
     }
 
+    socket.use((packet, next) => {
+        //console.log(packet);
+        //console.log("NEW PACKET");
+        //console.log(socket.handshake.session.user);
+        //
+        //socket.disconnect();
+        // if (packet[0] === "create-room") {
+        //     //socket.emit("handle-error", "new instance");
+        //     next();
+        // } else {
+        //     next();
+        // }
+        next();
+    });
+
     // Lobby
     socket.on("join-lobby", () => {
         socket.join("lobby");

@@ -5,6 +5,8 @@ import { SESS_NAME } from "../config/session.js";
 
 import { signUp, usernameCheck } from "../validations/user.js";
 
+import { Connection } from "../core/index.js";
+
 import {
     parseError,
     sessionizeUser,
@@ -144,7 +146,8 @@ const register = async (session, body, cb) => {
     }
 };
 
-const logout = (session, res) => {
+const logout = (session, body, res) => {
+    Connection.logoutClients(body.id);
     session.destroy((err) => {
         if (err) {
             res.send({ meta: { ok: false, message: parseError(err) }, data: {} });

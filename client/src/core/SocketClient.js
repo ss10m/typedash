@@ -1,6 +1,6 @@
 import io from "socket.io-client";
 
-import { setSession, setError } from "store/actions";
+import { setSession, clearSession, setError } from "store/actions";
 
 class SocketAPI {
     constructor() {
@@ -98,6 +98,10 @@ class SocketAPI {
     setup = () => {
         this.socket.on("handle-error", (err) => {
             this.dispatch(setError(err));
+        });
+        this.socket.on("clear-session", (err) => {
+            this.disconnect();
+            this.dispatch(clearSession());
         });
     };
 }

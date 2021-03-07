@@ -86,7 +86,14 @@ const register = (userInfo, onFailure) => async (dispatch) => {
 };
 
 const logout = () => (dispatch) => {
-    fetch("/api/session", { method: "DELETE" })
+    let id = localStorage.getItem("sync-id");
+    fetch("/api/session", {
+        method: "DELETE",
+        body: JSON.stringify({ id }),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
         .then(handleResponse)
         .then(() => {
             socketIO.disconnect();
@@ -95,4 +102,13 @@ const logout = () => (dispatch) => {
         .catch(() => dispatch(clearSession()));
 };
 
-export { setSession, getSession, login, loginAsGuest, claimAccount, register, logout };
+export {
+    setSession,
+    getSession,
+    clearSession,
+    login,
+    loginAsGuest,
+    claimAccount,
+    register,
+    logout,
+};

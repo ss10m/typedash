@@ -30,8 +30,8 @@ router.post("/register", async ({ session, body }, res) => {
 });
 
 // LOGOUT
-router.delete("", async ({ session }, res) => {
-    Session.logout(session, res);
+router.delete("", async ({ session, body }, res) => {
+    Session.logout(session, body, res);
 });
 
 export default router;
