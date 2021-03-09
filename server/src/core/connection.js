@@ -25,6 +25,7 @@ export class Connection {
         } else {
             Connection.browserIds[this.browserId] = [this.socketId];
         }
+        console.log(Connection.browserIds);
 
         Connection.socketIdtoBrowserId[this.socketId] = this.browserId;
         return true;
@@ -47,6 +48,8 @@ export class Connection {
             delete this.browserIds[browserId];
         }
         delete this.socketIdtoBrowserId[socketId];
+
+        console.log(Connection.browserIds);
     }
 
     static logoutClients(browserId) {
