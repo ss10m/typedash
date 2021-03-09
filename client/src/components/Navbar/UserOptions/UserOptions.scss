@@ -1,4 +1,4 @@
-$primary-color: #283c4e;
+$primary-color: #2c3f54;
 $top-color: #d0d0d0;
 $hightlight-color: #3a5068;
 
@@ -25,7 +25,6 @@ $hightlight-color: #3a5068;
             flex-direction: column;
             border-radius: 7px 7px 0 0;
             padding: 8px 20px 1px 20px;
-            background-color: $primary-color;
             color: $top-color;
 
             .info {
@@ -85,7 +84,6 @@ $hightlight-color: #3a5068;
         display: flex;
         align-items: center;
         color: white;
-        background-color: $primary-color;
         padding: 7px 8px;
         border-radius: 5px;
 
