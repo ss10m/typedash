@@ -21,6 +21,7 @@ export class Room {
         this.quote = null;
         this.recentQuotes = [];
         this.finished = 0;
+        this.startTime = new Date();
         Room.count += 1;
         Room.idToRoom[this.id] = this;
     }
@@ -579,7 +580,9 @@ export class Room {
         return Object.values(this.idToRoom).map((room) => ({
             name: room.name,
             id: room.id,
+            status: room.state.current === STATE.PLAYING ? "playing" : "waiting",
             users: Object.keys(room.players).length + Object.keys(room.spectators).length,
+            startTime: room.startTime,
         }));
     }
 }
