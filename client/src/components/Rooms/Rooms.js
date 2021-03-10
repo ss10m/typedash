@@ -1,49 +1,49 @@
 // Libraries & utils
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import classNames from "classnames";
 import { useHistory } from "react-router-dom";
-
-// SCSS
-import "./Rooms.scss";
-
-// Icons
-import { FiSearch, FiRefreshCw } from "react-icons/fi";
-import { FaTimes } from "react-icons/fa";
 
 // Socket API
 import SocketAPI from "core/SocketClient";
 
+// Helpers
+import { calcUptime } from "helpers";
+
+// Icons
+import { FiSearch, FiRefreshCw } from "react-icons/fi";
+import { FaTimes, FaUser } from "react-icons/fa";
+
+// Images
 import keyboard from "./kb.jpg";
+
+// SCSS
+import "./Rooms.scss";
 
 const Rooms = () => {
     const [filter, setFilter] = useState("");
-    const [marginBottom, setMarginBottom] = useState(0);
-    const containerRef = useRef(null);
-
-    useEffect(() => {
-        const containerHeight = containerRef.current.clientHeight;
-        //const rowCount = Math.floor(containerHeight / 40);
-        setMarginBottom(containerHeight % 40);
-    }, []);
-
     const resetFilter = () => setFilter("");
 
     return (
-        <div className="rooms" style={{ marginBottom }}>
+        <div className="rooms">
             <img src={keyboard} alt="keyboard" />
             <Navigation filter={filter} setFilter={setFilter} />
             <div className="header">
                 <div className="name">NAME</div>
                 <div className="currentStatus">STATUS</div>
-                <div className="number">#</div>
+                <div className="number">
+                    <span>
+                        <FaUser />
+                    </span>
+                </div>
                 <div className="uptime">UPTIME</div>
                 <div className="join"></div>
             </div>
-            <div className="results-wrapper" ref={containerRef}>
+            <div className="results-wrapper">
                 <div className="results">
                     <RoomList filter={filter} resetFilter={resetFilter} />
                 </div>
             </div>
+            <div className="rooms-footer"></div>
         </div>
     );
 };
@@ -150,8 +150,6 @@ const RoomList = ({ filter, resetFilter }) => {
     useEffect(() => {
         const socket = SocketAPI.getSocket();
         socket.on("rooms", (rooms) => {
-            console.log("ROOMS");
-            console.log(rooms);
             setRooms(rooms);
         });
 
@@ -210,7 +208,9 @@ const Room = ({ room, time }) => {
         <div className="room">
             <div className="name">{room.name}</div>
             <div className="currentStatus">
-                <span>{"PLAYING"}</span>
+                <span className={classNames({ playing: room.isPlaying })}>
+                    {room.isPlaying ? "PLAYING" : "WAITING"}
+                </span>
             </div>
             <div className="users">{room.users}</div>
             <div className="uptime">{`${upTime.minutes}:${upTime.seconds}`}</div>
@@ -219,28 +219,6 @@ const Room = ({ room, time }) => {
             </div>
         </div>
     );
-};
-
-const calcUptime = (startTime, currentTime) => {
-    const time = currentTime - new Date(startTime);
-
-    let seconds = Math.floor((time / 1000) % 60),
-        minutes = Math.floor(time / (1000 * 60));
-
-    if (seconds < 0) {
-        return {
-            minutes: "00",
-            seconds: "00",
-        };
-    }
-
-    minutes = minutes < 10 ? "0" + minutes : minutes;
-    seconds = seconds < 10 ? "0" + seconds : seconds;
-
-    return {
-        seconds,
-        minutes,
-    };
 };
 
 export default Rooms;

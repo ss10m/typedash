@@ -580,7 +580,7 @@ export class Room {
         return Object.values(this.idToRoom).map((room) => ({
             name: room.name,
             id: room.id,
-            status: room.state.current === STATE.PLAYING ? "playing" : "waiting",
+            isPlaying: room.state.current === STATE.PLAYING,
             users: Object.keys(room.players).length + Object.keys(room.spectators).length,
             startTime: room.startTime,
         }));

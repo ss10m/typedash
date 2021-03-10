@@ -19,4 +19,26 @@ const handleResponse = (response) => {
     });
 };
 
-export { isEmpty, longestCommonSubstring, handleResponse };
+const calcUptime = (startTime, currentTime) => {
+    const time = currentTime - new Date(startTime);
+
+    let seconds = Math.floor((time / 1000) % 60),
+        minutes = Math.floor(time / (1000 * 60));
+
+    if (seconds < 0) {
+        return {
+            minutes: "00",
+            seconds: "00",
+        };
+    }
+
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+
+    return {
+        seconds,
+        minutes,
+    };
+};
+
+export { isEmpty, longestCommonSubstring, handleResponse, calcUptime };
