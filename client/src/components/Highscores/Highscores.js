@@ -72,10 +72,13 @@ const Highscores = () => {
             </div>
             <div className="header">
                 <div className="rank">#</div>
-                <div className="username">USERNAME</div>
-                <div className="wpm">WPM</div>
-                <div className="accuracy">ACCURACY</div>
-                <div className="time">TIME</div>
+                <div className="fields">
+                    <div className="username">USERNAME</div>
+                    <div className="wpm">WPM</div>
+                    <div className="accuracy">ACCURACY</div>
+                    <div className="time">TIME</div>
+                    <div className="expand"></div>
+                </div>
             </div>
             <div className="results-wrapper" ref={containerRef}>
                 <div className="results">
