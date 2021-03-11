@@ -27,6 +27,7 @@ const Results = ({ quote, updateResults }) => {
         socket.on("updated-results", ({ id, type, data, force }) => {
             if (quoteRef.current.id !== id) return;
             if (viewRef.current !== type) {
+                console.log("FORCE: " + force);
                 if (!force) return;
                 setView(type);
             }
@@ -95,6 +96,7 @@ const Results = ({ quote, updateResults }) => {
                     <ResultsData isFetching={isFetching} data={data} />
                 </div>
             </div>
+            <div className="results-footer"></div>
         </div>
     );
 };
