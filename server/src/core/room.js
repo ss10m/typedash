@@ -141,6 +141,7 @@ export class Room {
         roomData.players = this.getPlayers();
         roomData.spectators = this.getSpectators();
         socket.emit("updated-room", roomData);
+        this.io.in("lobby").emit("rooms", Room.getRooms());
         this.checkStateChange();
     }
 
@@ -190,6 +191,7 @@ export class Room {
             this.startNextRound();
         }
 
+        this.io.in("lobby").emit("rooms", Room.getRooms());
         this.checkStateChange();
     }
 
@@ -213,6 +215,17 @@ export class Room {
 
             const onStep = (steps) => {
                 //console.log(`${steps}/${ROUND.TIME / 500}`);
+
+                const time = new Date() - this.state.startTime;
+                const players = this.getPlayers();
+                players.forEach((player) => {
+                    if (player.stats.totalTime || !player.stats.progress) return;
+                    player.stats.wpm = Math.round(
+                        player.stats.wordIndex / (time / (1000 * 60))
+                    );
+                });
+
+                this.updateClients("updated-room", { players });
             };
             const onSuccess = () => {
                 this.endRound();
@@ -252,29 +265,24 @@ export class Room {
         const progress = data.progress / this.quote.length;
         player.stats.wordIndex = data.progress;
         player.stats.progress = Math.round(progress * 100);
-        const time = new Date() - this.state.startTime;
-        const wpm = Math.round(player.stats.wordIndex / (time / (1000 * 60)));
-        player.stats.wpm = wpm;
 
         if (data.progress === this.quote.length) {
             player.stats.position = this.getPosition();
+            const clientTime = data.time;
+            const serverTime = new Date() - this.state.startTime;
 
-            if (time - data.time < 1000) {
-                player.stats.totalTime = data.time;
-                player.stats.wpm = Math.round(
-                    player.stats.wordIndex / (data.time / (1000 * 60))
-                );
+            let time = null;
+            if (Math.abs(serverTime - clientTime) < 1000) {
+                time = clientTime;
             } else {
-                player.stats.totalTime = time;
+                time = serverTime;
             }
 
+            player.stats.totalTime = time;
+            player.stats.wpm = Math.round(player.stats.wordIndex / (time / (1000 * 60)));
             player.stats.accuracy = data.accuracy;
             if (this.isCompleted()) return this.endRound();
         }
-
-        const updatedState = {};
-        updatedState.players = this.getPlayers();
-        this.updateClients("updated-room", updatedState);
     }
 
     async startNextRound() {
