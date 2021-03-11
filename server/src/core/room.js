@@ -335,7 +335,13 @@ export class Room {
         this.quote = await RoomController.generateQuote(this.recentQuotes);
 
         switchedIds.forEach((id) => {
-            this.io.to(id).emit("updated-room", { isSpectating: false, playNext: false });
+            this.io
+                .to(id)
+                .emit("updated-room", {
+                    isRunning: false,
+                    isSpectating: false,
+                    playNext: false,
+                });
         });
 
         const updatedState = {
