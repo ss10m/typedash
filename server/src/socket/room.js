@@ -85,10 +85,10 @@ export default (io, socket) => {
         room.setPlayerReady(socket.id, isReady);
     });
 
-    socket.on("toggle-spectate", () => {
+    socket.on("set-spectate", (spectate) => {
         const room = Room.getRoomBySocketId(socket.id);
         if (!room) return;
-        room.toggleSpectate(socket.id);
+        room.setSpectate(socket.id, spectate);
     });
 
     socket.on("set-play-next", (playNext) => {

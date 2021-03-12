@@ -335,13 +335,11 @@ export class Room {
         this.quote = await RoomController.generateQuote(this.recentQuotes);
 
         switchedIds.forEach((id) => {
-            this.io
-                .to(id)
-                .emit("updated-room", {
-                    isRunning: false,
-                    isSpectating: false,
-                    playNext: false,
-                });
+            this.io.to(id).emit("updated-room", {
+                isRunning: false,
+                isSpectating: false,
+                playNext: false,
+            });
         });
 
         const updatedState = {
@@ -496,18 +494,18 @@ export class Room {
         this.checkStateChange();
     }
 
-    toggleSpectate(socketId) {
+    setSpectate(socketId, spectate) {
         const socket = this.io.sockets.connected[socketId];
         if (!socket) return;
         if (![STATE.PREGAME, STATE.COUNTDOWN].includes(this.state.current)) return;
 
         let isSpectating;
-        if (this.players[socketId]) {
+        if (this.players[socketId] && spectate) {
             const { id, username } = this.players[socketId];
             this.spectators[socketId] = { id, socketId, username, playNext: false };
             delete this.players[socketId];
             isSpectating = true;
-        } else if (this.spectators[socketId]) {
+        } else if (this.spectators[socketId] && !spectate) {
             const { id, username } = this.spectators[socketId];
             const player = {
                 id,
@@ -528,6 +526,7 @@ export class Room {
             delete this.spectators[socketId];
             isSpectating = false;
         } else {
+            console.log("SOMETHING WENT WRONG");
             return;
         }
 

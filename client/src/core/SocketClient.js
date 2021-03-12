@@ -83,8 +83,8 @@ class SocketAPI {
         this.emit("set-ready", isReady);
     };
 
-    toggleSpectate = () => {
-        this.emit("toggle-spectate");
+    setSpectate = (spectate) => {
+        this.emit("set-spectate", spectate);
     };
 
     setPlayNext = (playNext) => {

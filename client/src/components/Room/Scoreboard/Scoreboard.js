@@ -1,16 +1,19 @@
 // Libraries & utils
 import classNames from "classnames";
 
+// Helpers
+import { STATE } from "helpers/constants";
+
 // Icons
 import { FaTrophy } from "react-icons/fa";
 
 // SCSS
 import "./Scoreboard.scss";
 
-const Scoreboard = ({ players, socketId }) => {
+const Scoreboard = ({ state, players, socketId, setSpectate }) => {
     if (!players.length) return <div>Waiting for players</div>;
-
-    const dot = String.fromCharCode(183);
+    const canSpectate = state.current === STATE.PREGAME || state.current === STATE.COUNTDOWN;
+    const showReady = state.current !== STATE.PLAYING;
 
     return (
         <div className="players-wrapper">
@@ -22,53 +25,67 @@ const Scoreboard = ({ players, socketId }) => {
                 START
             </div>
             <div className="players">
-                {players.map((player) => {
-                    return (
-                        <div key={player.id} className="player">
-                            <div className={classNames("details", { left: player.leftRoom })}>
-                                <div className="username">
-                                    {player.username}
-                                    {player.socketId === socketId && <span>[ME]</span>}
-
-                                    <div
-                                        className={classNames("ready", {
-                                            not: !player.isReady,
-                                        })}
-                                    >
-                                        {player.isReady ? "READY" : "NOT READY"}
-                                    </div>
-                                </div>
-                                {player.stats.position && (
-                                    <div className="position">
-                                        {player.stats.position <= 3 && (
-                                            <span
-                                                style={{
-                                                    color: trophyColor(player.stats.position),
-                                                }}
-                                            >
-                                                <FaTrophy />
-                                            </span>
-                                        )}
-                                        {`${ordinalSuffix(player.stats.position)}`}
-                                        {player.stats.wpm &&
-                                            `  ${dot}  ${player.stats.wpm}wpm`}
-                                        {player.stats.accuracy &&
-                                            `  ${dot}  ${player.stats.accuracy}%`}
-                                    </div>
-                                )}
-                                {player.stats.wpm && !player.stats.position && (
-                                    <div>{`${player.stats.wpm}wpm`}</div>
-                                )}
-                            </div>
-                            <div
-                                className="progress"
-                                style={{ width: `${player.stats.progress}%` }}
-                            />
-                        </div>
-                    );
-                })}
+                {players.map((player) => (
+                    <Player
+                        key={player.socketId}
+                        player={player}
+                        isCurrent={player.socketId === socketId}
+                        canSpectate={canSpectate && player.socketId === socketId}
+                        setSpectate={setSpectate}
+                        showReady={showReady}
+                    />
+                ))}
             </div>
             <div className="flag"></div>
+        </div>
+    );
+};
+
+const Player = ({ player, isCurrent, canSpectate, setSpectate, showReady }) => {
+    const dot = String.fromCharCode(183);
+
+    return (
+        <div className={classNames("player", { extended: canSpectate })}>
+            <div className={classNames("details", { left: player.leftRoom })}>
+                <div className="username">
+                    {player.username}
+                    {isCurrent && <span>[ME]</span>}
+                    {showReady && (
+                        <div
+                            className={classNames("ready", {
+                                not: !player.isReady,
+                            })}
+                        >
+                            {player.isReady ? "READY" : "NOT READY"}
+                        </div>
+                    )}
+                </div>
+                {player.stats.position && (
+                    <div className="position">
+                        {player.stats.position <= 3 && (
+                            <span
+                                style={{
+                                    color: trophyColor(player.stats.position),
+                                }}
+                            >
+                                <FaTrophy />
+                            </span>
+                        )}
+                        {`${ordinalSuffix(player.stats.position)}`}
+                        {player.stats.wpm && `  ${dot}  ${player.stats.wpm}wpm`}
+                        {player.stats.accuracy && `  ${dot}  ${player.stats.accuracy}%`}
+                    </div>
+                )}
+                {player.stats.wpm && !player.stats.position && (
+                    <div className="wpm">{`${player.stats.wpm}wpm`}</div>
+                )}
+                {canSpectate && (
+                    <div className="spectate" onClick={() => setSpectate(true)}>
+                        SPECTATE
+                    </div>
+                )}
+            </div>
+            <div className="progress" style={{ width: `${player.stats.progress}%` }} />
         </div>
     );
 };

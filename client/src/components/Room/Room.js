@@ -12,9 +12,9 @@ import { STATE } from "helpers/constants";
 // Components
 import Racer from "./Racer/Racer";
 import Scoreboard from "./Scoreboard/Scoreboard";
+import Spectating from "./Spectating/Spectating";
 import Timer from "./Timer/Timer";
 import Countdown from "./Countdown/Countdown";
-import Status from "./Status/Status";
 import Charts from "./Charts/Charts";
 import Results from "./Results/Results";
 import Error from "../Error/Error";
@@ -55,6 +55,7 @@ const Room = () => {
                     onCancel={SocketAPI.setReady}
                 />
             )}
+
             <div className="status">
                 <button onClick={history.goBack}>LEAVE ROOM</button>
                 <div>
@@ -62,8 +63,23 @@ const Room = () => {
                 </div>
                 <div>{room.name}</div>
             </div>
+            {isSpectating && (
+                <Spectating
+                    state={state}
+                    isSpectating={isSpectating}
+                    setSpectate={SocketAPI.setSpectate}
+                    playNext={playNext}
+                    setPlayNext={SocketAPI.setPlayNext}
+                />
+            )}
 
-            <Scoreboard players={players} socketId={socketId} />
+            <Scoreboard
+                state={state}
+                players={players}
+                socketId={socketId}
+                setSpectate={SocketAPI.setSpectate}
+            />
+
             <div>
                 {spectators.map((user, index) => (
                     <div key={index}>{user.username}</div>
@@ -71,13 +87,6 @@ const Room = () => {
             </div>
 
             <div className="stats">
-                <Status
-                    state={state}
-                    isSpectating={isSpectating}
-                    toggleSpectate={SocketAPI.toggleSpectate}
-                    playNext={playNext}
-                    setPlayNext={SocketAPI.setPlayNext}
-                />
                 <ReadyUp isReady={isReady} setReady={SocketAPI.setReady} />
                 <Timer state={state} />
             </div>

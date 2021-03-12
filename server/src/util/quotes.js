@@ -55,7 +55,7 @@ const quotes = [
         source: "A Storm of Swords",
     },
     {
-        text: `The Wheel of Time turns, and Ages come and pass, leaving memories that become legend. Legend fades to myth, and even myth is long forgotten when the Age that gave it birth comes again. In one Age, called the Third Age by some, an Age yet to come, an Age long past, a wind rose in the Mountains of Mist. The wind was not the beginning. There are neither beginnings nor endings to the turning of the Wheel of time. But it was a beginning.`,
+        text: `The Wheel of Time turns, and Ages come and pass, leaving memories that become legend. Legend fades to myth, and even myth is long forgotten when the Age that gave it birth comes again. In one Age, called the Third Age by some, an Age yet to come, an Age long past, a wind rose in the Mountains of Mist. The wind was not the beginning. There are neither beginnings nor endings to the turning of the Wheel of Time. But it was a beginning.`,
         author: "Robert Jordan",
         source: "The Eye of the World",
     },
@@ -75,7 +75,7 @@ const quotes = [
         source: "Harry Potter and the Half-Blood Prince",
     },
     {
-        text: `But he understood at last what Dumbledore had been trying to tell him. It was, he thought, the difference between being dragged into the arena to face a battle to the death and walking into the arena with your head held high. Some people, perhaps, would say that there was little to choose between the two ways, but Dumbledore knew — and so do I, thought Harry, with a rush of fierce pride, and so did my parents — that there was all the difference in the world.`,
+        text: `But he understood at last what Dumbledore had been trying to tell him. It was, he thought, the difference between being dragged into the arena to face a battle to the death and walking into the arena with your head held high. Some people, perhaps, would say that there was little to choose between the two ways, but Dumbledore knew - and so do I, thought Harry, with a rush of fierce pride, and so did my parents - that there was all the difference in the world.`,
         author: "J.K. Rowling",
         source: "Harry Potter and the Half-Blood Prince",
     },
