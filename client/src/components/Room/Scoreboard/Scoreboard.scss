@@ -52,10 +52,11 @@
                 .username {
                     display: flex;
                     align-items: center;
-                    font-size: 15px;
+                    font-size: 20px;
 
                     span {
                         margin-left: 5px;
+                        font-size: 18px;
                     }
 
                     .ready {
@@ -64,6 +65,7 @@
                         color: #008800;
                         padding: 0 4px;
                         font-weight: 600;
+                        font-size: 15px;
 
                         &.not {
                             color: red;
@@ -92,7 +94,7 @@
                     font-size: 18px;
                     padding: 3px 8px;
                     border-radius: 5px;
-                    box-shadow: 0px 0px 2px 1px #080808;
+                    box-shadow: 0px 0px 1px 1px #080808;
                     cursor: pointer;
                 }
             }
@@ -107,7 +109,11 @@
                     justify-content: center;
 
                     .username {
-                        font-size: 15px;
+                        font-size: 17px;
+
+                        span {
+                            font-size: 12px;
+                        }
 
                         .ready {
                             font-size: 12px;

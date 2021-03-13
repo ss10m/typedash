@@ -1,11 +1,52 @@
 // Libraries & utils
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
+import useInterval from "./useInterval";
 
 // Constants
+import { calcUptime } from "helpers";
 import { STATE } from "helpers/constants";
 
-const Timer = ({ state }) => {
+// SCSS
+import "./Stats.scss";
+
+const Stats = ({ state, wpm, accuracy }) => {
+    const [uptime, setUptime] = useState({
+        minutes: "00",
+        seconds: "00",
+    });
+
+    return (
+        <div className="stats">
+            <Details state={state} wpm={wpm} accuracy={accuracy} uptime={uptime} />
+            <Timer state={state} setUptime={setUptime} />
+        </div>
+    );
+};
+
+const Details = ({ wpm, accuracy, uptime }) => {
+    return (
+        <div className="details">
+            <div className="column left">
+                <div className="title">WPM</div>
+                <div className="number">{wpm}</div>
+            </div>
+            <div className="divider" />
+            <div className="column middle">
+                <div className="title">ACCURACY</div>
+                <div className="number">{Math.round(accuracy) + "%"}</div>
+            </div>
+            <div className="divider" />
+            <div className="column right">
+                <div className="title">TIMER</div>
+                <div className="number">{`${uptime.minutes}:${uptime.seconds}`}</div>
+            </div>
+        </div>
+    );
+};
+
+const Timer = ({ state, setUptime }) => {
     const [isRunning, setIsRunning] = useState(false);
+    const [startTime, setStartTime] = useState(null);
     const [prevTime, setPrevTime] = useState(null);
     const [timeInMilliseconds, setTimeInMilliseconds] = useState(0);
     const [time, setTime] = useState({
@@ -23,8 +64,23 @@ const Timer = ({ state }) => {
                     minutes: "02",
                     seconds: "00",
                 });
+                setUptime({
+                    minutes: "00",
+                    seconds: "00",
+                });
+                break;
+            case STATE.COUNTDOWN:
+                setTime({
+                    minutes: "02",
+                    seconds: "00",
+                });
+                setUptime({
+                    minutes: "00",
+                    seconds: "00",
+                });
                 break;
             case STATE.PLAYING:
+                setStartTime(new Date());
                 setTimeInMilliseconds(state.timer);
                 setIsRunning(true);
                 break;
@@ -40,10 +96,11 @@ const Timer = ({ state }) => {
             default:
                 break;
         }
-    }, [state]);
+    }, [state, setUptime]);
 
     useInterval(
         () => {
+            setUptime(calcUptime(startTime, new Date()));
             let prev = prevTime ? prevTime : Date.now();
             let diffTime = Date.now() - prev;
             let newMilliTime = timeInMilliseconds - diffTime;
@@ -84,23 +141,4 @@ const Timer = ({ state }) => {
     );
 };
 
-const useInterval = (callback, delay) => {
-    const savedCallback = useRef();
-
-    useEffect(() => {
-        savedCallback.current = callback;
-    }, [callback]);
-
-    useEffect(() => {
-        const tick = () => {
-            savedCallback.current();
-        };
-
-        if (delay !== null) {
-            let id = setInterval(tick, delay);
-            return () => clearInterval(id);
-        }
-    }, [delay]);
-};
-
-export default Timer;
+export default Stats;

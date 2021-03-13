@@ -20,10 +20,9 @@ const handleResponse = (response) => {
 };
 
 const calcUptime = (startTime, currentTime) => {
-    const time = currentTime - new Date(startTime);
-
-    let seconds = Math.floor((time / 1000) % 60),
-        minutes = Math.floor(time / (1000 * 60));
+    let time = currentTime - new Date(startTime);
+    let seconds = Math.floor(Math.round(time / 1000) % 60);
+    let minutes = Math.floor(time / (1000 * 60));
 
     if (seconds < 0) {
         return {

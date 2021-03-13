@@ -23,7 +23,7 @@ const Landing = () => {
 
     useEffect(() => {
         history.push("");
-    }, []);
+    }, [history]);
 
     return (
         <div className="landing-wrapper">

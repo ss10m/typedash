@@ -20,6 +20,8 @@ const Racer = ({
     setIsRunning,
     currentQuote,
     updateStatus,
+    setWpm,
+    setAccuracy,
     setGraphWpm,
     setGraphAccuracy,
 }) => {
@@ -28,10 +30,8 @@ const Racer = ({
     const [wordIndex, setWordIndex] = useState(null);
     const [correctLength, setCorrectLength] = useState(0);
     const [typoLength, setTypoLength] = useState(0);
-    const [accuracy, setAccuracy] = useState(100);
     const inputRef = useRef(null);
     const wordIndexRef = useRef(0);
-    const [wpm, setWpm] = useState(0);
     const [startTime, setStartTime] = useState(null);
     const wpmIntervalRef = useRef(null);
     const accuracyRef = useRef({ correct: 0, incorrect: 0 });
@@ -46,11 +46,12 @@ const Racer = ({
         setWordIndex(0);
         setCorrectLength(0);
         accuracyRef.current = { correct: 0, incorrect: 0 };
+        wordIndexRef.current = 0;
         setAccuracy(100);
         setWpm(0);
         setGraphWpm([]);
         setGraphAccuracy([]);
-    }, [currentQuote, setGraphWpm, setGraphAccuracy]);
+    }, [currentQuote, setWpm, setAccuracy, setGraphWpm, setGraphAccuracy]);
 
     useEffect(() => {
         if (isRunning) {
@@ -67,7 +68,7 @@ const Racer = ({
             setTypoLength(0);
             clearInterval(wpmIntervalRef.current);
         }
-    }, [isRunning]);
+    }, [isRunning, setWpm]);
 
     const handleChange = (event) => {
         if (!isRunning) return;
@@ -166,8 +167,6 @@ const Racer = ({
 
     return (
         <div className="race">
-            <div>{accuracy + "%"}</div>
-            <div>{wpm + "wpm"}</div>
             <Quote
                 isRunning={isRunning}
                 quote={quote}

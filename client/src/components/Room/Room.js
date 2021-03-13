@@ -13,7 +13,7 @@ import { STATE } from "helpers/constants";
 import Racer from "./Racer/Racer";
 import Scoreboard from "./Scoreboard/Scoreboard";
 import Spectating from "./Spectating/Spectating";
-import Timer from "./Timer/Timer";
+import Stats from "./Stats/Stats";
 import Countdown from "./Countdown/Countdown";
 import Charts from "./Charts/Charts";
 import Results from "./Results/Results";
@@ -38,6 +38,8 @@ const Room = () => {
     } = useRoomApi();
 
     const history = useHistory();
+    const [wpm, setWpm] = useState(0);
+    const [accuracy, setAccuracy] = useState(100);
     const [graphWpm, setGraphWpm] = useState([]);
     const [graphAccuracy, setGraphAccuracy] = useState([]);
 
@@ -58,11 +60,11 @@ const Room = () => {
 
             <div className="status">
                 <button onClick={history.goBack}>LEAVE ROOM</button>
-                <div>
-                    <p>{state.current}</p>
-                </div>
+                <p>{state.current}</p>
+                <ReadyUp isReady={isReady} setReady={SocketAPI.setReady} />
                 <div>{room.name}</div>
             </div>
+
             {isSpectating && (
                 <Spectating
                     state={state}
@@ -85,11 +87,7 @@ const Room = () => {
                     <div key={index}>{user.username}</div>
                 ))}
             </div>
-
-            <div className="stats">
-                <ReadyUp isReady={isReady} setReady={SocketAPI.setReady} />
-                <Timer state={state} />
-            </div>
+            <Stats state={state} wpm={wpm} accuracy={accuracy} />
 
             <Racer
                 state={state}
@@ -98,6 +96,8 @@ const Room = () => {
                 setIsRunning={setIsRunning}
                 currentQuote={quote}
                 updateStatus={SocketAPI.updateStatus}
+                setWpm={setWpm}
+                setAccuracy={setAccuracy}
                 setGraphWpm={setGraphWpm}
                 setGraphAccuracy={setGraphAccuracy}
             />
