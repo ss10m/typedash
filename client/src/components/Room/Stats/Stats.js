@@ -6,6 +6,9 @@ import useInterval from "./useInterval";
 import { calcUptime } from "helpers";
 import { STATE } from "helpers/constants";
 
+// Components
+import Tooltip from "components/Tooltip/Tooltip";
+
 // SCSS
 import "./Stats.scss";
 
@@ -18,7 +21,9 @@ const Stats = ({ state, wpm, accuracy }) => {
     return (
         <div className="stats">
             <Details state={state} wpm={wpm} accuracy={accuracy} uptime={uptime} />
-            <Timer state={state} setUptime={setUptime} />
+            <Tooltip msg="TIME LEFT" placement="left" visible={true}>
+                <Timer state={state} setUptime={setUptime} />
+            </Tooltip>
         </div>
     );
 };

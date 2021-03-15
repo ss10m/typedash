@@ -1,7 +1,6 @@
 // Libraries & utils
 import React, { useState, useEffect } from "react";
 import { useHistory, useParams } from "react-router-dom";
-import Switch from "react-switch";
 
 // Socket API
 import SocketAPI from "core/SocketClient";
@@ -10,6 +9,7 @@ import SocketAPI from "core/SocketClient";
 import { STATE } from "helpers/constants";
 
 // Components
+import Navigation from "./Navigation/Navigation";
 import Racer from "./Racer/Racer";
 import Scoreboard from "./Scoreboard/Scoreboard";
 import Spectating from "./Spectating/Spectating";
@@ -57,14 +57,7 @@ const Room = () => {
                     onCancel={SocketAPI.setReady}
                 />
             )}
-
-            <div className="status">
-                <button onClick={history.goBack}>LEAVE ROOM</button>
-                <p>{state.current}</p>
-                <ReadyUp isReady={isReady} setReady={SocketAPI.setReady} />
-                <div>{room.name}</div>
-            </div>
-
+            <Navigation roomName={room.name} leaveRoom={history.goBack} />
             {isSpectating && (
                 <Spectating
                     state={state}
@@ -74,21 +67,18 @@ const Room = () => {
                     setPlayNext={SocketAPI.setPlayNext}
                 />
             )}
-
             <Scoreboard
                 state={state}
                 players={players}
                 socketId={socketId}
                 setSpectate={SocketAPI.setSpectate}
             />
-
             <div>
                 {spectators.map((user, index) => (
                     <div key={index}>{user.username}</div>
                 ))}
             </div>
             <Stats state={state} wpm={wpm} accuracy={accuracy} />
-
             <Racer
                 state={state}
                 isRunning={isRunning && !isSpectating}
@@ -101,31 +91,9 @@ const Room = () => {
                 setGraphWpm={setGraphWpm}
                 setGraphAccuracy={setGraphAccuracy}
             />
-
             <Charts graphWpm={graphWpm} graphAccuracy={graphAccuracy} />
             <Results quote={quote} updateResults={SocketAPI.updateResults} />
         </div>
-    );
-};
-
-const ReadyUp = ({ isReady, setReady }) => {
-    const [isToggleDisabled, setIsToggleDisabled] = useState(false);
-
-    useEffect(() => {
-        setIsToggleDisabled(false);
-    }, [isReady]);
-
-    const toggle = () => {
-        if (isToggleDisabled) return;
-        setIsToggleDisabled(true);
-        setReady(!isReady.current);
-    };
-
-    return (
-        <label>
-            <span>READY</span>
-            <Switch onChange={toggle} checked={isReady.current} />
-        </label>
     );
 };
 
