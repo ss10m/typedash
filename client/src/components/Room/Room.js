@@ -73,12 +73,14 @@ const Room = () => {
                 socketId={socketId}
                 setSpectate={SocketAPI.setSpectate}
             />
-            <div>
-                {spectators.map((user, index) => (
-                    <div key={index}>{user.username}</div>
-                ))}
-            </div>
-            <Stats state={state} wpm={wpm} accuracy={accuracy} />
+            <Stats
+                state={state}
+                isSpectating={isSpectating}
+                wpm={wpm}
+                accuracy={accuracy}
+                isReady={isReady}
+                setReady={SocketAPI.setReady}
+            />
             <Racer
                 state={state}
                 isRunning={isRunning && !isSpectating}

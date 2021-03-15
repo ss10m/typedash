@@ -1,4 +1,5 @@
 // Libraries & utils
+import React from "react";
 import classNames from "classnames";
 
 // Helpers
@@ -10,33 +11,38 @@ import { FaTrophy } from "react-icons/fa";
 // SCSS
 import "./Scoreboard.scss";
 
-const Scoreboard = ({ state, players, socketId, setSpectate }) => {
+const Scoreboard = ({ state, players, socketId, setSpectate, isReady, setReady }) => {
     if (!players.length) return <div>Waiting for players</div>;
     const canSpectate = state.current === STATE.PREGAME || state.current === STATE.COUNTDOWN;
     const showReady = state.current !== STATE.PLAYING;
 
     return (
-        <div className="players-wrapper">
-            <div
-                className={classNames("start", {
-                    mini: players.length === 1,
-                })}
-            >
-                START
+        <div className="scoreboard">
+            <div className="header">
+                <div>SCOREBOARD</div>
             </div>
-            <div className="players">
-                {players.map((player) => (
-                    <Player
-                        key={player.socketId}
-                        player={player}
-                        isCurrent={player.socketId === socketId}
-                        canSpectate={canSpectate && player.socketId === socketId}
-                        setSpectate={setSpectate}
-                        showReady={showReady}
-                    />
-                ))}
+            <div className="players-wrapper">
+                <div
+                    className={classNames("start", {
+                        mini: players.length === 1,
+                    })}
+                >
+                    START
+                </div>
+                <div className="players">
+                    {players.map((player) => (
+                        <Player
+                            key={player.socketId}
+                            player={player}
+                            isCurrent={player.socketId === socketId}
+                            canSpectate={canSpectate && player.socketId === socketId}
+                            setSpectate={setSpectate}
+                            showReady={showReady}
+                        />
+                    ))}
+                </div>
+                <div className="flag"></div>
             </div>
-            <div className="flag"></div>
         </div>
     );
 };

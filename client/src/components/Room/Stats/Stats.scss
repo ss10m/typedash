@@ -48,14 +48,31 @@
         }
     }
 
+    label {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        span {
+            display: flex;
+            font-size: 14px;
+            font-weight: 700;
+            margin-right: 5px;
+        }
+    }
+
     .timer {
         font-weight: 700;
         font-size: 40px;
         letter-spacing: 1px;
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 615px) {
         flex-direction: column;
+
+        label {
+            margin-top: 20px;
+        }
 
         .timer {
             margin-top: 15px;

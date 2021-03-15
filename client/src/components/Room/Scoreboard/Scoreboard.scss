@@ -1,5 +1,21 @@
-.room .players-wrapper {
-    margin: 20px 0;
+.scoreboard {
+    margin-bottom: 20px;
+
+    .header {
+        margin-bottom: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 22px;
+        font-weight: 800;
+
+        @media (max-width: 400px) {
+            font-size: 14px;
+        }
+    }
+}
+
+.scoreboard .players-wrapper {
     display: flex;
 
     .start {

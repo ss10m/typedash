@@ -1,5 +1,6 @@
 // Libraries & utils
 import React, { useState, useEffect } from "react";
+import Switch from "react-switch";
 import useInterval from "./useInterval";
 
 // Constants
@@ -12,15 +13,18 @@ import Tooltip from "components/Tooltip/Tooltip";
 // SCSS
 import "./Stats.scss";
 
-const Stats = ({ state, wpm, accuracy }) => {
+const Stats = ({ state, isSpectating, wpm, accuracy, isReady, setReady }) => {
     const [uptime, setUptime] = useState({
         minutes: "00",
         seconds: "00",
     });
 
+    const showReadyUp = !isSpectating && state.current !== STATE.PLAYING;
+
     return (
         <div className="stats">
-            <Details state={state} wpm={wpm} accuracy={accuracy} uptime={uptime} />
+            <Details wpm={wpm} accuracy={accuracy} uptime={uptime} />
+            {showReadyUp && <ReadyUp state={state} isReady={isReady} setReady={setReady} />}
             <Tooltip msg="TIME LEFT" placement="left" visible={true}>
                 <Timer state={state} setUptime={setUptime} />
             </Tooltip>
@@ -46,6 +50,27 @@ const Details = ({ wpm, accuracy, uptime }) => {
                 <div className="number">{`${uptime.minutes}:${uptime.seconds}`}</div>
             </div>
         </div>
+    );
+};
+
+const ReadyUp = ({ state, isReady, setReady }) => {
+    const [isToggleDisabled, setIsToggleDisabled] = useState(false);
+
+    useEffect(() => {
+        setIsToggleDisabled(false);
+    }, [isReady]);
+
+    const toggle = () => {
+        if (isToggleDisabled) return;
+        setIsToggleDisabled(true);
+        setReady(!isReady.current);
+    };
+
+    return (
+        <label>
+            <span>READY</span>
+            <Switch onChange={toggle} checked={isReady.current} />
+        </label>
     );
 };
 

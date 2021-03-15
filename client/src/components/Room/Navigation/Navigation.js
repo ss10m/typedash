@@ -1,7 +1,6 @@
 // Libraries & utils
-import React, { useState, useEffect } from "react";
+import React from "react";
 import classnames from "classnames";
-import Switch from "react-switch";
 
 // Componments
 import Tooltip from "components/Tooltip/Tooltip";
@@ -47,27 +46,6 @@ const Spectators = ({ extended }) => {
                 {extended && "SPECTATORS"}
             </div>
         </Tooltip>
-    );
-};
-
-const ReadyUp = ({ isReady, setReady }) => {
-    const [isToggleDisabled, setIsToggleDisabled] = useState(false);
-
-    useEffect(() => {
-        setIsToggleDisabled(false);
-    }, [isReady]);
-
-    const toggle = () => {
-        if (isToggleDisabled) return;
-        setIsToggleDisabled(true);
-        setReady(!isReady.current);
-    };
-
-    return (
-        <label>
-            <span>READY</span>
-            <Switch onChange={toggle} checked={isReady.current} />
-        </label>
     );
 };
 
