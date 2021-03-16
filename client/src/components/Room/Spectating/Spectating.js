@@ -11,7 +11,7 @@ import "./Spectating.scss";
 const Spectating = (props) => {
     return (
         <div className="spectating">
-            <div>YOU ARE SPECTATING</div>
+            <p>YOU ARE SPECTATING</p>
             <ToggleSpectate {...props} />
         </div>
     );
@@ -19,7 +19,11 @@ const Spectating = (props) => {
 
 const ToggleSpectate = ({ state, setSpectate, playNext, setPlayNext }) => {
     if (state.current === STATE.PREGAME || state.current === STATE.COUNTDOWN) {
-        return <button onClick={() => setSpectate(false)}>PLAY</button>;
+        return (
+            <div className="button" onClick={() => setSpectate(false)}>
+                PLAY
+            </div>
+        );
     }
     return <QueueToggle playNext={playNext} setPlayNext={setPlayNext} />;
 };
