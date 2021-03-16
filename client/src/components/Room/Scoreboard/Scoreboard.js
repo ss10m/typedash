@@ -1,5 +1,5 @@
 // Libraries & utils
-import React from "react";
+import React, { useState, useEffect } from "react";
 import classNames from "classnames";
 
 // Helpers
@@ -12,7 +12,7 @@ import { FaTrophy } from "react-icons/fa";
 import "./Scoreboard.scss";
 
 const Scoreboard = ({ state, players, socketId, setSpectate, isReady, setReady }) => {
-    if (!players.length) return <div>Waiting for players</div>;
+    if (!players.length) return <AwaitPlayers />;
     const canSpectate = state.current === STATE.PREGAME || state.current === STATE.COUNTDOWN;
     const showReady = state.current !== STATE.PLAYING;
 
@@ -42,6 +42,30 @@ const Scoreboard = ({ state, players, socketId, setSpectate, isReady, setReady }
                     ))}
                 </div>
                 <div className="flag"></div>
+            </div>
+        </div>
+    );
+};
+
+const AwaitPlayers = () => {
+    const [dotCount, setDotCount] = useState(0);
+
+    useEffect(() => {
+        const dotsInterval = setInterval(() => {
+            setDotCount((current) => (current > 2 ? 0 : current + 1));
+        }, 500);
+        return () => clearInterval(dotsInterval);
+    }, []);
+
+    const dots = [];
+    for (let i = 0; i < dotCount; i++) {
+        dots.push(".");
+    }
+
+    return (
+        <div className="scoreboard">
+            <div className="wait">
+                WAITING FOR PLAYERS<span>{dots}</span>
             </div>
         </div>
     );
