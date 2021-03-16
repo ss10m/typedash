@@ -6,9 +6,12 @@ import classNames from "classnames";
 import { useSelector } from "react-redux";
 
 // Helpers
-import { longestCommonSubstring } from "helpers";
+import { longestCommonSubstring, roundToFixed } from "helpers";
 import { STATE } from "helpers/constants";
 import keyboard from "./keyboard";
+
+// Components
+import Tooltip from "components/Tooltip/Tooltip";
 
 // SCSS
 import "./Racer.scss";
@@ -26,7 +29,13 @@ const Racer = ({
     setGraphAccuracy,
 }) => {
     const [input, setInput] = useState("");
-    const [quote, setQuote] = useState({ current: [], length: 0, author: "", source: "" });
+    const [quote, setQuote] = useState({
+        current: [],
+        length: 0,
+        author: "",
+        source: "",
+        stats: {},
+    });
     const [wordIndex, setWordIndex] = useState(null);
     const [correctLength, setCorrectLength] = useState(0);
     const [typoLength, setTypoLength] = useState(0);
@@ -38,11 +47,11 @@ const Racer = ({
 
     useEffect(() => {
         if (!currentQuote) return;
-        const { text, length, author, source } = currentQuote;
+        const { text, length, author, source, stats } = currentQuote;
         const words = text.split(" ").map((word) => word + " ");
         const lastIndex = length - 1;
         words[lastIndex] = words[lastIndex].trim();
-        setQuote({ current: words, length, author, source });
+        setQuote({ current: words, length, author, source, stats });
         setWordIndex(0);
         setCorrectLength(0);
         accuracyRef.current = { correct: 0, incorrect: 0 };
@@ -120,7 +129,7 @@ const Racer = ({
         const floatAccuracy =
             accuracyRef.current.correct /
             (accuracyRef.current.correct + accuracyRef.current.incorrect);
-        const actualAccuracy = roundedToFixed(floatAccuracy * 100);
+        const actualAccuracy = roundToFixed(floatAccuracy * 100);
         setAccuracy(actualAccuracy);
     };
 
@@ -140,7 +149,7 @@ const Racer = ({
         const floatAccuracy =
             accuracyRef.current.correct /
             (accuracyRef.current.correct + accuracyRef.current.incorrect);
-        const actualAccuracy = roundedToFixed(floatAccuracy * 100);
+        const actualAccuracy = roundToFixed(floatAccuracy * 100);
 
         setGraphWpm((data) => (wordIndex === 0 ? [[0, wpm]] : [...data, [progress, wpm]]));
 
@@ -156,13 +165,6 @@ const Racer = ({
         } else {
             updateStatus({ progress: newIndex });
         }
-    };
-
-    const roundedToFixed = (number, digits = 1) => {
-        let rounded = Math.pow(10, digits);
-        let viewers = (Math.round(number * rounded) / rounded).toFixed(digits);
-        if (viewers % 1 === 0) viewers = parseInt(viewers);
-        return isNaN(viewers) ? 100 : parseFloat(viewers);
     };
 
     return (
@@ -233,19 +235,55 @@ const Input = React.forwardRef((props, ref) => {
 const Quote = ({ isRunning, quote, wordIndex, correctLength, typoLength }) => {
     return (
         <div className="quote">
-            {quote.current.map((word, i) => (
-                <Word
-                    key={i}
-                    isRunning={isRunning}
-                    word={word}
-                    id={i}
-                    wordIndex={wordIndex}
-                    correctLength={correctLength}
-                    typoLength={typoLength}
-                />
-            ))}
-            <div className="author">
-                <p>{`${quote.author} - ${quote.source}`}</p>
+            <div className="words">
+                {quote.current.map((word, i) => (
+                    <Word
+                        key={i}
+                        isRunning={isRunning}
+                        word={word}
+                        id={i}
+                        wordIndex={wordIndex}
+                        correctLength={correctLength}
+                        typoLength={typoLength}
+                    />
+                ))}
+            </div>
+            <div className="quote-stats">
+                <div>
+                    <Tooltip msg="ALL TIME PLAY COUNT" placement="bottom-start" visible={true}>
+                        <div className="item">
+                            <div className="header">COUNT</div>
+                            <div className="value">{quote.stats.count}</div>
+                        </div>
+                    </Tooltip>
+                    <div className="divider" />
+                    <Tooltip msg="AVERAGE WORDS PER MINUTE" placement="bottom" visible={true}>
+                        <div className="item">
+                            <div className="header">AVG WPM</div>
+                            <div className="value">{roundToFixed(quote.stats.avg_wpm)}</div>
+                        </div>
+                    </Tooltip>
+                    <div className="divider" />
+                    <Tooltip msg="AVERAGE ACCURACY" placement="bottom" visible={true}>
+                        <div className="item">
+                            <div className="header">AVG ACC</div>
+                            <div className="value">{`${roundToFixed(
+                                quote.stats.avg_acc
+                            )}%`}</div>
+                        </div>
+                    </Tooltip>
+                </div>
+                <div>
+                    <div className="item">
+                        <div className="header">AUTHOR</div>
+                        <div className="value">{quote.author}</div>
+                    </div>
+                    <div className="divider" />
+                    <div className="item">
+                        <div className="header">BOOK</div>
+                        <div className="value">{quote.source}</div>
+                    </div>
+                </div>
             </div>
         </div>
     );

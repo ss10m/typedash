@@ -2,22 +2,38 @@ import db, { QUOTE_IDS, TOTAL_RESULTS } from ".././config/db.js";
 
 const generateQuote = async (recentQuotes) => {
     const available = QUOTE_IDS.filter((id) => !recentQuotes.includes(id));
-    const randomId = available[Math.floor(Math.random() * available.length)];
-    const quoteQuery = `SELECT * FROM quote 
-                        WHERE id = $1`;
-    const values = [randomId];
+    const quoteId = available[Math.floor(Math.random() * available.length)];
 
-    recentQuotes.push(randomId);
+    recentQuotes.push(quoteId);
     if (recentQuotes.length > 5) recentQuotes.shift();
 
-    const [quoteResult, topResults] = await Promise.all([
-        db.query(quoteQuery, values),
-        getTopResults(randomId),
+    const [quoteResult, topResults, statsResults] = await Promise.all([
+        getQuote(quoteId),
+        getTopResults(quoteId),
+        getStats(quoteId),
     ]);
 
-    const { id, text, author, source } = quoteResult.rows[0];
+    const { id, text, author, source } = quoteResult[0];
+    const stats = statsResults[0];
     const length = text.split(" ").length;
-    return { id, text, author, source, length, results: topResults };
+    return { id, text, author, source, length, stats, results: topResults };
+};
+
+const getQuote = async (quoteId) => {
+    const quoteQuery = `SELECT * FROM quote 
+                        WHERE id = $1`;
+    const values = [quoteId];
+    const quoteResults = await db.query(quoteQuery, values);
+    return quoteResults.rows;
+};
+
+const getStats = async (quoteId) => {
+    const topQuery = `SELECT COUNT(*), ROUND(AVG(res.wpm), 2) AS avg_wpm, ROUND(AVG(res.accuracy), 2) AS avg_acc
+                      FROM results as res
+                      WHERE quote_id = $1`;
+    const values = [quoteId];
+    const topResults = await db.query(topQuery, values);
+    return topResults.rows;
 };
 
 const getTopResults = async (quoteId) => {

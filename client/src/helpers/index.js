@@ -40,4 +40,11 @@ const calcUptime = (startTime, currentTime) => {
     };
 };
 
-export { isEmpty, longestCommonSubstring, handleResponse, calcUptime };
+const roundToFixed = (number, digits = 1) => {
+    let rounded = Math.pow(10, digits);
+    let viewers = (Math.round(number * rounded) / rounded).toFixed(digits);
+    if (viewers % 1 === 0) viewers = parseInt(viewers);
+    return isNaN(viewers) ? 100 : parseFloat(viewers);
+};
+
+export { isEmpty, longestCommonSubstring, handleResponse, calcUptime, roundToFixed };

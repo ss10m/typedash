@@ -3,17 +3,57 @@
     flex-direction: column;
 
     .quote {
-        padding: 20px;
         margin-top: 20px;
-        font-size: 23px;
         border: 3px solid #203140;
         border-radius: 7px;
         color: whitesmoke;
-        line-height: 28px;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
             "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+
+        .words {
+            font-size: 23px;
+            line-height: 28px;
+            padding: 20px;
+        }
+
+        .quote-stats {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+            padding-top: 5px;
+            background-color: #203140;
+            font-size: 15px;
+
+            & > div {
+                display: flex;
+                //border: 1px solid white;
+
+                .item {
+                    display: flex;
+                    flex-direction: column;
+                    text-align: center;
+                    margin: 5px;
+                    //border: 1px solid red;
+
+                    .header {
+                        color: gold;
+                        font-size: 12px;
+                    }
+
+                    .value {
+                        font-weight: 600;
+                    }
+                }
+
+                .divider {
+                    width: 3px;
+                    background-color: #2c3f54;
+                    margin: 7px 5px;
+                }
+            }
+        }
 
         .author {
             width: 100%;
@@ -76,7 +116,14 @@
 
     @media (max-width: 600px) {
         .quote {
-            font-size: 18px;
+            .words {
+                font-size: 18px;
+            }
+
+            .quote-stats {
+                flex-direction: column;
+                align-items: center;
+            }
         }
 
         input {
