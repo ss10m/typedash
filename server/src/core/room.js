@@ -551,7 +551,9 @@ export class Room {
         }
 
         spectator.playNext = playNext;
-        socket.emit("updated-room", { playNext: playNext });
+        const spectators = this.getSpectators();
+        socket.emit("updated-room", { playNext: playNext, spectators });
+        socket.to(this.id).emit("updated-room", { spectators });
     }
 
     ///////////////////////////////////////////////

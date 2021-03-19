@@ -17,6 +17,7 @@ import Stats from "./Stats/Stats";
 import Countdown from "./Countdown/Countdown";
 import Charts from "./Charts/Charts";
 import Results from "./Results/Results";
+import Spectators from "./Spectators/Spectators";
 import Error from "../Error/Error";
 
 // SCSS
@@ -42,6 +43,7 @@ const Room = () => {
     const [accuracy, setAccuracy] = useState(100);
     const [graphWpm, setGraphWpm] = useState([]);
     const [graphAccuracy, setGraphAccuracy] = useState([]);
+    const [viewSpectators, setViewSpectators] = useState(false);
 
     if (error) return <Error msg={error} goBack={() => history.goBack()} />;
     if (!room) return null;
@@ -50,6 +52,9 @@ const Room = () => {
 
     return (
         <div className="room">
+            {viewSpectators && (
+                <Spectators spectators={spectators} setIsVisible={setViewSpectators} />
+            )}
             {state.countdown && (
                 <Countdown
                     duration={state.countdown}
@@ -57,7 +62,11 @@ const Room = () => {
                     onCancel={SocketAPI.setReady}
                 />
             )}
-            <Navigation roomName={room.name} leaveRoom={history.goBack} />
+            <Navigation
+                roomName={room.name}
+                leaveRoom={history.goBack}
+                setViewSpectators={setViewSpectators}
+            />
             {isSpectating && (
                 <Spectating
                     state={state}
