@@ -5,7 +5,7 @@ import classNames from "classnames";
 import useInputValidator from "./useInputValidator";
 
 // Icons
-import { FaUser, FaAt, FaKey, FaCheckCircle, FaWindowClose } from "react-icons/fa";
+import { FaUser, FaAt, FaKey, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
 // Components
 import Spinner from "../Spinner/Spinner";
@@ -93,7 +93,7 @@ const Status = ({ inputLength, showError, isFetching }) => {
     if (isFetching) {
         status = <Spinner size={20} />;
     } else if (showError) {
-        status = <FaWindowClose />;
+        status = <FaTimesCircle />;
     } else if (inputLength) {
         status = <FaCheckCircle />;
     }
