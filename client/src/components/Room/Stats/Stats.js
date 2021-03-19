@@ -35,10 +35,12 @@ const Stats = ({ state, isSpectating, wpm, accuracy, isReady, setReady }) => {
 const Details = ({ wpm, accuracy, uptime }) => {
     return (
         <div className="details">
-            <div className="column left">
-                <div className="title">WPM</div>
-                <div className="number">{wpm}</div>
-            </div>
+            <Tooltip msg="WORDS PER MINUTE" placement="bottom-start" visible={true}>
+                <div className="column left">
+                    <div className="title">WPM</div>
+                    <div className="number">{wpm}</div>
+                </div>
+            </Tooltip>
             <div className="divider" />
             <div className="column middle">
                 <div className="title">ACCURACY</div>
@@ -53,7 +55,7 @@ const Details = ({ wpm, accuracy, uptime }) => {
     );
 };
 
-const ReadyUp = ({ state, isReady, setReady }) => {
+const ReadyUp = ({ isReady, setReady }) => {
     const [isToggleDisabled, setIsToggleDisabled] = useState(false);
 
     useEffect(() => {

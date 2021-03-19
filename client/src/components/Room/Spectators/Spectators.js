@@ -1,5 +1,5 @@
 // Libraries & utils
-import React, { forwardRef, useState, useEffect } from "react";
+import React, { forwardRef, useEffect } from "react";
 import classnames from "classnames";
 import withClickWatcher from "components/Modal/Modal";
 
@@ -15,16 +15,16 @@ const Spectators = (props) => {
 
 const Inside = withClickWatcher(
     forwardRef((props, ref) => {
-        const { isVisible } = props;
+        const { spectators, isVisible, setIsVisible } = props;
 
         useEffect(() => {
-            if (!isVisible) props.setIsVisible();
-        }, [isVisible]);
+            if (!isVisible) setIsVisible();
+        }, [isVisible, setIsVisible]);
 
         return (
             <div className="spectators" ref={ref}>
                 <ListHeader />
-                <List spectators={props.spectators} />
+                <List spectators={spectators} />
             </div>
         );
     })
