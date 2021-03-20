@@ -20,8 +20,19 @@ import keyboard from "./kb.jpg";
 import "./Rooms.scss";
 
 const Rooms = () => {
+    const [loaded, setLoaded] = useState(false);
     const [filter, setFilter] = useState("");
     const resetFilter = () => setFilter("");
+
+    useEffect(() => {
+        const image = new window.Image();
+        image.src = keyboard;
+        image.onload = () => {
+            setLoaded(true);
+        };
+    }, []);
+
+    if (!loaded) return null;
 
     return (
         <div className="rooms">
