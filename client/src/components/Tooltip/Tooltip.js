@@ -1,5 +1,6 @@
 // Libraries & utils
 import { usePopperTooltip } from "react-popper-tooltip";
+import classnames from "classnames";
 
 // SCSS
 import "./Tooltip.scss";
@@ -15,7 +16,12 @@ const Tooltip = (props) => {
 
     return (
         <div>
-            <div ref={setTriggerRef}>{props.children}</div>
+            <div
+                className={classnames({ "tooltip-fullHeight": props.fullHeight })}
+                ref={setTriggerRef}
+            >
+                {props.children}
+            </div>
             {visible && props.visible && (
                 <div
                     ref={setTooltipRef}

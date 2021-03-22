@@ -16,6 +16,7 @@ import {
 
 // Components
 import UserOptions from "./UserOptions/UserOptions";
+import Tooltip from "components/Tooltip/Tooltip";
 
 //SCSS
 import "./Navbar.scss";
@@ -23,24 +24,31 @@ import "./Navbar.scss";
 const Navbar = () => {
     const { session, windowSize } = useSelector((state) => state);
     const windowWidth = windowSize.width;
+    const showTooltip = windowWidth < 860;
 
     return (
         <div className="navbar">
             <Logo windowWidth={windowWidth} />
             <div className="right-side">
-                <NavItem windowWidth={windowWidth} link="" name="PLAY">
-                    <FaPlay />
-                </NavItem>
-                <NavItem windowWidth={windowWidth} link="highscores" name="HIGHSCORES">
-                    <FaTrophy />
-                </NavItem>
-                <NavItem
-                    windowWidth={windowWidth}
-                    link={`profile/${session.user.username}`}
-                    name="PROFILE"
-                >
-                    <FaChartBar />
-                </NavItem>
+                <Tooltip msg="PLAY" placement="bottom" visible={showTooltip} fullHeight>
+                    <NavItem windowWidth={windowWidth} link="" name="PLAY">
+                        <FaPlay />
+                    </NavItem>
+                </Tooltip>
+                <Tooltip msg="HIGHSCORES" placement="bottom" visible={showTooltip} fullHeight>
+                    <NavItem windowWidth={windowWidth} link="highscores" name="HIGHSCORES">
+                        <FaTrophy />
+                    </NavItem>
+                </Tooltip>
+                <Tooltip msg="PROFILE" placement="bottom" visible={showTooltip} fullHeight>
+                    <NavItem
+                        windowWidth={windowWidth}
+                        link={`profile/${session.user.username}`}
+                        name="PROFILE"
+                    >
+                        <FaChartBar />
+                    </NavItem>
+                </Tooltip>
                 <User user={session.user} windowWidth={windowWidth} />
             </div>
         </div>

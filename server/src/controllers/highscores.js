@@ -20,7 +20,7 @@ const getHighscores = async (page, rowCount, cb) => {
             meta: { ok: true, message: "" },
             data: { page, results: results.rows, pageCount },
         });
-    }, 1000);
+    }, 500);
 };
 
 export default getHighscores;
