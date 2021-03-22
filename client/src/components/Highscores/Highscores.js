@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import moment from "moment";
 import { Collapse } from "react-collapse";
 import classnames from "classnames";
+import { Link } from "react-router-dom";
 
 // Icons
 import { FaAngleUp, FaAngleDown } from "react-icons/fa";
@@ -148,21 +149,26 @@ const HighscoresData = ({ isFetching, data }) => {
 const Score = ({ score }) => {
     const [expanded, setExpanded] = useState(false);
     return (
-        <div className="result-wrapper" onClick={() => setExpanded(!expanded)}>
+        <div className="result-wrapper">
             <div className="num">{score.rank}</div>
             <div className="details">
                 <div className="result">
-                    <div className="username">{score.display_name}</div>
+                    <Link className="username" to={`/profile/${score.username}`}>
+                        {score.display_name}
+                    </Link>
+
                     <div className="wpm">{`${score.wpm}wpm`}</div>
                     <div className="accuracy">{`${score.accuracy}%`}</div>
                     <div className="time">{moment(score.played_at).fromNow()}</div>
-                    <span
+                    <div
                         className={classnames("icon", {
                             expanded,
                         })}
                     >
-                        {expanded ? <FaAngleUp /> : <FaAngleDown />}
-                    </span>
+                        <span onClick={() => setExpanded(!expanded)}>
+                            {expanded ? <FaAngleUp /> : <FaAngleDown />}
+                        </span>
+                    </div>
                 </div>
                 <Collapse isOpened={expanded}>
                     <div className="quote">{`${score.text} (ID ${score.id})`}</div>

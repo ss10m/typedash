@@ -3,7 +3,7 @@ import db, { TOTAL_RESULTS } from ".././config/db.js";
 const getHighscores = async (page, rowCount, cb) => {
     const pageCount = Math.ceil(TOTAL_RESULTS.current / rowCount);
     console.log(`${page} / ${pageCount}`);
-    const query = `SELECT users.display_name, res.wpm, res.accuracy, res.played_at, quote.id ,quote.text,
+    const query = `SELECT users.username, users.display_name, res.wpm, res.accuracy, res.played_at, quote.id ,quote.text,
                    RANK () OVER (ORDER BY res.wpm DESC, res.accuracy DESC)
                    FROM results as res
                    INNER JOIN users ON users.id = res.user_id

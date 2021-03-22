@@ -151,7 +151,6 @@
     .result-wrapper {
         width: 100%;
         display: flex;
-        cursor: pointer;
         border-bottom: 2px solid #2c3f54;
 
         .num {
@@ -171,7 +170,8 @@
                 height: 38px;
                 line-height: 38px;
 
-                div {
+                div,
+                .username {
                     text-align: center;
                     white-space: nowrap;
                     overflow: hidden;
@@ -180,6 +180,12 @@
 
                 .username {
                     flex-basis: 30%;
+                    text-decoration: none;
+                    color: whitesmoke;
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
                 }
 
                 .wpm {
@@ -201,6 +207,17 @@
 
                     &.expanded {
                         color: gold;
+                    }
+
+                    span {
+                        display: flex;
+                        padding: 5px;
+
+                        &:hover {
+                            border-radius: 5px;
+                            background-color: #3a5068;
+                            cursor: pointer;
+                        }
                     }
                 }
             }
