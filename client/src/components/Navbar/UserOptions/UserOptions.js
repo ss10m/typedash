@@ -26,7 +26,9 @@ import "./UserOptions.scss";
 const UserOptions = withClickWatcher(
     forwardRef((props, ref) => {
         const { hideUserOptions, isVisible } = props;
-        const { username, accountType } = useSelector((state) => state.session.user);
+        const { username, displayName, accountType } = useSelector(
+            (state) => state.session.user
+        );
 
         useEffect(() => {
             if (!isVisible) hideUserOptions();
@@ -39,18 +41,19 @@ const UserOptions = withClickWatcher(
 
         return (
             <div className="dropdown-options" ref={ref}>
-                <Header username={username} loggedIn={"235235"} />
+                <Header displayName={displayName} loggedIn={"235235"} />
                 <hr className="divider" />
                 <Button
                     icon={<FaChartBar />}
                     name="PROFILE"
+                    onClick={() => props.history.push(`/profile/${username}`)}
                     hideUserOptions={hideUserOptions}
                 />
                 {accountType === ACCOUNT_TYPE.GUEST ? (
                     <Button
                         icon={<FaRegCopy />}
                         name="CLAIM ACCOUNT"
-                        onClick={showClaimAccount}
+                        action={showClaimAccount}
                         hideUserOptions={hideUserOptions}
                     />
                 ) : (
@@ -71,7 +74,7 @@ const UserOptions = withClickWatcher(
                 <Button
                     icon={<FaSignOutAlt />}
                     name="LOGOUT"
-                    onClick={handleLogout}
+                    action={handleLogout}
                     hideUserOptions={hideUserOptions}
                 />
             </div>
@@ -79,7 +82,7 @@ const UserOptions = withClickWatcher(
     })
 );
 
-const Header = ({ username, loggedIn }) => {
+const Header = ({ displayName, loggedIn }) => {
     return (
         <div className="dropdown-header">
             <div className="info">
@@ -87,7 +90,7 @@ const Header = ({ username, loggedIn }) => {
                     <FaUserCircle />
                 </span>
                 <div className="details">
-                    <p className="username">{username}</p>
+                    <p className="username">{displayName}</p>
                     <p className="last-login">Expires in: {loggedIn}</p>
                 </div>
             </div>
@@ -95,10 +98,11 @@ const Header = ({ username, loggedIn }) => {
     );
 };
 
-const Button = ({ icon, name, onClick, hideUserOptions }) => {
+const Button = ({ icon, name, onClick, action, hideUserOptions }) => {
     const dispatch = useDispatch();
     const onButtonClick = () => {
-        if (onClick) dispatch(onClick());
+        if (action) dispatch(action());
+        if (onClick) onClick();
         hideUserOptions();
     };
 

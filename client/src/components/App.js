@@ -13,6 +13,7 @@ import Navbar from "./Navbar/Navbar";
 import Room from "./Room/Room";
 import Rooms from "./Rooms/Rooms";
 import Highscores from "./Highscores/Highscores";
+import Profile from "./Profile/Profile";
 import ClaimAccount from "./ClaimAccount/ClaimAccount";
 import WindowSize from "./WindowSize/WindowSize";
 
@@ -54,8 +55,8 @@ const App = () => {
                         <Route path="/highscores">
                             <Highscores />
                         </Route>
-                        <Route path="/profile">
-                            <h1>profile</h1>
+                        <Route path="/profile/:username">
+                            <Profile />
                         </Route>
                         <Route>
                             <Error msg="404 NOT FOUND" />
