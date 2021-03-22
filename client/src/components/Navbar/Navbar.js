@@ -1,10 +1,18 @@
 // Libraries & utils
 import React, { useState } from "react";
+import classnames from "classnames";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 // ICONS
-import { FaTrophy, FaPlay, FaUserCircle, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import {
+    FaTrophy,
+    FaPlay,
+    FaChartBar,
+    FaUserCircle,
+    FaChevronDown,
+    FaChevronUp,
+} from "react-icons/fa";
 
 // Components
 import UserOptions from "./UserOptions/UserOptions";
@@ -12,8 +20,9 @@ import UserOptions from "./UserOptions/UserOptions";
 //SCSS
 import "./Navbar.scss";
 
-function Navbar() {
-    const windowWidth = useSelector((state) => state.windowSize.width);
+const Navbar = () => {
+    const { session, windowSize } = useSelector((state) => state);
+    const windowWidth = windowSize.width;
 
     return (
         <div className="navbar">
@@ -25,11 +34,18 @@ function Navbar() {
                 <NavItem windowWidth={windowWidth} link="highscores" name="HIGHSCORES">
                     <FaTrophy />
                 </NavItem>
-                <User windowWidth={windowWidth} />
+                <NavItem
+                    windowWidth={windowWidth}
+                    link={`profile/${session.user.username}`}
+                    name="PROFILE"
+                >
+                    <FaChartBar />
+                </NavItem>
+                <User user={session.user} windowWidth={windowWidth} />
             </div>
         </div>
     );
-}
+};
 
 const Logo = ({ windowWidth }) => {
     let minmized = windowWidth < 520;
@@ -44,16 +60,15 @@ const Logo = ({ windowWidth }) => {
 const NavItem = (props) => {
     const { windowWidth, link, name } = props;
     return (
-        <Link to={`/${link}`} className="item">
+        <Link to={`/${link}`} className={classnames("item", { mini: windowWidth < 380 })}>
             <span className="icon">{props.children}</span>
-            {windowWidth >= 700 && <span style={{ marginLeft: "7px" }}>{name}</span>}
+            {windowWidth >= 860 && <span style={{ marginLeft: "7px" }}>{name}</span>}
         </Link>
     );
 };
 
-const User = ({ windowWidth }) => {
+const User = ({ user, windowWidth }) => {
     const [isVisible, setIsVisible] = useState(false);
-    const user = useSelector((state) => state.session.user);
 
     const toggleDropDown = (event) => {
         event.stopPropagation();
@@ -70,9 +85,12 @@ const User = ({ windowWidth }) => {
     }
     return (
         <div id="userDropdown">
-            <div className="item login" onClick={(e) => toggleDropDown(e)}>
+            <div
+                className={classnames("item login", { mini: windowWidth < 380 })}
+                onClick={(e) => toggleDropDown(e)}
+            >
                 <span className="icon" style={{ marginRight: "7px" }}>
-                    {windowWidth < 400 ? <FaUserCircle /> : user.displayName}
+                    {windowWidth < 630 ? <FaUserCircle /> : user.displayName}
                 </span>
                 <span className="icon">{isVisible ? <FaChevronUp /> : <FaChevronDown />}</span>
             </div>

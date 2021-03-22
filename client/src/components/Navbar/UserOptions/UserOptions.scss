@@ -40,11 +40,14 @@ $hightlight-color: #3a5068;
 
                 .details {
                     margin-left: 10px;
+                    width: 140px;
 
                     .username {
                         font-weight: 600;
-                        font-size: 18px;
-                        display: flex;
+                        font-size: 16px;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
                     }
 
                     .last-login {

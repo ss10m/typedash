@@ -7,14 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout, showClaimAccount } from "store/actions";
 
 // Icons
-import {
-    FaUserCircle,
-    FaChartBar,
-    FaRegCopy,
-    FaUnlockAlt,
-    FaRegUser,
-    FaSignOutAlt,
-} from "react-icons/fa";
+import { FaUserCircle, FaRegCopy, FaUnlockAlt, FaRegUser, FaSignOutAlt } from "react-icons/fa";
 
 import withClickWatcher from "../../Modal/Modal";
 
@@ -26,9 +19,7 @@ import "./UserOptions.scss";
 const UserOptions = withClickWatcher(
     forwardRef((props, ref) => {
         const { hideUserOptions, isVisible } = props;
-        const { username, displayName, accountType } = useSelector(
-            (state) => state.session.user
-        );
+        const { displayName, accountType } = useSelector((state) => state.session.user);
 
         useEffect(() => {
             if (!isVisible) hideUserOptions();
@@ -43,12 +34,6 @@ const UserOptions = withClickWatcher(
             <div className="dropdown-options" ref={ref}>
                 <Header displayName={displayName} loggedIn={"235235"} />
                 <hr className="divider" />
-                <Button
-                    icon={<FaChartBar />}
-                    name="PROFILE"
-                    onClick={() => props.history.push(`/profile/${username}`)}
-                    hideUserOptions={hideUserOptions}
-                />
                 {accountType === ACCOUNT_TYPE.GUEST ? (
                     <Button
                         icon={<FaRegCopy />}

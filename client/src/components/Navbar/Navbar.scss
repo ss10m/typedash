@@ -35,6 +35,10 @@
             text-decoration: none;
             color: whitesmoke;
 
+            &.mini {
+                padding: 0 12px;
+            }
+
             &.login {
                 border-radius: 0 7px 7px 0;
             }

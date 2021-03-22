@@ -13,7 +13,7 @@ const email = Joi.string()
 const username = Joi.string()
     .alphanum()
     .min(4)
-    .max(14)
+    .max(12)
     .required()
     .error(() => {
         return {
