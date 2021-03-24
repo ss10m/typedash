@@ -186,7 +186,7 @@ export class Room {
             this.state.current === STATE.PLAYING
         ) {
             if (this.ticker) this.ticker.clear();
-            this.generateScores(true);
+            this.generateScores();
             this.state = { current: STATE.POSTGAME };
             this.startNextRound();
         }
@@ -392,6 +392,7 @@ export class Room {
             const { wpm, accuracy } = player.stats;
             scores.push([player.id, quoteId, wpm, accuracy]);
         });
+        if (!scores.length) return;
         setTimeout(async () => {
             await RoomController.saveScores(scores);
             if (!updateClients) return;
@@ -523,7 +524,7 @@ export class Room {
             return;
         }
 
-        socket.emit("updated-room", { isSpectating, isReady: false });
+        socket.emit("updated-room", { isRunning: false, isSpectating, isReady: false });
         this.checkStateChange();
     }
 
