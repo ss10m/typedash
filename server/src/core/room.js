@@ -394,14 +394,12 @@ export class Room {
         });
         setTimeout(async () => {
             await RoomController.saveScores(scores);
-            const data = await RoomController.getRecentResults(quoteId);
             if (!updateClients) return;
-            this.updateClients("updated-results", {
-                id: quoteId,
-                type: RESULT_TYPE.RECENT,
-                data,
-                force: true,
-            });
+            const data = await RoomController.getRecentResults(quoteId);
+            const response = {
+                quote: { results: { type: RESULT_TYPE.RECENT, force: true, data } },
+            };
+            this.updateClients("updated-room", response);
         });
     }
 
@@ -430,13 +428,8 @@ export class Room {
             default:
                 break;
         }
-
-        this.io.to(socketId).emit("updated-results", {
-            id: quoteId,
-            type: resultType,
-            data,
-            force,
-        });
+        const response = { quote: { results: { type: resultType, data, force } } };
+        this.io.to(socketId).emit("updated-room", response);
     }
 
     checkPlayersReady() {

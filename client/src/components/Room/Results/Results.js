@@ -3,9 +3,6 @@ import { useEffect, useState, useRef } from "react";
 import moment from "moment";
 import classnames from "classnames";
 
-// Socket API
-import SocketAPI from "core/SocketClient";
-
 // Constants
 import { RESULT_TYPE } from "helpers/constants";
 
@@ -15,31 +12,18 @@ import "./Results.scss";
 const Results = ({ quote, updateResults }) => {
     const [view, setView] = useState(RESULT_TYPE.TOP);
     const viewRef = useRef(RESULT_TYPE.TOP);
-    const quoteRef = useRef(null);
     const [data, setData] = useState([]);
 
     useEffect(() => {
-        const socket = SocketAPI.getSocket();
-        socket.on("updated-results", ({ id, type, data, force }) => {
-            if (quoteRef.current.id !== id) return;
-            if (viewRef.current !== type) {
-                console.log("FORCE: " + force);
-                if (!force) return;
-                setView(type);
-            }
-            setData(data);
-        });
-
-        return () => {
-            socket.off("updated-results");
-        };
-    }, []);
-
-    useEffect(() => {
         if (!quote) return;
-        setView(RESULT_TYPE.TOP);
-        setData(quote.results);
-        quoteRef.current = quote;
+        const { type, force, data } = quote.results;
+
+        if (viewRef.current !== type) {
+            if (!force) return;
+            viewRef.current = type;
+            setView(type);
+        }
+        setData(data);
     }, [quote]);
 
     const changeView = (newView) => {

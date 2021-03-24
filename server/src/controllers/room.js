@@ -1,4 +1,5 @@
 import db, { QUOTE_IDS, TOTAL_RESULTS } from ".././config/db.js";
+import { RESULT_TYPE } from "../util/constants.js";
 
 const generateQuote = async (recentQuotes) => {
     const available = QUOTE_IDS.filter((id) => !recentQuotes.includes(id));
@@ -14,9 +15,10 @@ const generateQuote = async (recentQuotes) => {
     ]);
 
     const { id, text, author, source } = quoteResult[0];
-    const stats = statsResults[0];
     const length = text.split(" ").length;
-    return { id, text, author, source, length, stats, results: topResults };
+    const stats = statsResults[0];
+    const results = { type: RESULT_TYPE.TOP, force: true, data: topResults };
+    return { id, text, author, source, length, stats, results };
 };
 
 const getQuote = async (quoteId) => {
