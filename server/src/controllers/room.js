@@ -51,11 +51,11 @@ const getTopResults = async (quoteId) => {
 
 const getRecentResults = async (quoteId) => {
     const topQuery = `SELECT users.display_name, res.wpm, res.accuracy, res.played_at,
-                      RANK () OVER (ORDER BY res.played_at DESC)
+                      RANK () OVER (ORDER BY res.played_at DESC, res.wpm DESC)
                       FROM results as res
                       INNER JOIN users ON users.id = res.user_id
                       WHERE quote_id = $1
-                      ORDER BY res.played_at DESC
+                      ORDER BY res.played_at DESC, res.wpm DESC
                       LIMIT 10`;
     const values = [quoteId];
     const recentResults = await db.query(topQuery, values);
@@ -77,11 +77,11 @@ const getPlayerTopResults = async (quoteId, playerId) => {
 
 const getPlayerRecentResults = async (quoteId, playerId) => {
     const topQuery = `SELECT users.display_name, res.wpm, res.accuracy, res.played_at,
-                      RANK () OVER (ORDER BY res.played_at DESC)
+                      RANK () OVER (ORDER BY res.played_at DESC, res.wpm DESC)
                       FROM results as res
                       INNER JOIN users ON users.id = res.user_id
                       WHERE quote_id = $1 AND user_id = $2
-                      ORDER BY res.played_at DESC
+                      ORDER BY res.played_at DESC, res.wpm DESC
                       LIMIT 10`;
     const values = [quoteId, playerId];
     const playerRecentResults = await db.query(topQuery, values);

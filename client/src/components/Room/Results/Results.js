@@ -6,9 +6,6 @@ import classnames from "classnames";
 // Socket API
 import SocketAPI from "core/SocketClient";
 
-// Components
-import MoonLoader from "react-spinners/MoonLoader";
-
 // Constants
 import { RESULT_TYPE } from "helpers/constants";
 
@@ -19,7 +16,6 @@ const Results = ({ quote, updateResults }) => {
     const [view, setView] = useState(RESULT_TYPE.TOP);
     const viewRef = useRef(RESULT_TYPE.TOP);
     const quoteRef = useRef(null);
-    const [isFetching, setIsFetching] = useState(false);
     const [data, setData] = useState([]);
 
     useEffect(() => {
@@ -32,7 +28,6 @@ const Results = ({ quote, updateResults }) => {
                 setView(type);
             }
             setData(data);
-            setIsFetching(false);
         });
 
         return () => {
@@ -42,7 +37,6 @@ const Results = ({ quote, updateResults }) => {
 
     useEffect(() => {
         if (!quote) return;
-        setIsFetching(false);
         setView(RESULT_TYPE.TOP);
         setData(quote.results);
         quoteRef.current = quote;
@@ -50,7 +44,6 @@ const Results = ({ quote, updateResults }) => {
 
     const changeView = (newView) => {
         if (view === newView) return;
-        setIsFetching(true);
         setView(newView);
         viewRef.current = newView;
         updateResults(newView);
@@ -93,7 +86,7 @@ const Results = ({ quote, updateResults }) => {
                     <div className="time">TIME</div>
                 </div>
                 <div className="data">
-                    <ResultsData isFetching={isFetching} data={data} />
+                    <ResultsData data={data} />
                 </div>
             </div>
             <div className="results-footer"></div>
@@ -101,19 +94,7 @@ const Results = ({ quote, updateResults }) => {
     );
 };
 
-const ResultsData = ({ isFetching, data }) => {
-    if (isFetching) {
-        return (
-            <div className="empty">
-                <MoonLoader
-                    color="whitesmoke"
-                    loading={true}
-                    css="display: block;"
-                    size={60}
-                />
-            </div>
-        );
-    }
+const ResultsData = ({ data }) => {
     if (!data.length) {
         return <div className="empty">No results found</div>;
     }
