@@ -396,9 +396,17 @@ export class Room {
         setTimeout(async () => {
             await RoomController.saveScores(scores);
             if (!updateClients) return;
-            const data = await RoomController.getRecentResults(quoteId);
+
+            const [recentResults, statsResults] = await Promise.all([
+                RoomController.getRecentResults(quoteId),
+                RoomController.getStats(quoteId),
+            ]);
+
             const response = {
-                quote: { results: { type: RESULT_TYPE.RECENT, force: true, data } },
+                quote: {
+                    results: { type: RESULT_TYPE.RECENT, force: true, data: recentResults },
+                    stats: statsResults[0],
+                },
             };
             this.updateClients("updated-room", response);
         });

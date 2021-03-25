@@ -46,7 +46,13 @@ const Racer = ({
     const accuracyRef = useRef({ correct: 0, incorrect: 0 });
 
     useEffect(() => {
-        if (!currentQuote || !currentQuote.id) return;
+        if (!currentQuote) return;
+        if (!currentQuote.id) {
+            if (currentQuote.stats) {
+                setQuote((current) => ({ ...current, stats: currentQuote.stats }));
+            }
+            return;
+        }
         const { text, length, author, source, stats } = currentQuote;
         const words = text.split(" ").map((word) => word + " ");
         const lastIndex = length - 1;

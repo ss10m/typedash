@@ -116,6 +116,7 @@ const generateExpressions = (rowCount, columnCount) => {
 
 export {
     generateQuote,
+    getStats,
     getTopResults,
     getRecentResults,
     getPlayerTopResults,
