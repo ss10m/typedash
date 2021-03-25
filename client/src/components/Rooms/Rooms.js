@@ -156,7 +156,7 @@ const Filter = ({ filter, setFilter }) => {
 
 const RoomList = ({ filter, resetFilter }) => {
     const [rooms, setRooms] = useState([]);
-    const [time, setTime] = useState(null);
+    const [time, setTime] = useState(new Date());
 
     useEffect(() => {
         const socket = SocketAPI.getSocket();
