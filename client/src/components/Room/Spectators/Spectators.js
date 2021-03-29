@@ -40,17 +40,18 @@ const ListHeader = () => {
 };
 
 const List = ({ spectators }) => {
-    if (!spectators.length)
+    if (!spectators.length) {
         return (
             <div className="list">
                 <div className="empty">NO ACTIVE SPECTATORS</div>
             </div>
         );
+    }
 
     return (
         <div className="list">
             {spectators.map((spectator) => (
-                <Spectator spectator={spectator} />
+                <Spectator key={spectator.socketId} spectator={spectator} />
             ))}
         </div>
     );

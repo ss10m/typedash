@@ -80,6 +80,7 @@ const Room = () => {
                 state={state}
                 players={players}
                 socketId={socketId}
+                isSpectating={isSpectating}
                 setSpectate={SocketAPI.setSpectate}
             />
             <Stats
