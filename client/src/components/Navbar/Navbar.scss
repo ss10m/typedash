@@ -1,7 +1,6 @@
 .navbar {
     height: 50px;
     display: flex;
-    justify-content: space-between;
     margin-bottom: 20px;
     border-radius: 7px;
     box-shadow: 0px 0px 1px 1px black;
@@ -23,7 +22,10 @@
     }
 
     .right-side {
+        min-width: 0;
+        flex: 1;
         display: flex;
+        justify-content: flex-end;
 
         .item {
             height: 100%;
@@ -40,11 +42,14 @@
             }
 
             &.login {
+                flex-shrink: 1;
+                overflow: hidden;
                 border-radius: 0 7px 7px 0;
             }
 
             .icon {
                 display: flex;
+                overflow: hidden;
             }
 
             &:hover {

@@ -4,7 +4,7 @@ import classnames from "classnames";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
-// ICONS
+// Icons
 import {
     FaTrophy,
     FaPlay,
@@ -18,16 +18,23 @@ import {
 import UserOptions from "./UserOptions/UserOptions";
 import Tooltip from "components/Tooltip/Tooltip";
 
-//SCSS
+// SCSS
 import "./Navbar.scss";
 
 const Navbar = () => {
+    const [showDropdown, setShowDropdown] = useState(false);
     const { session, windowSize } = useSelector((state) => state);
     const windowWidth = windowSize.width;
     const showTooltip = windowWidth < 860;
 
+    const toggleDropDown = (event) => {
+        event.stopPropagation();
+        event.preventDefault();
+        setShowDropdown(!showDropdown);
+    };
+
     return (
-        <div className="navbar">
+        <div className="navbar" id="userDropdown">
             <Logo windowWidth={windowWidth} />
             <div className="right-side">
                 <Tooltip msg="PLAY" placement="bottom" visible={showTooltip} fullHeight>
@@ -49,7 +56,15 @@ const Navbar = () => {
                         <FaChartBar />
                     </NavItem>
                 </Tooltip>
-                <User user={session.user} windowWidth={windowWidth} />
+                <User
+                    user={session.user}
+                    windowWidth={windowWidth}
+                    showDropdown={showDropdown}
+                    toggleDropDown={toggleDropDown}
+                />
+                {showDropdown && (
+                    <UserOptions hideUserOptions={() => setShowDropdown(false)} />
+                )}
             </div>
         </div>
     );
@@ -68,22 +83,14 @@ const Logo = ({ windowWidth }) => {
 const NavItem = (props) => {
     const { windowWidth, link, name } = props;
     return (
-        <Link to={`/${link}`} className={classnames("item", { mini: windowWidth < 380 })}>
+        <Link to={`/${link}`} className={classnames("item", { mini: windowWidth < 400 })}>
             <span className="icon">{props.children}</span>
             {windowWidth >= 860 && <span style={{ marginLeft: "7px" }}>{name}</span>}
         </Link>
     );
 };
 
-const User = ({ user, windowWidth }) => {
-    const [isVisible, setIsVisible] = useState(false);
-
-    const toggleDropDown = (event) => {
-        event.stopPropagation();
-        event.preventDefault();
-        setIsVisible(!isVisible);
-    };
-
+const User = ({ user, windowWidth, showDropdown, toggleDropDown }) => {
     if (!user) {
         return (
             <Link to="/login" className="item login">
@@ -91,19 +98,21 @@ const User = ({ user, windowWidth }) => {
             </Link>
         );
     }
+
     return (
-        <div id="userDropdown">
+        <>
             <div
-                className={classnames("item login", { mini: windowWidth < 380 })}
-                onClick={(e) => toggleDropDown(e)}
+                className={classnames("item login", { mini: windowWidth < 400 })}
+                onClick={toggleDropDown}
             >
                 <span className="icon" style={{ marginRight: "7px" }}>
                     {windowWidth < 630 ? <FaUserCircle /> : user.displayName}
                 </span>
-                <span className="icon">{isVisible ? <FaChevronUp /> : <FaChevronDown />}</span>
+                <span className="icon">
+                    {showDropdown ? <FaChevronUp /> : <FaChevronDown />}
+                </span>
             </div>
-            {isVisible && <UserOptions hideUserOptions={() => setIsVisible(false)} />}
-        </div>
+        </>
     );
 };
 
