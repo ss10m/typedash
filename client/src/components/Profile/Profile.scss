@@ -1,0 +1,33 @@
+.profile {
+    flex: 1;
+    min-height: 500px;
+    //background-color: orange;
+    color: whitesmoke;
+
+    .header {
+        height: 100px;
+        display: flex;
+        align-items: center;
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+            margin-right: 20px;
+            color: whitesmoke;
+            font-size: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0px 0px 2px 1px black, 0px 0px 2px 1px black inset;
+            font-weight: 1000;
+            background-color: #2c3f54;
+            border: 5px solid #3a5068;
+            border-radius: 10px;
+        }
+    }
+
+    .stats {
+        display: flex;
+        margin-bottom: 20px;
+    }
+}

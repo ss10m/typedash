@@ -1,0 +1,14 @@
+.profile-username {
+    flex: 1;
+    position: relative;
+    min-height: 100px;
+    color: whitesmoke;
+
+    .username {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        text-shadow: 2px 2px black;
+        overflow: hidden;
+    }
+}
