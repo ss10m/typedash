@@ -15,7 +15,7 @@ import Scoreboard from "./Scoreboard/Scoreboard";
 import Spectating from "./Spectating/Spectating";
 import Stats from "./Stats/Stats";
 import Countdown from "./Countdown/Countdown";
-import Charts from "./Charts/Charts";
+import Charts from "../Charts/Charts";
 import Results from "./Results/Results";
 import Spectators from "./Spectators/Spectators";
 import Error from "../Error/Error";
@@ -103,7 +103,7 @@ const Room = () => {
                 setGraphWpm={setGraphWpm}
                 setGraphAccuracy={setGraphAccuracy}
             />
-            <Charts graphWpm={graphWpm} graphAccuracy={graphAccuracy} />
+            <Charts graphWpm={graphWpm} graphAccuracy={graphAccuracy} labelX labelY />
             <Results quote={quote} updateResults={SocketAPI.updateResults} />
         </div>
     );
