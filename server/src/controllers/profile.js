@@ -1,10 +1,7 @@
 import db from ".././config/db.js";
 
 const getProfile = async (username, cb) => {
-    console.log(username);
-
     const id = await getUserId(username);
-    console.log(id);
 
     if (!id) {
         return setTimeout(() => {
@@ -24,20 +21,26 @@ const getProfile = async (username, cb) => {
         getGraphData(id),
     ]);
 
-    console.log(avgStats);
-    console.log(recentAvgStats);
-    console.log(graphData);
+    const { avg, recentAvg } = validateData(avgStats[0], recentAvgStats[0]);
 
     setTimeout(() => {
         cb({
             meta: { ok: true, message: "" },
             data: {
-                avg: avgStats[0],
-                recentAvg: recentAvgStats[0],
+                avg,
+                recentAvg,
                 graph: graphData.reverse(),
             },
         });
     }, 1000);
+};
+
+const validateData = (avgStats, recentAvgStats) => {
+    Object.keys(avgStats).forEach((key) => {
+        if (!avgStats[key]) avgStats[key] = 0;
+        if (!recentAvgStats[key]) recentAvgStats[key] = 0;
+    });
+    return { avg: avgStats, recentAvg: recentAvgStats };
 };
 
 const getUserId = async (username) => {
