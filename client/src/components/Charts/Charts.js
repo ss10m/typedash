@@ -11,7 +11,15 @@ const chartOptions = {
     ACCURACY: "ACCURACY",
 };
 
-const Charts = ({ type = "linear", graphWpm, graphAccuracy, labelX, labelY }) => {
+const Charts = ({
+    type = "linear",
+    header,
+    graphWpm,
+    graphAccuracy,
+    labelX,
+    labelY,
+    showEmpty,
+}) => {
     const [selected, setSelected] = useState({
         value: chartOptions.WPM,
         label: chartOptions.WPM,
@@ -67,17 +75,19 @@ const Charts = ({ type = "linear", graphWpm, graphAccuracy, labelX, labelY }) =>
         []
     );
 
-    if (
-        (selected.value === chartOptions.WPM && !graphWpm.length) ||
-        (selected.value === chartOptions.ACCURACY && !graphAccuracy.length)
-    ) {
-        return null;
+    if (graphWpm.length < 2 || graphAccuracy.length < 2) {
+        if (!showEmpty) return null;
+        return (
+            <div className="chart-empty" style={{ position: "relative" }}>
+                <div>NOT ENOUGH ROUNDS PLAYED</div>
+            </div>
+        );
     }
 
     return (
         <>
             <div className="chart-header">
-                <p>{`${selected.label} TIMELINE`}</p>
+                <p>{header || `${selected.label} TIMELINE`}</p>
                 <div className="select-graph">
                     <Select
                         value={selected}
@@ -125,13 +135,17 @@ const DrawChart = ({ type, data, selected, labelX, labelY }) => {
     );
 
     return (
-        <div className="chart">
-            <div className="background">
-                {labelY && <div className="wpm-tag">{selected.value}</div>}
-                {labelX && <div className="progress-tag">PROGRESS (%)</div>}
-            </div>
-            <div className="foreground" style={{ marginRight: padding }}>
-                <Chart data={currentData} axes={axes} primaryCursor secondaryCursor />
+        <div className="chart-wrapper">
+            <div className="chart">
+                <div className="background">
+                    {labelY && <div className="wpm-tag">{selected.value}</div>}
+                    {labelX && <div className="progress-tag">PROGRESS (%)</div>}
+                </div>
+                <div className="foreground-wrapper">
+                    <div className="foreground" style={{ marginRight: padding }}>
+                        <Chart data={currentData} axes={axes} primaryCursor secondaryCursor />
+                    </div>
+                </div>
             </div>
         </div>
     );

@@ -4,8 +4,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 10px;
-    margin-bottom: 5px;
+    //margin-bottom: 5px;
+    padding: 0 15px 0 5px;
 
     p {
         font-size: 20px;
@@ -27,81 +27,113 @@
     }
 }
 
-.chart {
+.chart-empty {
     margin-bottom: 30px;
     padding-top: 37.5%;
     position: relative;
-    margin-right: 10px;
 
-    .background {
+    div {
         position: absolute;
         top: 0;
-        left: 0;
         bottom: 0;
+        left: 0;
         right: 0;
+        border: 3px solid #203140;
+        border-radius: 7px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 14px;
+        font-weight: 500;
+    }
+}
 
-        @media (max-width: 500px) {
-            font-size: 10px;
-        }
+.chart-wrapper {
+    margin-bottom: 30px;
+    overflow: hidden;
 
-        .wpm-tag {
+    .chart {
+        padding-top: 37.5%;
+        min-height: 250px;
+        position: relative;
+
+        .background {
             position: absolute;
             top: 0;
-            bottom: 50px;
             left: -5px;
-            text-align: center;
-            writing-mode: vertical-rl;
-        }
-
-        .progress-tag {
-            position: absolute;
             bottom: 0;
-            left: 50px;
             right: 0;
-            text-align: center;
-        }
-    }
+            font-size: 14px;
 
-    .foreground {
-        position: absolute;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        right: 0;
-        margin: 0 0 20px 17px;
-
-        .tickLabel {
-            fill: whitesmoke !important;
-            white-space: nowrap !important;
-        }
-
-        .gridLine {
-            stroke: #293e5487 !important;
-        }
-
-        .action-voronoi {
-            fill: whitesmoke !important;
-            stroke: white !important;
-        }
-
-        .Cursor {
-            & > div:first-of-type {
-                background: #3a506821 !important;
-                //opacity: 0.3;
-                border: 1px solid #3a506879;
+            @media (max-width: 500px) {
+                font-size: 10px;
             }
 
-            div div {
-                color: whitesmoke !important;
-                background-color: #2c3f54 !important;
-                font-weight: 800;
-                border: 2px solid #3a5068;
+            .wpm-tag {
+                position: absolute;
+                top: 0;
+                bottom: 50px;
+                left: 0;
+                text-align: center;
+                writing-mode: vertical-rl;
             }
-            // * {
-            //     color: red !important;
-            //     background-color: green;
-            // }
+
+            .progress-tag {
+                position: absolute;
+                bottom: 0;
+                left: 50px;
+                right: 0;
+                text-align: center;
+            }
+        }
+
+        .foreground-wrapper {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+
+            .foreground {
+                position: absolute;
+                top: 10px;
+                bottom: 0;
+                left: 0;
+                right: 18px;
+                margin: 0 0 20px 17px;
+
+                .tickLabel {
+                    fill: whitesmoke !important;
+                    white-space: nowrap !important;
+                }
+
+                .gridLine {
+                    stroke: #293e5487 !important;
+                }
+
+                .action-voronoi {
+                    fill: whitesmoke !important;
+                    stroke: white !important;
+                }
+
+                .Cursor {
+                    & > div:first-of-type {
+                        background: #3a506821 !important;
+                        border: 1px solid #3a506879;
+                    }
+
+                    div div {
+                        color: whitesmoke !important;
+                        background-color: #2c3f54 !important;
+                        font-weight: 800;
+                        border: 2px solid #3a5068;
+                    }
+                }
+            }
         }
     }
 }
