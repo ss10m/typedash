@@ -31,7 +31,13 @@ const Profile = () => {
         })
             .then(handleResponse)
             .then((data) => {
-                setUserData(data);
+                const { avg, recentAvg, graph } = data;
+                const graphData = { wpm: [], accuracy: [] };
+                graph.forEach((point, index) => {
+                    graphData["wpm"].push(["GAME " + (index + 1), point.wpm]);
+                    graphData["accuracy"].push(["GAME " + (index + 1), point.accuracy]);
+                });
+                setUserData({ avg, recentAvg, graph: graphData });
             })
             .catch(() => {
                 setUserData(null);
@@ -49,9 +55,16 @@ const Profile = () => {
     return (
         <div className="profile">
             <Header username={username} />
-            <Stats stats={userData.avg} />
-            <Stats stats={userData.recentAvg} />
-            <Graph data={userData.graph} />
+            <Stats allTime={userData.avg} recent={userData.recentAvg} />
+            <Charts
+                type="ordinal"
+                header={`LAST ${userData.graph.wpm.length} GAMES`}
+                graphWpm={userData.graph.wpm}
+                graphAccuracy={userData.graph.accuracy}
+                showEmpty
+                labelY
+            />
+            <div>asdg</div>
         </div>
     );
 };
@@ -67,34 +80,44 @@ const Header = ({ username }) => {
     );
 };
 
-const Stats = ({ stats }) => {
+const Stats = ({ allTime, recent }) => {
     return (
-        <div className="stats">
-            <div>
-                <div>PLAYED</div>
-                <div>{stats.count}</div>
+        <>
+            <div className="stats-header">STATS</div>
+            <div className="stats">
+                <div className="row">
+                    <div className="title">ALL TIME</div>
+                    <div className="stat">
+                        <div>PLAYED</div>
+                        <div>{allTime.count}</div>
+                    </div>
+                    <div className="stat">
+                        <div>AVERAGE WPM</div>
+                        <div>{allTime.avg_wpm}</div>
+                    </div>
+                    <div className="stat">
+                        <div>AVERAGE ACCURACY</div>
+                        <div>{allTime.avg_acc + "%"}</div>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="title">RECENT FORM</div>
+                    <div className="stat">
+                        <div>PLAYED</div>
+                        <div>{recent.count}</div>
+                    </div>
+                    <div className="stat">
+                        <div>AVERAGE WPM</div>
+                        <div>{recent.avg_wpm}</div>
+                    </div>
+                    <div className="stat">
+                        <div>AVERAGE ACCURACY</div>
+                        <div>{recent.avg_acc + "%"}</div>
+                    </div>
+                </div>
             </div>
-            <div>
-                <div>AVERAGE WPM</div>
-                <div>{stats.avg_wpm}</div>
-            </div>
-            <div>
-                <div>AVERAGE ACCURACY</div>
-                <div>{stats.avg_acc}</div>
-            </div>
-        </div>
+        </>
     );
-};
-
-const Graph = ({ data }) => {
-    const parsedData = [];
-    const accuracyData = [];
-    data.forEach((point, index) => {
-        parsedData.push(["GAME " + (index + 1), point.wpm]);
-        accuracyData.push(["GAME " + (index + 1), point.accuracy]);
-    });
-
-    return <Charts type="ordinal" graphWpm={parsedData} graphAccuracy={accuracyData} labelY />;
 };
 
 export default Profile;
