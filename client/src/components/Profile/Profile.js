@@ -8,6 +8,7 @@ import { RiUser3Line } from "react-icons/ri";
 // Components
 import Charts from "components/Charts/Charts";
 import Username from "./Username/Username";
+import MoonLoader from "react-spinners/MoonLoader";
 
 // Constants
 import { handleResponse } from "helpers";
@@ -49,7 +50,12 @@ const Profile = () => {
         fetchData(username);
     }, [username, fetchData]);
 
-    if (isLoading) return <div>isLoading</div>;
+    if (isLoading)
+        return (
+            <div className="profile loading">
+                <MoonLoader color="whitesmoke" css="display: block;" size={60} />
+            </div>
+        );
     if (!userData) return <div>User not found</div>;
 
     return (
@@ -64,7 +70,6 @@ const Profile = () => {
                 showEmpty
                 labelY
             />
-            <div>asdg</div>
         </div>
     );
 };

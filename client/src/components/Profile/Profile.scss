@@ -3,6 +3,12 @@
     min-height: 500px;
     color: whitesmoke;
 
+    &.loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
     .header {
         height: 100px;
         display: flex;
