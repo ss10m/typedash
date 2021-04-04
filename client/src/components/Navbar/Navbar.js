@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import classnames from "classnames";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 // Icons
 import { FaUserCircle, FaChevronDown, FaChevronUp, FaRegChartBar } from "react-icons/fa";
@@ -18,8 +18,16 @@ import Tooltip from "components/Tooltip/Tooltip";
 import "./Navbar.scss";
 
 const Navbar = () => {
+    const [pathname, setPathname] = useState("");
     const [showDropdown, setShowDropdown] = useState(false);
     const { session, windowSize } = useSelector((state) => state);
+    const location = useLocation();
+
+    React.useEffect(() => {
+        const root = location.pathname.split("/")[1];
+        setPathname(root);
+    }, [location]);
+
     const windowWidth = windowSize.width;
     const showTooltip = windowWidth < 860;
 
@@ -34,17 +42,32 @@ const Navbar = () => {
             <Logo windowWidth={windowWidth} />
             <div className="right-side">
                 <Tooltip msg="PLAY" placement="bottom" visible={showTooltip} fullHeight>
-                    <NavItem windowWidth={windowWidth} link="" name="PLAY">
+                    <NavItem
+                        windowWidth={windowWidth}
+                        link=""
+                        name="PLAY"
+                        active={pathname === ""}
+                    >
                         <FiPlay />
                     </NavItem>
                 </Tooltip>
                 <Tooltip msg="HIGHSCORES" placement="bottom" visible={showTooltip} fullHeight>
-                    <NavItem windowWidth={windowWidth} link="highscores" name="HIGHSCORES">
+                    <NavItem
+                        windowWidth={windowWidth}
+                        link="highscores"
+                        name="HIGHSCORES"
+                        active={pathname === "highscores"}
+                    >
                         <GiLaurelsTrophy />
                     </NavItem>
                 </Tooltip>
                 <Tooltip msg="QUOTES" placement="bottom" visible={showTooltip} fullHeight>
-                    <NavItem windowWidth={windowWidth} link="quotes" name="QUOTES">
+                    <NavItem
+                        windowWidth={windowWidth}
+                        link="quotes"
+                        name="QUOTES"
+                        active={pathname === "quotes"}
+                    >
                         <BsChatSquareQuote />
                     </NavItem>
                 </Tooltip>
@@ -53,6 +76,7 @@ const Navbar = () => {
                         windowWidth={windowWidth}
                         link={`profile/${session.user.username}`}
                         name="PROFILE"
+                        active={pathname === "profile"}
                     >
                         <FaRegChartBar />
                     </NavItem>
@@ -82,9 +106,13 @@ const Logo = ({ windowWidth }) => {
 };
 
 const NavItem = (props) => {
-    const { windowWidth, link, name } = props;
+    const { windowWidth, link, name, active } = props;
+
     return (
-        <Link to={`/${link}`} className={classnames("item", { mini: windowWidth < 440 })}>
+        <Link
+            to={`/${link}`}
+            className={classnames("item", { mini: windowWidth < 440, active })}
+        >
             <span className="icon">{props.children}</span>
             {windowWidth >= 860 && <span style={{ marginLeft: "7px" }}>{name}</span>}
         </Link>

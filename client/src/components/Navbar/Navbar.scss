@@ -42,6 +42,11 @@
             text-decoration: none;
             color: whitesmoke;
 
+            &.active {
+                background-color: #3a5068;
+                pointer-events: none;
+            }
+
             &.mini {
                 padding: 0 10px;
             }
