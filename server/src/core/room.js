@@ -26,10 +26,10 @@ export class Room {
         Room.idToRoom[this.id] = this;
     }
 
-    async createRoom(socketId) {
+    async createRoom(socketId, quoteId) {
         const socket = this.io.sockets.connected[socketId];
         if (!socket) return;
-        this.quote = await RoomController.generateQuote(this.recentQuotes);
+        this.quote = await RoomController.generateQuote(this.recentQuotes, quoteId);
         socket.emit("room-created", this.id);
         this.io.in("lobby").emit("rooms", Room.getRooms());
     }

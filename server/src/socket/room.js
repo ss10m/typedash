@@ -21,21 +21,6 @@ export default (io, socket) => {
         return socket.disconnect();
     }
 
-    socket.use((packet, next) => {
-        //console.log(packet);
-        //console.log("NEW PACKET");
-        //console.log(socket.handshake.session.user);
-        //
-        //socket.disconnect();
-        // if (packet[0] === "create-room") {
-        //     //socket.emit("handle-error", "new instance");
-        //     next();
-        // } else {
-        //     next();
-        // }
-        next();
-    });
-
     // Lobby
     socket.on("join-lobby", () => {
         socket.join("lobby");
@@ -51,9 +36,9 @@ export default (io, socket) => {
     });
 
     // Room
-    socket.on("create-room", () => {
+    socket.on("create-room", (quoteId) => {
         const room = new Room(io);
-        room.createRoom(socket.id);
+        room.createRoom(socket.id, quoteId);
     });
 
     socket.on("join-room", (roomId) => {

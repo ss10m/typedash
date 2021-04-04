@@ -59,9 +59,9 @@ class SocketAPI {
         this.emit("leave-lobby");
     };
 
-    createRoom = () => {
+    createRoom = (quoteId = null) => {
         console.log("createRoom");
-        this.emit("create-room");
+        this.emit("create-room", quoteId);
     };
 
     joinRoom = (id) => {

@@ -1,9 +1,12 @@
 import db, { QUOTE_IDS, TOTAL_RESULTS } from ".././config/db.js";
 import { RESULT_TYPE } from "../util/constants.js";
 
-const generateQuote = async (recentQuotes) => {
-    const available = QUOTE_IDS.filter((id) => !recentQuotes.includes(id));
-    const quoteId = available[Math.floor(Math.random() * available.length)];
+const generateQuote = async (recentQuotes, requestedQuote = null) => {
+    let quoteId = requestedQuote;
+    if (!quoteId) {
+        const available = QUOTE_IDS.filter((id) => !recentQuotes.includes(id));
+        quoteId = available[Math.floor(Math.random() * available.length)];
+    }
 
     recentQuotes.push(quoteId);
     if (recentQuotes.length > 5) recentQuotes.shift();
