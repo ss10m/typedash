@@ -1,6 +1,5 @@
 // Libraries & utils
 import { useEffect, useState, useRef } from "react";
-import { useHistory } from "react-router-dom";
 import classNames from "classnames";
 
 // Redux
@@ -19,12 +18,6 @@ import { TEST_TYPE, FIELD_TYPE } from "helpers/constants";
 import "./Landing.scss";
 
 const Landing = () => {
-    const history = useHistory();
-
-    useEffect(() => {
-        history.push("");
-    }, [history]);
-
     return (
         <div className="landing-wrapper">
             <div className="landing">
