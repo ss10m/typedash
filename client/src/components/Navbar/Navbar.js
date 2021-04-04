@@ -5,14 +5,10 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 // Icons
-import {
-    FaTrophy,
-    FaPlay,
-    FaChartBar,
-    FaUserCircle,
-    FaChevronDown,
-    FaChevronUp,
-} from "react-icons/fa";
+import { FaUserCircle, FaChevronDown, FaChevronUp, FaRegChartBar } from "react-icons/fa";
+import { GiLaurelsTrophy } from "react-icons/gi";
+import { BsChatSquareQuote } from "react-icons/bs";
+import { FiPlay } from "react-icons/fi";
 
 // Components
 import UserOptions from "./UserOptions/UserOptions";
@@ -39,12 +35,17 @@ const Navbar = () => {
             <div className="right-side">
                 <Tooltip msg="PLAY" placement="bottom" visible={showTooltip} fullHeight>
                     <NavItem windowWidth={windowWidth} link="" name="PLAY">
-                        <FaPlay />
+                        <FiPlay />
                     </NavItem>
                 </Tooltip>
                 <Tooltip msg="HIGHSCORES" placement="bottom" visible={showTooltip} fullHeight>
                     <NavItem windowWidth={windowWidth} link="highscores" name="HIGHSCORES">
-                        <FaTrophy />
+                        <GiLaurelsTrophy />
+                    </NavItem>
+                </Tooltip>
+                <Tooltip msg="QUOTES" placement="bottom" visible={showTooltip} fullHeight>
+                    <NavItem windowWidth={windowWidth} link="quotes" name="QUOTES">
+                        <BsChatSquareQuote />
                     </NavItem>
                 </Tooltip>
                 <Tooltip msg="PROFILE" placement="bottom" visible={showTooltip} fullHeight>
@@ -53,7 +54,7 @@ const Navbar = () => {
                         link={`profile/${session.user.username}`}
                         name="PROFILE"
                     >
-                        <FaChartBar />
+                        <FaRegChartBar />
                     </NavItem>
                 </Tooltip>
                 <User
@@ -71,9 +72,9 @@ const Navbar = () => {
 };
 
 const Logo = ({ windowWidth }) => {
-    let minmized = windowWidth < 520;
+    let minmized = windowWidth < 550;
     return (
-        <Link to="/" className="logo">
+        <Link to="/" className={classnames("logo", { mini: windowWidth < 340 })}>
             {minmized ? "T" : "TYPE"}
             <span>{minmized ? "D" : "DASH"}</span>
         </Link>
@@ -83,7 +84,7 @@ const Logo = ({ windowWidth }) => {
 const NavItem = (props) => {
     const { windowWidth, link, name } = props;
     return (
-        <Link to={`/${link}`} className={classnames("item", { mini: windowWidth < 400 })}>
+        <Link to={`/${link}`} className={classnames("item", { mini: windowWidth < 440 })}>
             <span className="icon">{props.children}</span>
             {windowWidth >= 860 && <span style={{ marginLeft: "7px" }}>{name}</span>}
         </Link>
@@ -102,11 +103,11 @@ const User = ({ user, windowWidth, showDropdown, toggleDropDown }) => {
     return (
         <>
             <div
-                className={classnames("item login", { mini: windowWidth < 400 })}
+                className={classnames("item login", { mini: windowWidth < 440 })}
                 onClick={toggleDropDown}
             >
                 <span className="icon" style={{ marginRight: "7px" }}>
-                    {windowWidth < 630 ? <FaUserCircle /> : user.displayName}
+                    <FaUserCircle />
                 </span>
                 <span className="icon">
                     {showDropdown ? <FaChevronUp /> : <FaChevronDown />}

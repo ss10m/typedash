@@ -16,6 +16,11 @@
         color: whitesmoke;
         font-weight: 700;
 
+        &.mini {
+            font-size: 24px;
+            padding: 0 12px;
+        }
+
         span {
             color: gold;
         }
@@ -33,12 +38,12 @@
             align-items: center;
             padding: 0 20px;
             border-left: 3px solid #3a5068;
-            font-weight: 700;
+            font-weight: 600;
             text-decoration: none;
             color: whitesmoke;
 
             &.mini {
-                padding: 0 12px;
+                padding: 0 10px;
             }
 
             &.login {
