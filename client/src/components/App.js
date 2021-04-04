@@ -14,6 +14,7 @@ import Room from "./Room/Room";
 import Rooms from "./Rooms/Rooms";
 import Highscores from "./Highscores/Highscores";
 import Profile from "./Profile/Profile";
+import Quotes from "./Quotes/Quotes";
 import ClaimAccount from "./ClaimAccount/ClaimAccount";
 import WindowSize from "./WindowSize/WindowSize";
 
@@ -54,6 +55,9 @@ const App = () => {
                         </Route>
                         <Route path="/highscores">
                             <Highscores />
+                        </Route>
+                        <Route path="/quotes">
+                            <Quotes />
                         </Route>
                         <Route path="/profile/:username">
                             <Profile />
