@@ -29,7 +29,7 @@ const Navbar = () => {
     }, [location]);
 
     const windowWidth = windowSize.width;
-    const showTooltip = windowWidth < 860;
+    const showTooltip = windowWidth < 865;
 
     const toggleDropDown = (event) => {
         event.stopPropagation();
@@ -51,16 +51,6 @@ const Navbar = () => {
                         <FiPlay />
                     </NavItem>
                 </Tooltip>
-                <Tooltip msg="HIGHSCORES" placement="bottom" visible={showTooltip} fullHeight>
-                    <NavItem
-                        windowWidth={windowWidth}
-                        link="highscores"
-                        name="HIGHSCORES"
-                        active={pathname === "highscores"}
-                    >
-                        <GiLaurelsTrophy />
-                    </NavItem>
-                </Tooltip>
                 <Tooltip msg="QUOTES" placement="bottom" visible={showTooltip} fullHeight>
                     <NavItem
                         windowWidth={windowWidth}
@@ -69,6 +59,16 @@ const Navbar = () => {
                         active={pathname === "quotes"}
                     >
                         <BsChatSquareQuote />
+                    </NavItem>
+                </Tooltip>
+                <Tooltip msg="HIGHSCORES" placement="bottom" visible={showTooltip} fullHeight>
+                    <NavItem
+                        windowWidth={windowWidth}
+                        link="highscores"
+                        name="HIGHSCORES"
+                        active={pathname === "highscores"}
+                    >
+                        <GiLaurelsTrophy />
                     </NavItem>
                 </Tooltip>
                 <Tooltip msg="PROFILE" placement="bottom" visible={showTooltip} fullHeight>
@@ -96,9 +96,9 @@ const Navbar = () => {
 };
 
 const Logo = ({ windowWidth }) => {
-    let minmized = windowWidth < 550;
+    let minmized = windowWidth < 570;
     return (
-        <Link to="/" className={classnames("logo", { mini: windowWidth < 340 })}>
+        <Link to="/" className={classnames("logo", { mini: windowWidth < 350 })}>
             {minmized ? "T" : "TYPE"}
             <span>{minmized ? "D" : "DASH"}</span>
         </Link>
@@ -111,10 +111,10 @@ const NavItem = (props) => {
     return (
         <Link
             to={`/${link}`}
-            className={classnames("item", { mini: windowWidth < 440, active })}
+            className={classnames("item", { mini: windowWidth < 450, active })}
         >
             <span className="icon">{props.children}</span>
-            {windowWidth >= 860 && <span style={{ marginLeft: "7px" }}>{name}</span>}
+            {windowWidth >= 865 && <span style={{ marginLeft: "7px" }}>{name}</span>}
         </Link>
     );
 };
@@ -131,7 +131,7 @@ const User = ({ user, windowWidth, showDropdown, toggleDropDown }) => {
     return (
         <>
             <div
-                className={classnames("item login", { mini: windowWidth < 440 })}
+                className={classnames("item login", { mini: windowWidth < 450 })}
                 onClick={toggleDropDown}
             >
                 <span className="icon" style={{ marginRight: "7px" }}>
