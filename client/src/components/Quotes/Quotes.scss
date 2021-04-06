@@ -3,10 +3,47 @@
     flex: 1;
 
     .quotes-header {
-        margin: 20px 0 10px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 20px 20px 10px 20px;
         color: whitesmoke;
         font-size: 35px;
         font-weight: 800;
+
+        .sorting {
+            display: flex;
+
+            .select-graph {
+                width: 220px;
+                font-size: 14px;
+            }
+
+            .toggle {
+                height: 38px;
+                width: 38px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-left: 5px;
+                font-size: 18px;
+                border: 1px solid #3a5068;
+                border-radius: 3px;
+
+                &:hover {
+                    cursor: pointer;
+                    border-color: #56779a;
+                }
+            }
+        }
+
+        @media (max-width: 530px) {
+            flex-direction: column;
+
+            .sorting {
+                margin: 10px 0;
+            }
+        }
     }
 
     .quote {
