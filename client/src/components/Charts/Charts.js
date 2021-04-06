@@ -131,7 +131,7 @@ const DrawChart = ({ type, data, selected, labelX, labelY }) => {
             { primary: true, type, position: "bottom" },
             { type: "linear", position: "left" },
         ],
-        []
+        [type]
     );
 
     return (
