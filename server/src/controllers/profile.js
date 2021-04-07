@@ -15,10 +15,18 @@ const getProfile = async (username, cb) => {
         }, 1000);
     }
 
-    const [avgStats, recentAvgStats, graphData] = await Promise.all([
+    const [
+        avgStats,
+        recentAvgStats,
+        graphData,
+        topResults,
+        recentResults,
+    ] = await Promise.all([
         getAvgStats(id),
         getRecentAvgStats(id),
         getGraphData(id),
+        getTopResults(id),
+        getRecentResults(id),
     ]);
 
     const { avg, recentAvg } = validateData(avgStats[0], recentAvgStats[0]);
@@ -30,6 +38,8 @@ const getProfile = async (username, cb) => {
                 avg,
                 recentAvg,
                 graph: graphData.reverse(),
+                topResults,
+                recentResults,
             },
         });
     }, 1000);
@@ -86,6 +96,30 @@ const getGraphData = async (id) => {
                       LIMIT 10`;
     const values = [id];
     const results = await db.query(topQuery, values);
+    return results.rows;
+};
+
+const getTopResults = async (id) => {
+    const query = `SELECT res.wpm, res.accuracy, res.quote_id, res.played_at,
+                   RANK () OVER (ORDER BY res.wpm DESC, res.accuracy DESC)
+                   FROM results as res
+                   WHERE res.user_id = $1
+                   ORDER BY res.wpm DESC, res.accuracy DESC, res.played_at
+                   LIMIT 10`;
+    const values = [id];
+    const results = await db.query(query, values);
+    return results.rows;
+};
+
+const getRecentResults = async (id) => {
+    const query = `SELECT res.wpm, res.accuracy, res.quote_id, res.played_at,
+                   RANK () OVER (ORDER BY res.played_at DESC, res.wpm DESC)
+                   FROM results as res
+                   WHERE res.user_id = $1
+                   ORDER BY res.played_at DESC, res.wpm DESC
+                   LIMIT 10`;
+    const values = [id];
+    const results = await db.query(query, values);
     return results.rows;
 };
 
