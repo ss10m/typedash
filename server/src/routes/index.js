@@ -4,7 +4,7 @@ import path from "path";
 import sessionRoutes from "./session.js";
 import validateRoutes from "./validate.js";
 import highscoresRoutes from "./highscores.js";
-import quotesRoutes from "./quotes.js";
+import quoteRoutes from "./quote.js";
 import profileRoutes from "./profile.js";
 
 const clientBuildPath = path.join(path.resolve(), "../client/build");
@@ -17,7 +17,7 @@ const routes = (app) => {
     apiRouter.use("/session", sessionRoutes);
     apiRouter.use("/validate", validateRoutes);
     apiRouter.use("/highscores", highscoresRoutes);
-    apiRouter.use("/quotes", quotesRoutes);
+    apiRouter.use("/quote", quoteRoutes);
     apiRouter.use("/profile", profileRoutes);
 
     app.get("*", (_, response) => {
