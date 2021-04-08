@@ -8,13 +8,14 @@ import { hideClaimAccount } from "store/actions";
 
 import InputChecker from "../InputChecker/InputChecker";
 
-// SCSS
-import "./ClaimAccount.scss";
-
 // Constants
 import { TEST_TYPE, FIELD_TYPE } from "helpers/constants";
 
-import withClickWatcher from "../Modal/Modal";
+// Components
+import withClickWatcher from "components/withClickWatcher/withClickWatcher";
+
+// SCSS
+import "./ClaimAccount.scss";
 
 const ClaimAccount = () => {
     return (

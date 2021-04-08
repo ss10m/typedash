@@ -1,10 +1,12 @@
 // Libraries & utils
 import React, { forwardRef, useEffect } from "react";
 import classnames from "classnames";
-import withClickWatcher from "components/Modal/Modal";
 
 // Icons
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+
+// Components
+import withClickWatcher from "components/withClickWatcher/withClickWatcher";
 
 // SCSS
 import "./Spectators.scss";

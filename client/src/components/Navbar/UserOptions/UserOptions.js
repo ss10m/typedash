@@ -9,9 +9,11 @@ import { logout, showClaimAccount } from "store/actions";
 // Icons
 import { FaUserCircle, FaRegCopy, FaUnlockAlt, FaRegUser, FaSignOutAlt } from "react-icons/fa";
 
-import withClickWatcher from "../../Modal/Modal";
-
+// Constants
 import { ACCOUNT_TYPE } from "helpers/constants";
+
+// Components
+import withClickWatcher from "components/withClickWatcher/withClickWatcher";
 
 // SCSS
 import "./UserOptions.scss";
