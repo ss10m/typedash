@@ -4,15 +4,13 @@ const getProfile = async (username, cb) => {
     const id = await getUserId(username);
 
     if (!id) {
-        return setTimeout(() => {
-            cb({
-                meta: {
-                    ok: false,
-                    message: "Username not found",
-                },
-                data: {},
-            });
-        }, 1000);
+        return cb({
+            meta: {
+                ok: false,
+                message: "Username not found",
+            },
+            data: {},
+        });
     }
 
     const [

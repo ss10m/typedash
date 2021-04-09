@@ -8,6 +8,8 @@ import { RiUser3Line } from "react-icons/ri";
 // Components
 import Charts from "components/Charts/Charts";
 import Username from "./Username/Username";
+import Results from "./Results/Results";
+import QuoteModal from "components/QuoteModal/QuoteModal";
 import MoonLoader from "react-spinners/MoonLoader";
 
 // Constants
@@ -20,6 +22,7 @@ const Profile = () => {
     const { username } = useParams();
     const [userData, setUserData] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [quoteModal, setQuoteModal] = useState(false);
 
     const fetchData = useCallback((username) => {
         setIsLoading(true);
@@ -32,13 +35,13 @@ const Profile = () => {
         })
             .then(handleResponse)
             .then((data) => {
-                const { avg, recentAvg, graph } = data;
+                const { avg, recentAvg, graph, topResults, recentResults } = data;
                 const graphData = { wpm: [], accuracy: [] };
                 graph.forEach((point, index) => {
                     graphData["wpm"].push(["GAME " + (index + 1), point.wpm]);
                     graphData["accuracy"].push(["GAME " + (index + 1), point.accuracy]);
                 });
-                setUserData({ avg, recentAvg, graph: graphData });
+                setUserData({ avg, recentAvg, graph: graphData, topResults, recentResults });
             })
             .catch(() => {
                 setUserData(null);
@@ -70,6 +73,14 @@ const Profile = () => {
                 showEmpty
                 labelY
             />
+            <Results
+                top={userData.topResults}
+                recent={userData.recentResults}
+                setQuoteModal={setQuoteModal}
+            />
+            {quoteModal && (
+                <QuoteModal quoteId={quoteModal} closeModal={() => setQuoteModal(null)} />
+            )}
         </div>
     );
 };
@@ -80,7 +91,7 @@ const Header = ({ username }) => {
             <div className="avatar">
                 <RiUser3Line />
             </div>
-            <Username text={username} />
+            {username}
         </div>
     );
 };
