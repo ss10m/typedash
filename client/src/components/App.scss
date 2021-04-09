@@ -1,15 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Jost:wght@100;200;300;400;500;600;700;800&display=swap");
 
 body {
-    //min-height: 100vh;
     min-width: 320px;
+    width: 100%;
     font-family: "Jost", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-color: #162029;
-    //background-image: linear-gradient(to top, #273747, #121a21, #121a21);
-    //background-repeat: no-repeat;
-    //background-attachment: fixed;
 }
 
 html {
