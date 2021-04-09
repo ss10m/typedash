@@ -75,7 +75,12 @@
                 font-size: 14px;
             }
 
+            & > div {
+                display: flex;
+            }
+
             .button {
+                margin-left: 5px;
                 padding: 2px 5px;
                 border: 2px solid #3a5068;
                 background-color: #2c3f54;
@@ -143,7 +148,7 @@
     @media (max-width: 600px) {
         .quote {
             .words {
-                font-size: 18px;
+                font-size: 16px;
             }
 
             .quote-stats {

@@ -27,7 +27,7 @@ const getQuote = async (id, cb) => {
         return cb({
             meta: {
                 ok: false,
-                message: "Id not found",
+                message: "Invalid id",
             },
             data: {},
         });
@@ -59,4 +59,57 @@ const getQuote = async (id, cb) => {
     });
 };
 
-export { getQuotes, getQuote };
+const getResults = async (id, cb) => {
+    if (!id) {
+        return cb({
+            meta: {
+                ok: false,
+                message: "Invalid id",
+            },
+            data: {},
+        });
+    }
+
+    const [top, recent] = await Promise.all([getTopResults(id), getRecentResults(id)]);
+
+    cb({
+        meta: {
+            ok: true,
+            message: "",
+        },
+        data: {
+            results: {
+                top,
+                recent,
+            },
+        },
+    });
+};
+
+const getTopResults = async (quoteId) => {
+    const topQuery = `SELECT users.display_name, res.wpm, res.accuracy, res.played_at,
+                      RANK () OVER (ORDER BY res.wpm DESC, res.accuracy DESC)
+                      FROM results as res
+                      INNER JOIN users ON users.id = res.user_id
+                      WHERE quote_id = $1
+                      ORDER BY res.wpm DESC, res.accuracy DESC, res.played_at
+                      LIMIT 10`;
+    const values = [quoteId];
+    const results = await db.query(topQuery, values);
+    return results.rows;
+};
+
+const getRecentResults = async (quoteId) => {
+    const topQuery = `SELECT users.display_name, res.wpm, res.accuracy, res.played_at,
+                      RANK () OVER (ORDER BY res.played_at DESC, res.wpm DESC)
+                      FROM results as res
+                      INNER JOIN users ON users.id = res.user_id
+                      WHERE quote_id = $1
+                      ORDER BY res.played_at DESC, res.wpm DESC
+                      LIMIT 10`;
+    const values = [quoteId];
+    const results = await db.query(topQuery, values);
+    return results.rows;
+};
+
+export { getQuotes, getQuote, getResults };

@@ -1,5 +1,5 @@
 // Libraries & utils
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useHistory } from "react-router-dom";
 import Select from "react-select";
 
@@ -8,6 +8,9 @@ import SocketAPI from "core/SocketClient";
 
 // Icons
 import { ImSortNumericAsc, ImSortNumbericDesc } from "react-icons/im";
+
+// Components
+import ResultsModal from "components/ResultsModal/ResultsModal";
 
 // Constants
 import { handleResponse, roundToFixed } from "helpers";
@@ -19,10 +22,11 @@ const Quotes = () => {
     const [isCreating, setIsCreating] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
     const [quotes, setQuotes] = useState([]);
+    const [resultsModal, setResultsModal] = useState(false);
     const history = useHistory();
 
     useEffect(() => {
-        fetch("/api/quotes")
+        fetch("/api/quote")
             .then(handleResponse)
             .then((data) => {
                 setQuotes(data.quotes);
@@ -42,11 +46,18 @@ const Quotes = () => {
         };
     }, [history]);
 
-    const createRoom = (quoteId) => {
-        if (isCreating) return;
-        setIsCreating(true);
-        SocketAPI.createRoom(quoteId);
-    };
+    const createRoom = useCallback(
+        (quoteId) => {
+            if (isCreating) return;
+            setIsCreating(true);
+            SocketAPI.createRoom(quoteId);
+        },
+        [isCreating]
+    );
+
+    const closeModal = useCallback(() => {
+        setResultsModal(null);
+    }, []);
 
     if (!isLoaded) return null;
 
@@ -58,9 +69,15 @@ const Quotes = () => {
             </div>
             <div className="list">
                 {quotes.map((quote) => (
-                    <Quote key={quote.id} quote={quote} createRoom={createRoom} />
+                    <Quote
+                        key={quote.id}
+                        quote={quote}
+                        createRoom={createRoom}
+                        setResultsModal={setResultsModal}
+                    />
                 ))}
             </div>
+            {resultsModal && <ResultsModal quoteId={resultsModal} closeModal={closeModal} />}
         </div>
     );
 };
@@ -150,13 +167,18 @@ const Sort = ({ setQuotes }) => {
     );
 };
 
-const Quote = ({ quote, createRoom }) => {
+const Quote = ({ quote, createRoom, setResultsModal }) => {
     return (
         <div className="quote">
             <div className="quote-header">
                 <p>{`#${quote.id}`}</p>
-                <div className="button" onClick={() => createRoom(quote.id)}>
-                    PLAY
+                <div>
+                    <div className="button" onClick={() => createRoom(quote.id)}>
+                        PLAY
+                    </div>
+                    <div className="button" onClick={() => setResultsModal(quote.id)}>
+                        RESULTS
+                    </div>
                 </div>
             </div>
             <div className="words">{quote.text}</div>
