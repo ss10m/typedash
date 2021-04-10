@@ -7,7 +7,7 @@ import Select from "react-select";
 import SocketAPI from "core/SocketClient";
 
 // Icons
-import { ImSortNumericAsc, ImSortNumbericDesc } from "react-icons/im";
+import { FaSortAmountDown, FaSortAmountDownAlt } from "react-icons/fa";
 
 // Components
 import ResultsModal from "components/ResultsModal/ResultsModal";
@@ -83,23 +83,48 @@ const Quotes = () => {
 };
 
 const Sort = ({ setQuotes }) => {
-    const [selected, setSelected] = useState({ value: "id", label: "QUOTE ID" });
-    const [sortOrder, setSortOrder] = useState("asc");
+    const [sort, setSort] = useState({
+        selected: { value: "id", label: "QUOTE ID" },
+        order: "asc",
+    });
 
-    useEffect(() => {
-        const sortFunction = {
-            asc: (a, b) => a[selected.value] - b[selected.value],
-            desc: (a, b) => b[selected.value] - a[selected.value],
-        };
-        setQuotes((current) => [...current].sort(sortFunction[sortOrder]));
-    }, [selected, sortOrder, setQuotes]);
-
-    const options = [
+    const selectOptions = [
         { value: "id", label: "QUOTE ID" },
         { value: "count", label: "PLAY COUNT" },
         { value: "avg_wpm", label: "AVERAGE WPM" },
         { value: "avg_acc", label: "AVERAGE ACCURACY" },
     ];
+
+    const defaultSort = {
+        id: "asc",
+        count: "desc",
+        avg_wpm: "desc",
+        avg_acc: "desc",
+    };
+
+    useEffect(() => {
+        const { selected, order } = sort;
+        const sortFunction = {
+            asc: (a, b) => a[selected.value] - b[selected.value],
+            desc: (a, b) => b[selected.value] - a[selected.value],
+        };
+        setQuotes((current) => [...current].sort(sortFunction[order]));
+    }, [sort, setQuotes]);
+
+    const setSelected = (selected) => {
+        if (selected.value === sort.selected.value) return;
+        setSort({
+            selected,
+            order: defaultSort[selected.value],
+        });
+    };
+
+    const toggleSortOrder = () => {
+        setSort((current) => ({
+            ...current,
+            order: current.order === "asc" ? "desc" : "asc",
+        }));
+    };
 
     const customStyles = useMemo(
         () => ({
@@ -149,19 +174,16 @@ const Sort = ({ setQuotes }) => {
         <div className="sorting">
             <div className="select-graph">
                 <Select
-                    value={selected}
-                    options={options}
+                    value={sort.selected}
+                    options={selectOptions}
                     autosize={true}
                     styles={customStyles}
                     onChange={setSelected}
                     isDisabled={false}
                 />
             </div>
-            <div
-                className="toggle"
-                onClick={() => setSortOrder((current) => (current === "asc" ? "desc" : "asc"))}
-            >
-                {sortOrder === "asc" ? <ImSortNumericAsc /> : <ImSortNumbericDesc />}
+            <div className="toggle" onClick={toggleSortOrder}>
+                {sort.order === "asc" ? <FaSortAmountDownAlt /> : <FaSortAmountDown />}
             </div>
         </div>
     );
