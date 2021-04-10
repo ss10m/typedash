@@ -15,8 +15,8 @@ import ResultsModal from "components/ResultsModal/ResultsModal";
 // Constants
 import { handleResponse, roundToFixed } from "helpers";
 
-// SCSS
-import "./Quotes.scss";
+// Styles
+import * as Styles from "./styles";
 
 const Quotes = () => {
     const [isCreating, setIsCreating] = useState(false);
@@ -62,12 +62,12 @@ const Quotes = () => {
     if (!isLoaded) return null;
 
     return (
-        <div className="quotes">
-            <div className="quotes-header">
+        <Styles.Quotes>
+            <Styles.Header>
                 <p>QUOTES</p>
                 <Sort setQuotes={setQuotes} />
-            </div>
-            <div className="list">
+            </Styles.Header>
+            <div>
                 {quotes.map((quote) => (
                     <Quote
                         key={quote.id}
@@ -78,7 +78,7 @@ const Quotes = () => {
                 ))}
             </div>
             {resultsModal && <ResultsModal quoteId={resultsModal} closeModal={closeModal} />}
-        </div>
+        </Styles.Quotes>
     );
 };
 
@@ -171,8 +171,8 @@ const Sort = ({ setQuotes }) => {
     );
 
     return (
-        <div className="sorting">
-            <div className="select-graph">
+        <div>
+            <Styles.SortSelect>
                 <Select
                     value={sort.selected}
                     options={selectOptions}
@@ -181,63 +181,60 @@ const Sort = ({ setQuotes }) => {
                     onChange={setSelected}
                     isDisabled={false}
                 />
-            </div>
-            <div className="toggle" onClick={toggleSortOrder}>
+            </Styles.SortSelect>
+            <Styles.OrderToggle onClick={toggleSortOrder}>
                 {sort.order === "asc" ? <FaSortAmountDownAlt /> : <FaSortAmountDown />}
-            </div>
+            </Styles.OrderToggle>
         </div>
     );
 };
 
 const Quote = ({ quote, createRoom, setResultsModal }) => {
     return (
-        <div className="quote">
-            <div className="quote-header">
+        <Styles.Quote>
+            <Styles.QuoteHeader>
                 <p>{`#${quote.id}`}</p>
                 <div>
-                    <div className="button" onClick={() => createRoom(quote.id)}>
-                        PLAY
-                    </div>
-                    <div className="button" onClick={() => setResultsModal(quote.id)}>
+                    <Styles.Button onClick={() => createRoom(quote.id)}>PLAY</Styles.Button>
+                    <Styles.Button
+                        className="button"
+                        onClick={() => setResultsModal(quote.id)}
+                    >
                         RESULTS
-                    </div>
+                    </Styles.Button>
                 </div>
-            </div>
-            <div className="words">{quote.text}</div>
-            <div className="quote-stats">
+            </Styles.QuoteHeader>
+            <Styles.Words>{quote.text}</Styles.Words>
+            <Styles.Stats>
                 <div>
-                    <div className="item">
-                        <div className="header">PLAYED</div>
-                        <div className="value">{quote.count}</div>
-                    </div>
-
-                    <div className="divider" />
-
-                    <div className="item">
-                        <div className="header">AVG WPM</div>
-                        <div className="value">{roundToFixed(quote.avg_wpm)}</div>
-                    </div>
-
-                    <div className="divider" />
-
-                    <div className="item">
-                        <div className="header">AVG ACC</div>
-                        <div className="value">{`${roundToFixed(quote.avg_acc)}%`}</div>
-                    </div>
+                    <Styles.Stat>
+                        <p>PLAYED</p>
+                        <p>{quote.count}</p>
+                    </Styles.Stat>
+                    <Styles.Divider />
+                    <Styles.Stat>
+                        <p>AVG WPM</p>
+                        <p>{roundToFixed(quote.avg_wpm)}</p>
+                    </Styles.Stat>
+                    <Styles.Divider />
+                    <Styles.Stat>
+                        <p>AVG ACC</p>
+                        <p>{`${roundToFixed(quote.avg_acc)}%`}</p>
+                    </Styles.Stat>
                 </div>
                 <div>
-                    <div className="item">
-                        <div className="header">AUTHOR</div>
-                        <div className="value">{quote.author}</div>
-                    </div>
-                    <div className="divider" />
-                    <div className="item">
-                        <div className="header">BOOK</div>
-                        <div className="value">{quote.source}</div>
-                    </div>
+                    <Styles.Stat>
+                        <p>AUTHOR</p>
+                        <p>{quote.author}</p>
+                    </Styles.Stat>
+                    <Styles.Divider />
+                    <Styles.Stat>
+                        <p>BOOK</p>
+                        <p>{quote.source}</p>
+                    </Styles.Stat>
                 </div>
-            </div>
-        </div>
+            </Styles.Stats>
+        </Styles.Quote>
     );
 };
 
