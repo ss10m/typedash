@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Textfit } from "react-textfit";
 
 // Hooks
-import useWindowSize from "./useWindowSize";
+import { useWindowSize } from "hooks";
 
 // SCSS
 import "./Username.scss";

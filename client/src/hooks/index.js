@@ -1,1 +1,2 @@
-export { useEventListener } from "./useEventListener.js";
+export { useEventListener } from "./useEventListener";
+export { useWindowSize } from "./useWindowSize";

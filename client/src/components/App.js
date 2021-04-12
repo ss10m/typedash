@@ -17,7 +17,6 @@ import Highscores from "./Highscores/Highscores";
 import Profile from "./Profile/Profile";
 import Quotes from "./Quotes/Quotes";
 import ClaimAccount from "./ClaimAccount/ClaimAccount";
-import WindowSize from "./WindowSize/WindowSize";
 
 // Styles
 import * as Styles from "./styles";
@@ -51,7 +50,6 @@ const App = () => {
     return (
         <>
             <Styles.GlobalStyle />
-            <WindowSize />
             {claimAccount && <ClaimAccount />}
             <Styles.App>
                 <div>

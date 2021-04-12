@@ -2,17 +2,21 @@
 import React from "react";
 import classnames from "classnames";
 
-// Componments
-import Tooltip from "components/Tooltip/Tooltip";
+// Hooks
+import { useWindowSize } from "hooks";
 
 // Icons
 import { FaChevronLeft, FaEye } from "react-icons/fa";
+
+// Componments
+import Tooltip from "components/Tooltip/Tooltip";
 
 // SCSS
 import "./Navigation.scss";
 
 const Navigation = (props) => {
-    const extended = window.innerWidth > 600;
+    const { width } = useWindowSize();
+    const extended = width > 600;
 
     return (
         <div className="navigation">

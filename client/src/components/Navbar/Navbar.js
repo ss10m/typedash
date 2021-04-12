@@ -4,6 +4,9 @@ import classnames from "classnames";
 import { useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 
+// Hooks
+import { useWindowSize } from "hooks";
+
 // Icons
 import { FaUserCircle, FaChevronDown, FaChevronUp, FaRegChartBar } from "react-icons/fa";
 import { GiLaurelsTrophy } from "react-icons/gi";
@@ -20,7 +23,8 @@ import "./Navbar.scss";
 const Navbar = () => {
     const [pathname, setPathname] = useState("");
     const [showDropdown, setShowDropdown] = useState(false);
-    const { session, windowSize } = useSelector((state) => state);
+    const session = useSelector((state) => state.session);
+    const windowSize = useWindowSize();
     const location = useLocation();
 
     React.useEffect(() => {

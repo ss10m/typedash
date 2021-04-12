@@ -2,11 +2,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import classNames from "classnames";
 
-// Redux
-import { useSelector } from "react-redux";
-
 // Hooks
-import { useEventListener } from "hooks";
+import { useEventListener, useWindowSize } from "hooks";
 
 // Helpers
 import { longestCommonSubstring, roundToFixed } from "helpers";
@@ -337,7 +334,7 @@ const Letter = ({ isRunning, letter, letterIndex, correctLength, typoLength }) =
 };
 
 const Keyboard = ({ isRunning }) => {
-    const { width } = useSelector((state) => state.windowSize);
+    const { width } = useWindowSize();
     const [pressed, setPressed] = useState({});
 
     const keyDownHandler = (event) => {
