@@ -1,6 +1,7 @@
 // Libraries & utils
 import React, { useEffect } from "react";
 import { Route, Switch } from "react-router-dom";
+import WebFont from "webfontloader";
 
 // Redux
 import { useSelector, useDispatch } from "react-redux";
@@ -18,12 +19,20 @@ import Quotes from "./Quotes/Quotes";
 import ClaimAccount from "./ClaimAccount/ClaimAccount";
 import WindowSize from "./WindowSize/WindowSize";
 
-// SCSS
-import "./App.scss";
+// Styles
+import * as Styles from "./styles";
 
 const App = () => {
     const { session, error, claimAccount } = useSelector((state) => state);
     const dispatch = useDispatch();
+
+    useEffect(() => {
+        WebFont.load({
+            google: {
+                families: ["Jost:100,200,300,400,500,600,700,800"],
+            },
+        });
+    }, []);
 
     useEffect(() => {
         dispatch(getSession());
@@ -41,10 +50,11 @@ const App = () => {
 
     return (
         <>
+            <Styles.GlobalStyle />
             <WindowSize />
             {claimAccount && <ClaimAccount />}
-            <div className="app no-select">
-                <div className="inner">
+            <Styles.App>
+                <div>
                     <Navbar />
                     <Switch>
                         <Route exact path="/">
@@ -67,7 +77,7 @@ const App = () => {
                         </Route>
                     </Switch>
                 </div>
-            </div>
+            </Styles.App>
         </>
     );
 };
