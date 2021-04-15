@@ -21,7 +21,7 @@ export const Logo = styled(Link)`
     font-weight: 700;
 
     ${(props) =>
-        props.minimized &&
+        props.$minimized &&
         css`
             font-size: 24px;
             padding: 0 12px;
@@ -51,14 +51,14 @@ export const NavLink = styled(Link)`
     color: whitesmoke;
 
     ${(props) =>
-        props.active &&
+        props.$active &&
         css`
             background-color: #3a5068;
             pointer-events: none;
         `}
 
     ${(props) =>
-        props.minimized &&
+        props.$minimized &&
         css`
             flex: 1;
             padding: 0;
@@ -85,7 +85,7 @@ export const User = styled.div`
     border-left: 3px solid #3a5068;
 
     ${(props) =>
-        props.minimized &&
+        props.$minimized &&
         css`
             padding: 0 10px;
         `}

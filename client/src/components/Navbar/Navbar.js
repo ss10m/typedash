@@ -64,7 +64,7 @@ const Navbar = () => {
 const Logo = ({ width }) => {
     const initialsOnly = width < 510;
     return (
-        <Styles.Logo to="/" minimized={width < 380}>
+        <Styles.Logo to="/" $minimized={width < 380}>
             {initialsOnly ? "T" : "TYPE"}
             <span>{initialsOnly ? "D" : "DASH"}</span>
         </Styles.Logo>
@@ -106,7 +106,7 @@ const NavLinks = (props) => {
 const NavItem = (props) => {
     const { children, width, link, name, active } = props;
     return (
-        <Styles.NavLink to={`${link}`} active={active} minimized={width < 390}>
+        <Styles.NavLink to={`${link}`} $active={active} $minimized={width < 390}>
             <Styles.Icon>{children}</Styles.Icon>
             {width >= 810 && <span>{name.toUpperCase()}</span>}
         </Styles.NavLink>
@@ -115,7 +115,7 @@ const NavItem = (props) => {
 
 const User = ({ width, showDropdown, toggleDropDown }) => {
     return (
-        <Styles.User minimized={width < 380} onClick={toggleDropDown}>
+        <Styles.User onClick={toggleDropDown} $minimized={width < 380}>
             <Styles.Icon>
                 <FaUserCircle />
             </Styles.Icon>
