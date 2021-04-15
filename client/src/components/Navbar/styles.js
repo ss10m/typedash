@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 export const Navbar = styled.div`
     height: 50px;
     display: flex;
+    position: relative;
     margin-bottom: 20px;
     border-radius: 7px;
     box-shadow: 0px 0px 1px 1px black;

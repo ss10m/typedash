@@ -10,7 +10,7 @@ import { BsChatSquareQuote } from "react-icons/bs";
 import { FiPlay } from "react-icons/fi";
 
 // Components
-import UserOptions from "./UserOptions/UserOptions";
+import Dropdown from "./Dropdown/Dropdown";
 
 // Styles
 import * as Styles from "./styles";
@@ -47,16 +47,16 @@ const Navbar = () => {
     };
 
     return (
-        <Styles.Navbar id="userDropdown" ref={containerRef}>
+        <Styles.Navbar ref={containerRef}>
             <Logo width={containerWidth} />
             <NavLinks
                 width={containerWidth}
                 pathname={pathname}
                 session={session}
                 showDropdown={showDropdown}
-                setShowDropdown={setShowDropdown}
                 toggleDropDown={toggleDropDown}
             />
+            {showDropdown && <Dropdown hideDropdown={() => setShowDropdown(false)} />}
         </Styles.Navbar>
     );
 };
@@ -72,42 +72,50 @@ const Logo = ({ width }) => {
 };
 
 const NavLinks = (props) => {
-    const { width, pathname, session, showDropdown, setShowDropdown, toggleDropDown } = props;
+    const { width, pathname, session, showDropdown, toggleDropDown } = props;
     return (
         <Styles.NavLinks>
-            <NavLink width={width} link="" name="play" active={pathname === ""}>
-                <FiPlay />
-            </NavLink>
-            <NavLink width={width} link="/quotes" name="quotes" active={pathname === "quotes"}>
-                <BsChatSquareQuote />
-            </NavLink>
+            <NavLink
+                width={width}
+                link=""
+                name="play"
+                icon={FiPlay}
+                active={pathname === ""}
+            />
+            <NavLink
+                width={width}
+                link="/quotes"
+                name="quotes"
+                icon={BsChatSquareQuote}
+                active={pathname === "quotes"}
+            />
             <NavLink
                 width={width}
                 link="/highscores"
                 name="highscores"
+                icon={GiLaurelsTrophy}
                 active={pathname === "highscores"}
-            >
-                <GiLaurelsTrophy />
-            </NavLink>
+            />
             <NavLink
                 width={width}
                 link={`/profile/${session.user.username}`}
                 name="profile"
+                icon={FaRegChartBar}
                 active={pathname === "profile"}
-            >
-                <FaRegChartBar />
-            </NavLink>
+            />
             <User width={width} showDropdown={showDropdown} toggleDropDown={toggleDropDown} />
-            {showDropdown && <UserOptions hideUserOptions={() => setShowDropdown(false)} />}
         </Styles.NavLinks>
     );
 };
 
 const NavLink = (props) => {
-    const { children, width, link, name, active } = props;
+    const { width, link, name, icon, active } = props;
+    const Icon = icon;
     return (
         <Styles.NavLink to={`${link}`} $active={active} $minimized={width < 390}>
-            <Styles.Icon>{children}</Styles.Icon>
+            <Styles.Icon>
+                <Icon />
+            </Styles.Icon>
             {width >= 810 && <span>{name.toUpperCase()}</span>}
         </Styles.NavLink>
     );
