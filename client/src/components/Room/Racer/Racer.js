@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import classNames from "classnames";
 
 // Hooks
-import { useEventListener, useWindowSize } from "hooks";
+import { useEventListener } from "hooks";
 
 // Helpers
 import { longestCommonSubstring, roundToFixed } from "helpers";
@@ -334,65 +334,74 @@ const Letter = ({ isRunning, letter, letterIndex, correctLength, typoLength }) =
 };
 
 const Keyboard = ({ isRunning }) => {
-    const { width } = useWindowSize();
     const [pressed, setPressed] = useState({});
+    const containerRef = useRef(null);
+    const [containerWidth, setContainerWidth] = useState(null);
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (!containerRef.current) return;
+            setContainerWidth(containerRef.current.clientWidth);
+        };
+
+        window.addEventListener("resize", handleResize);
+        handleResize();
+
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     const keyDownHandler = (event) => {
         if (!isRunning) return;
         if (pressed[event.code] && pressed[event.code].pressed) return;
-        setPressed((prevState) => {
-            return { ...prevState, [event.code]: { pressed: true } };
-        });
+        setPressed((prevState) => ({ ...prevState, [event.code]: { pressed: true } }));
 
         setTimeout(
             () =>
-                setPressed((prevState) => {
-                    return { ...prevState, [event.code]: { pressed: false } };
-                }),
+                setPressed((prevState) => ({
+                    ...prevState,
+                    [event.code]: { pressed: false },
+                })),
             200
         );
     };
 
     useEventListener("keydown", keyDownHandler);
 
-    let newWidth = Math.min(width, 787) - 40;
-    newWidth = Math.max(newWidth, 280);
-    const scale = newWidth / 787;
-    const newHeight = 265 * scale;
+    const width = Math.max(Math.min(containerWidth, 787), 280);
+    const scale = width / 787;
+    const height = 270 * scale;
 
     return (
         <div
-            className="scaleable-wrapper"
+            class="keyboard-wrapper"
             style={{
-                height: newHeight,
+                height,
             }}
+            ref={containerRef}
         >
             <div
-                className="very-specific-design"
+                className="keyboard"
                 style={{
                     transform: `translate(-50%, -50%) scale(${scale})`,
                 }}
             >
-                <div className="keyboard">
-                    {keyboard.map((row, rowIndex) => (
-                        <div className="row" key={rowIndex}>
-                            {row.map((key, keyIndex) => (
-                                <div
-                                    className={classNames("key", {
-                                        [key.class]: key.class,
-                                        key__symbols: key.secondary,
-                                        pressed:
-                                            pressed[key.code] && pressed[key.code].pressed,
-                                    })}
-                                    key={keyIndex}
-                                >
-                                    {key.secondary && <span>{key.secondary}</span>}
-                                    {key.display}
-                                </div>
-                            ))}
-                        </div>
-                    ))}
-                </div>
+                {keyboard.map((row, rowIndex) => (
+                    <div key={rowIndex} className="row">
+                        {row.map((key, keyIndex) => (
+                            <div
+                                key={keyIndex}
+                                className={classNames("key", {
+                                    [key.class]: key.class,
+                                    key__symbols: key.secondary,
+                                    pressed: pressed[key.code] && pressed[key.code].pressed,
+                                })}
+                            >
+                                {key.secondary && <span>{key.secondary}</span>}
+                                {key.display}
+                            </div>
+                        ))}
+                    </div>
+                ))}
             </div>
         </div>
     );

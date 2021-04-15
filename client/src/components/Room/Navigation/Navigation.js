@@ -1,9 +1,6 @@
 // Libraries & utils
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import classnames from "classnames";
-
-// Hooks
-import { useWindowSize } from "hooks";
 
 // Icons
 import { FaChevronLeft, FaEye } from "react-icons/fa";
@@ -15,14 +12,26 @@ import Tooltip from "components/Tooltip/Tooltip";
 import "./Navigation.scss";
 
 const Navigation = (props) => {
-    const { width } = useWindowSize();
-    const extended = width > 600;
+    const [isExtended, setIsExtended] = useState(false);
+    const containerRef = useRef(null);
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (!containerRef.current) return;
+            setIsExtended(containerRef.current.clientWidth > 550);
+        };
+
+        window.addEventListener("resize", handleResize);
+        handleResize();
+
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     return (
-        <div className="navigation">
-            <LeaveButton leaveRoom={props.leaveRoom} extended={extended} />
+        <div className="navigation" ref={containerRef}>
+            <LeaveButton leaveRoom={props.leaveRoom} extended={isExtended} />
             <div className="room-name">{props.roomName}</div>
-            <Spectators extended={extended} setViewSpectators={props.setViewSpectators} />
+            <Spectators extended={isExtended} setViewSpectators={props.setViewSpectators} />
         </div>
     );
 };
