@@ -75,35 +75,35 @@ const NavLinks = (props) => {
     const { width, pathname, session, showDropdown, setShowDropdown, toggleDropDown } = props;
     return (
         <Styles.NavLinks>
-            <NavItem width={width} link="" name="play" active={pathname === ""}>
+            <NavLink width={width} link="" name="play" active={pathname === ""}>
                 <FiPlay />
-            </NavItem>
-            <NavItem width={width} link="/quotes" name="quotes" active={pathname === "quotes"}>
+            </NavLink>
+            <NavLink width={width} link="/quotes" name="quotes" active={pathname === "quotes"}>
                 <BsChatSquareQuote />
-            </NavItem>
-            <NavItem
+            </NavLink>
+            <NavLink
                 width={width}
                 link="/highscores"
                 name="highscores"
                 active={pathname === "highscores"}
             >
                 <GiLaurelsTrophy />
-            </NavItem>
-            <NavItem
+            </NavLink>
+            <NavLink
                 width={width}
                 link={`/profile/${session.user.username}`}
                 name="profile"
                 active={pathname === "profile"}
             >
                 <FaRegChartBar />
-            </NavItem>
+            </NavLink>
             <User width={width} showDropdown={showDropdown} toggleDropDown={toggleDropDown} />
             {showDropdown && <UserOptions hideUserOptions={() => setShowDropdown(false)} />}
         </Styles.NavLinks>
     );
 };
 
-const NavItem = (props) => {
+const NavLink = (props) => {
     const { children, width, link, name, active } = props;
     return (
         <Styles.NavLink to={`${link}`} $active={active} $minimized={width < 390}>
