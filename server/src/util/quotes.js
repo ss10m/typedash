@@ -30,7 +30,7 @@ const quotes = [
         source: "The Eye of the World",
     },
     {
-        text: `The Shadow shall rise across the world, and darken every land, even to the smallest corner, and there shall be neither Light nor safety. And he who shall be born of the Dawn, born of the Maiden, according to Prophecy, he shall stretch forth his hands to catch the Shadow, and the world shall scream in the pain of salvation. All Glory be to the Creator, and to the Light, and to he sho shall be born again. May the Light save us from him.`,
+        text: `The Shadow shall rise across the world, and darken every land, even to the smallest corner, and there shall be neither Light nor safety. And he who shall be born of the Dawn, born of the Maiden, according to Prophecy, he shall stretch forth his hands to catch the Shadow, and the world shall scream in the pain of salvation. All Glory be to the Creator, and to the Light, and to he who shall be born again. May the Light save us from him.`,
         author: "Robert Jordan",
         source: "The Shadow Rising",
     },
