@@ -3,8 +3,8 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Chart } from "react-charts";
 import Select from "react-select";
 
-// SCSS
-import "./Charts.scss";
+// Styles
+import * as Styles from "./styles";
 
 const chartOptions = {
     WPM: "WPM",
@@ -78,17 +78,17 @@ const Charts = ({
     if (graphWpm.length < 2 || graphAccuracy.length < 2) {
         if (!showEmpty) return null;
         return (
-            <div className="chart-empty" style={{ position: "relative" }}>
+            <Styles.EmptyChart>
                 <div>NOT ENOUGH ROUNDS PLAYED</div>
-            </div>
+            </Styles.EmptyChart>
         );
     }
 
     return (
         <>
-            <div className="chart-header">
+            <Styles.Header>
                 <p>{header || `${selected.label} TIMELINE`}</p>
-                <div className="select-graph">
+                <div>
                     <Select
                         value={selected}
                         options={options}
@@ -97,7 +97,7 @@ const Charts = ({
                         onChange={(value) => setSelected(value)}
                     />
                 </div>
-            </div>
+            </Styles.Header>
             <DrawChart
                 type={type}
                 data={selected.value === chartOptions.WPM ? graphWpm : graphAccuracy}
@@ -110,10 +110,10 @@ const Charts = ({
 };
 
 const DrawChart = ({ type, data, selected, labelX, labelY }) => {
-    const [padding, setPadding] = useState("0");
+    const [padded, setPadded] = useState(false);
 
     useEffect(() => {
-        setPadding((current) => (current === "1px" ? "0" : "1px"));
+        setPadded((current) => !current);
     }, [data]);
 
     const currentData = useMemo(
@@ -135,19 +135,17 @@ const DrawChart = ({ type, data, selected, labelX, labelY }) => {
     );
 
     return (
-        <div className="chart-wrapper">
-            <div className="chart">
-                <div className="background">
-                    {labelY && <div className="wpm-tag">{selected.value}</div>}
-                    {labelX && <div className="progress-tag">PROGRESS (%)</div>}
+        <Styles.Chart>
+            <Styles.Background>
+                {labelY && <Styles.Tag $wpm>{selected.value}</Styles.Tag>}
+                {labelX && <Styles.Tag $progress>PROGRESS (%)</Styles.Tag>}
+            </Styles.Background>
+            <Styles.Foreground $padded={padded}>
+                <div>
+                    <Chart data={currentData} axes={axes} primaryCursor secondaryCursor />
                 </div>
-                <div className="foreground-wrapper">
-                    <div className="foreground" style={{ marginRight: padding }}>
-                        <Chart data={currentData} axes={axes} primaryCursor secondaryCursor />
-                    </div>
-                </div>
-            </div>
-        </div>
+            </Styles.Foreground>
+        </Styles.Chart>
     );
 };
 
