@@ -16,7 +16,7 @@ export const sessionizeUser = (user) => {
         username: user.username,
         displayName: user.display_name,
         accountType: user.account_type,
-        last_login: new Date(),
+        createdAt: user.created_at,
     };
 };
 
