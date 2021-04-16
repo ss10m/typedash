@@ -1,6 +1,5 @@
 // Libraries & utils
 import { useEffect, useState } from "react";
-import classNames from "classnames";
 
 // Redux
 import { useDispatch } from "react-redux";
@@ -17,28 +16,28 @@ import Spinner from "../Spinner/Spinner";
 // Constants
 import { TEST_TYPE, FIELD_TYPE } from "helpers/constants";
 
-// SCSS
-import "./Landing.scss";
+// Styles
+import * as Styles from "./styles";
 
 const Landing = () => {
     return (
-        <div className="landing-wrapper">
-            <div className="landing">
+        <Styles.Wrapper>
+            <Styles.Landing>
                 <Header />
                 <View />
-            </div>
-        </div>
+            </Styles.Landing>
+        </Styles.Wrapper>
     );
 };
 
 const Header = () => {
     return (
-        <div className="header">
-            <div>WELCOME TO</div>
-            <div className="title">
+        <Styles.Header>
+            <p>WELCOME TO</p>
+            <p>
                 TYPE<span>DASH</span>
-            </div>
-        </div>
+            </p>
+        </Styles.Header>
     );
 };
 
@@ -64,9 +63,9 @@ const View = () => {
             return <Register setView={setView} />;
         default:
             return (
-                <div className="loading">
+                <Styles.Loading>
                     <Spinner />
-                </div>
+                </Styles.Loading>
             );
     }
 };
@@ -92,8 +91,8 @@ const GuestLogin = ({ setView, username, setUsername }) => {
 
     return (
         <>
-            <div className="guest-login">
-                <div className="title">Create a temporary account</div>
+            <Styles.GuestLogin>
+                <p>Create a temporary account</p>
                 <InputChecker
                     test={TEST_TYPE.AVAILABLE}
                     type={FIELD_TYPE.USERNAME}
@@ -104,27 +103,20 @@ const GuestLogin = ({ setView, username, setUsername }) => {
                     margin={false}
                     isDisabled={isFetching}
                 />
-                <button
-                    className={classNames("button", {
-                        disabled: isDisabled,
-                    })}
-                    onClick={onSubmit}
-                >
+                <Styles.Button onClick={onSubmit} $disabled={isDisabled}>
                     <span>JOIN</span>
-                </button>
-            </div>
-            <div className="account-buttons">
+                </Styles.Button>
+            </Styles.GuestLogin>
+            <Styles.Navigation>
                 <div>
                     Already have an account?
                     <button onClick={() => setView("login")}>SIGN IN</button>
                 </div>
                 <div>
                     Need a new account?
-                    <button className="register" onClick={() => setView("register")}>
-                        REGISTER
-                    </button>
+                    <button onClick={() => setView("register")}>REGISTER</button>
                 </div>
-            </div>
+            </Styles.Navigation>
         </>
     );
 };
@@ -168,7 +160,7 @@ const Login = ({ setView }) => {
 
     return (
         <>
-            <div className="landing-width">
+            <Styles.InputFields>
                 <InputChecker
                     test={TEST_TYPE.EXISTS}
                     type={FIELD_TYPE.USERNAME}
@@ -187,8 +179,8 @@ const Login = ({ setView }) => {
                     setCredentials={setCredentials}
                     isDisabled={isFetching}
                 />
-                <div className="msg">{credentials.msg}</div>
-            </div>
+                <Styles.ErrorMsg>{credentials.msg}</Styles.ErrorMsg>
+            </Styles.InputFields>
             <NavButtons
                 name="LOGIN"
                 setView={setView}
@@ -253,7 +245,7 @@ const Register = ({ setView }) => {
 
     return (
         <>
-            <div className="landing-width">
+            <Styles.InputFields>
                 <InputChecker
                     test={TEST_TYPE.AVAILABLE}
                     type={FIELD_TYPE.USERNAME}
@@ -285,8 +277,8 @@ const Register = ({ setView }) => {
                     invalid={mismatchedPasswords}
                     isDisabled={isFetching}
                 />
-                <div className="msg">{credentials.msg}</div>
-            </div>
+                <Styles.ErrorMsg>{credentials.msg}</Styles.ErrorMsg>
+            </Styles.InputFields>
             <NavButtons
                 name="REGISTER"
                 setView={setView}
@@ -299,17 +291,14 @@ const Register = ({ setView }) => {
 
 const NavButtons = ({ name, setView, isDisabled, onClick }) => {
     return (
-        <div className="landing-buttons">
-            <button
-                className={classNames("button", { disabled: isDisabled })}
-                onClick={onClick}
-            >
+        <Styles.Buttons>
+            <Styles.Button onClick={onClick} $disabled={isDisabled} $primary>
                 <span>{name}</span>
-            </button>
-            <button className="button cancel" onClick={() => setView("guest")}>
+            </Styles.Button>
+            <Styles.Button onClick={() => setView("guest")} $cancel>
                 <span>CANCEL</span>
-            </button>
-        </div>
+            </Styles.Button>
+        </Styles.Buttons>
     );
 };
 

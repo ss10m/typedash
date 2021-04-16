@@ -42,7 +42,12 @@ const App = () => {
     } else if (error) {
         return <Error msg={error} />;
     } else if (!session.user) {
-        return <Landing />;
+        return (
+            <>
+                <Styles.GlobalStyle />
+                <Landing />
+            </>
+        );
     } else if (!session.isConnected) {
         return null;
     }
