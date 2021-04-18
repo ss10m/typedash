@@ -16,11 +16,53 @@ export const Dropdown = styled.div`
 
 export const Header = styled.div`
     display: flex;
-    align-items: center;
-    margin: 10px 0;
+    flex-direction: column;
+    margin-top: 10px;
     border-radius: 7px 7px 0 0;
-    padding: 8px 20px 1px 20px;
+    padding: 8px 0 1px 15px;
     color: whitesmoke;
+`;
+
+export const UserInfo = styled.div`
+    display: flex;
+    align-items: center;
+
+    div {
+        flex: 1;
+        margin: 0 5px;
+        overflow: hidden;
+
+        ${(props) =>
+            props.$username &&
+            css`
+                margin-left: 8px;
+            `}
+
+        & > p {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            ${(props) =>
+                props.$username
+                    ? css`
+                          font-weight: 900;
+                          font-size: 18px;
+                      `
+                    : css`
+                          font-size: 14px;
+                      `}
+        }
+    }
+
+    &:nth-of-type(2) {
+        margin-top: 8px;
+        margin-left: 7px;
+
+        div {
+            margin-left: 10px;
+        }
+    }
 `;
 
 export const Icon = styled.span`
@@ -30,6 +72,7 @@ export const Icon = styled.span`
         props.$header &&
         css`
             font-size: 30px;
+            color: darkcyan;
         `}
 
     ${(props) =>
@@ -38,33 +81,6 @@ export const Icon = styled.span`
             font-size: 18px;
             margin-right: 8px;
         `}
-`;
-
-export const UserInfo = styled.div`
-    margin-left: 8px;
-    width: 150px;
-
-    & > p {
-        font-weight: 700;
-        font-size: 16px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        color: gold;
-    }
-
-    div {
-        display: flex;
-        align-items: center;
-        margin: 0;
-        margin-top: 2px;
-        font-size: 14px;
-        font-weight: 300;
-
-        p {
-            margin-left: 5px;
-        }
-    }
 `;
 
 export const Divider = styled.hr`

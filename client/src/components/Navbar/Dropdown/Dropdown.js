@@ -47,7 +47,7 @@ const Dropdown = withClickWatcher(
                 {user.accountType === ACCOUNT_TYPE.GUEST ? (
                     <Button
                         icon={FaRegCopy}
-                        text="claim account"
+                        text="Claim Account"
                         action={showClaimAccount}
                         hideDropdown={hideDropdown}
                     />
@@ -55,12 +55,12 @@ const Dropdown = withClickWatcher(
                     <>
                         <Button
                             icon={FaRegUser}
-                            text="change username"
+                            text="Change Username"
                             hideDropdown={hideDropdown}
                         />
                         <Button
                             icon={FaUnlockAlt}
-                            text="change password"
+                            text="Change Password"
                             hideDropdown={hideDropdown}
                         />
                     </>
@@ -68,7 +68,7 @@ const Dropdown = withClickWatcher(
                 <Styles.Divider />
                 <Button
                     icon={FaSignOutAlt}
-                    text="logout"
+                    text="Logout"
                     action={handleLogout}
                     hideDropdown={hideDropdown}
                 />
@@ -80,15 +80,19 @@ const Dropdown = withClickWatcher(
 const Header = ({ user }) => {
     return (
         <Styles.Header>
-            <Styles.Icon $header>
-                <FaUserCircle />
-            </Styles.Icon>
-            <Styles.UserInfo>
-                <p>{user.displayName}</p>
+            <Styles.UserInfo $username>
+                <Styles.Icon $header>
+                    <FaUserCircle />
+                </Styles.Icon>
                 <div>
-                    <Styles.Icon>
-                        <FaBirthdayCake />
-                    </Styles.Icon>
+                    <p>{user.displayName}</p>
+                </div>
+            </Styles.UserInfo>
+            <Styles.UserInfo>
+                <Styles.Icon>
+                    <FaBirthdayCake />
+                </Styles.Icon>
+                <div>
                     <p>{moment(user.createdAt).format("MMM Do, YYYY")}</p>
                 </div>
             </Styles.UserInfo>
@@ -112,7 +116,7 @@ const Button = (props) => {
             <Styles.Icon $option>
                 <Icon />
             </Styles.Icon>
-            {text.toUpperCase()}
+            {text}
         </Styles.Button>
     );
 };
