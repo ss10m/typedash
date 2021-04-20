@@ -7,10 +7,10 @@ import { RiUser3Line } from "react-icons/ri";
 
 // Components
 import Charts from "components/Charts/Charts";
-import Username from "./Username/Username";
+//import Username from "./Username/Username";
 import Results from "./Results/Results";
 import QuoteModal from "components/QuoteModal/QuoteModal";
-import MoonLoader from "react-spinners/MoonLoader";
+import Error from "components/Error/Error";
 
 // Constants
 import { handleResponse } from "helpers";
@@ -20,12 +20,11 @@ import "./Profile.scss";
 
 const Profile = () => {
     const { username } = useParams();
-    const [userData, setUserData] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [profile, setProfile] = useState(null);
+    const [containsError, setContainsError] = useState(false);
     const [quoteModal, setQuoteModal] = useState(false);
 
     const fetchData = useCallback((username) => {
-        setIsLoading(true);
         fetch("/api/profile", {
             method: "POST",
             body: JSON.stringify({ username }),
@@ -41,41 +40,37 @@ const Profile = () => {
                     graphData["wpm"].push(["GAME " + (index + 1), point.wpm]);
                     graphData["accuracy"].push(["GAME " + (index + 1), point.accuracy]);
                 });
-                setUserData({ avg, recentAvg, graph: graphData, topResults, recentResults });
+                setProfile({ avg, recentAvg, graph: graphData, topResults, recentResults });
             })
             .catch(() => {
-                setUserData(null);
-            })
-            .finally(() => setIsLoading(false));
+                setContainsError(true);
+            });
     }, []);
 
     useEffect(() => {
+        setProfile(null);
+        setContainsError(false);
         fetchData(username);
     }, [username, fetchData]);
 
-    if (isLoading)
-        return (
-            <div className="profile loading">
-                <MoonLoader color="whitesmoke" css="display: block;" size={60} />
-            </div>
-        );
-    if (!userData) return <div>User not found</div>;
+    if (containsError) return <Error msg="User not found" />;
+    if (!profile) return null;
 
     return (
         <div className="profile">
             <Header username={username} />
-            <Stats allTime={userData.avg} recent={userData.recentAvg} />
+            <Stats allTime={profile.avg} recent={profile.recentAvg} />
             <Charts
                 type="ordinal"
-                header={`LAST ${userData.graph.wpm.length} GAMES`}
-                graphWpm={userData.graph.wpm}
-                graphAccuracy={userData.graph.accuracy}
+                header={`LAST ${profile.graph.wpm.length} GAMES`}
+                graphWpm={profile.graph.wpm}
+                graphAccuracy={profile.graph.accuracy}
                 showEmpty
                 labelY
             />
             <Results
-                top={userData.topResults}
-                recent={userData.recentResults}
+                top={profile.topResults}
+                recent={profile.recentResults}
                 setQuoteModal={setQuoteModal}
             />
             {quoteModal && (

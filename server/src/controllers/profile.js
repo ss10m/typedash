@@ -29,18 +29,16 @@ const getProfile = async (username, cb) => {
 
     const { avg, recentAvg } = validateData(avgStats[0], recentAvgStats[0]);
 
-    setTimeout(() => {
-        cb({
-            meta: { ok: true, message: "" },
-            data: {
-                avg,
-                recentAvg,
-                graph: graphData.reverse(),
-                topResults,
-                recentResults,
-            },
-        });
-    }, 1000);
+    cb({
+        meta: { ok: true, message: "" },
+        data: {
+            avg,
+            recentAvg,
+            graph: graphData.reverse(),
+            topResults,
+            recentResults,
+        },
+    });
 };
 
 const validateData = (avgStats, recentAvgStats) => {
