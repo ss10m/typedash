@@ -40,7 +40,12 @@ const App = () => {
     if (!session.isLoaded) {
         return null;
     } else if (error) {
-        return <Error msg={error} />;
+        return (
+            <Styles.App>
+                <Styles.GlobalStyle />
+                <Error msg={error} forceRefresh />
+            </Styles.App>
+        );
     } else if (!session.user) {
         return (
             <>
@@ -76,7 +81,7 @@ const App = () => {
                             <Profile />
                         </Route>
                         <Route>
-                            <Error msg="404 NOT FOUND" />
+                            <Error />
                         </Route>
                     </Switch>
                 </div>

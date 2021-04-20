@@ -14,10 +14,7 @@ export default (io, socket) => {
     }
     let connection = new Connection(browserId, socket.id);
     if (!connection.isValid) {
-        socket.emit(
-            "handle-error",
-            "Reached maximum number of allowed tabs in a single browser"
-        );
+        socket.emit("handle-error", "Could not connect");
         return socket.disconnect();
     }
 

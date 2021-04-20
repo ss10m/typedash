@@ -17,7 +17,7 @@ export class Connection {
                 const removedId = connections.shift();
                 Connection.io
                     .to(removedId)
-                    .emit("handle-error", "It looks like you opened more tabs than allowed");
+                    .emit("handle-error", "Looks like you opened more tabs than allowed");
                 if (Connection.io.sockets.connected[removedId]) {
                     Connection.io.sockets.connected[removedId].disconnect();
                 }

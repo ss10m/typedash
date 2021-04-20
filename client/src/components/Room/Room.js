@@ -45,7 +45,7 @@ const Room = () => {
     const [graphAccuracy, setGraphAccuracy] = useState([]);
     const [viewSpectators, setViewSpectators] = useState(false);
 
-    if (error) return <Error msg={error} goBack={() => history.goBack()} />;
+    if (error) return <Error msg={error} />;
     if (!room) return null;
 
     const socketId = SocketAPI.getSocketId();
