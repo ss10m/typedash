@@ -68,7 +68,7 @@ const Highscores = () => {
             <Styles.Highscores>
                 <Styles.Tabs>
                     <p>HIGHSCORES</p>
-                    <RefreshButton fetchData={fetchData} />
+                    <RefreshButton fetchData={fetchData} disabled={isFetching} />
                 </Styles.Tabs>
                 <Header />
                 <Styles.Scores ref={containerRef}>
@@ -93,10 +93,10 @@ const Highscores = () => {
     );
 };
 
-const RefreshButton = ({ fetchData }) => {
+const RefreshButton = ({ fetchData, disabled }) => {
     const [isRefreshing, setIsRefreshing] = useState(false);
     const refresh = () => {
-        if (isRefreshing) return;
+        if (disabled || isRefreshing) return;
         setIsRefreshing(true);
         fetchData();
         setTimeout(() => {
@@ -105,7 +105,11 @@ const RefreshButton = ({ fetchData }) => {
     };
 
     return (
-        <Styles.RefreshBtn onClick={refresh} $disabled={isRefreshing} $animate={isRefreshing}>
+        <Styles.RefreshBtn
+            onClick={refresh}
+            $disabled={disabled || isRefreshing}
+            $animate={isRefreshing}
+        >
             <span>
                 <FiRefreshCw />
             </span>

@@ -43,7 +43,7 @@ export const RefreshBtn = styled.div`
         props.$disabled
             ? css`
                   span {
-                      opacity: 0.5;
+                      opacity: 0.6;
                   }
               `
             : css`
@@ -90,7 +90,7 @@ export const Header = styled.div`
 
 export const Scores = styled.div`
     flex: 1;
-    background-color: #203140;
+    background-color: #233545;
     border: 2px solid #3a5068;
     border-top: none;
     display: flex;
