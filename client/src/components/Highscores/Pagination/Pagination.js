@@ -1,6 +1,5 @@
 // Libraries & utils
 import { useEffect, useState } from "react";
-import classnames from "classnames";
 
 // Hooks
 import { useEventListener } from "hooks";
@@ -13,8 +12,8 @@ import {
     FaAngleDoubleRight,
 } from "react-icons/fa";
 
-// SCSS
-import "./Pagination.scss";
+// Styles
+import * as Styles from "./styles";
 
 const Pagination = ({ page, updatePage, pageCount, disabled, marginBottom }) => {
     const handlePreviousClick = () => {
@@ -37,32 +36,30 @@ const Pagination = ({ page, updatePage, pageCount, disabled, marginBottom }) => 
         updatePage(pageCount);
     };
 
+    const disabledLeft = disabled || page <= 1;
+    const disabledRight = disabled || page >= pageCount;
+
     return (
-        <div
-            className={classnames("footer", {
-                disabled,
-            })}
-            style={{ marginBottom }}
-        >
-            <div className="cus-btn left" onClick={handleBackwardClick}>
+        <Styles.Pagination $marginBottom={marginBottom}>
+            <Styles.Button onClick={handleBackwardClick} $disabled={disabledLeft} $left>
                 <FaAngleDoubleLeft />
-            </div>
-            <div className="cus-btn left" onClick={handlePreviousClick}>
+            </Styles.Button>
+            <Styles.Button onClick={handlePreviousClick} $disabled={disabledLeft} $left>
                 <FaAngleLeft />
-            </div>
+            </Styles.Button>
             <Input
                 page={page}
                 updatePage={updatePage}
                 pageCount={pageCount}
                 disabled={disabled}
             />
-            <div className="cus-btn right" onClick={handleNextClick}>
+            <Styles.Button onClick={handleNextClick} $disabled={disabledRight} $right>
                 <FaAngleRight />
-            </div>
-            <div className="cus-btn right" onClick={handleForwardClick}>
+            </Styles.Button>
+            <Styles.Button onClick={handleForwardClick} $disabled={disabledRight} $right>
                 <FaAngleDoubleRight />
-            </div>
-        </div>
+            </Styles.Button>
+        </Styles.Pagination>
     );
 };
 
@@ -100,7 +97,7 @@ const Input = ({ page, updatePage, pageCount, disabled }) => {
     };
 
     return (
-        <div className="input">
+        <Styles.InputContainer>
             <input
                 value={inputValue}
                 onChange={onChange}
@@ -108,8 +105,8 @@ const Input = ({ page, updatePage, pageCount, disabled }) => {
                 onFocus={handleFocus}
                 disabled={disabled}
             />
-            {` / ${pageCount}`}
-        </div>
+            <span>{` / ${pageCount}`}</span>
+        </Styles.InputContainer>
     );
 };
 
