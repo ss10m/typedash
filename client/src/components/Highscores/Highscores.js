@@ -1,30 +1,28 @@
 // Libraries & utils
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import moment from "moment";
-import { Collapse } from "react-collapse";
-import classnames from "classnames";
 import { Link } from "react-router-dom";
 
 // Icons
-import { FaAngleUp, FaAngleDown } from "react-icons/fa";
 import { FiRefreshCw } from "react-icons/fi";
 
 // Components
-import MoonLoader from "react-spinners/MoonLoader";
 import Pagination from "./Pagination/Pagination";
+import QuoteModal from "components/QuoteModal/QuoteModal";
 
 // Constants
 import { handleResponse } from "helpers";
 
-// SCSS
-import "./Highscores.scss";
+// Styles
+import * as Styles from "./styles";
 
 const Highscores = () => {
     const [page, setPage] = useState(1);
     const [pageCount, setPageCount] = useState(1);
-    const [highscores, setHighscores] = useState([]);
+    const [scores, setScores] = useState(null);
     const [isFetching, setIsFetching] = useState(true);
     const [marginBottom, setMarginBottom] = useState(0);
+    const [quoteModal, setQuoteModal] = useState(false);
     const pageRef = useRef(1);
     const containerRef = useRef(null);
     const rowCountRef = useRef(null);
@@ -41,7 +39,7 @@ const Highscores = () => {
             .then(handleResponse)
             .then((data) => {
                 if (pageRef.current !== data.page) return;
-                setHighscores(data.results);
+                setScores(data.results);
                 setPageCount(data.pageCount);
                 setIsFetching(false);
             })
@@ -66,34 +64,32 @@ const Highscores = () => {
     };
 
     return (
-        <div className="highscores">
-            <div className="tabs">
-                <div>HIGHSCORES</div>
-                <RefreshButton fetchData={fetchData} />
-            </div>
-            <div className="header">
-                <div className="rank">#</div>
-                <div className="fields">
-                    <div className="username">USERNAME</div>
-                    <div className="wpm">WPM</div>
-                    <div className="accuracy">ACCURACY</div>
-                    <div className="time">TIME</div>
-                    <div className="expand"></div>
-                </div>
-            </div>
-            <div className="results-wrapper" ref={containerRef}>
-                <div className="results">
-                    <HighscoresData isFetching={isFetching} data={highscores} />
-                </div>
-            </div>
-            <Pagination
-                page={page}
-                updatePage={updatePage}
-                pageCount={pageCount}
-                disabled={isFetching}
-                marginBottom={marginBottom}
-            />
-        </div>
+        <>
+            <Styles.Highscores>
+                <Styles.Tabs>
+                    <p>HIGHSCORES</p>
+                    <RefreshButton fetchData={fetchData} />
+                </Styles.Tabs>
+                <Header />
+                <Styles.Scores ref={containerRef}>
+                    <Scores
+                        scores={scores}
+                        countPerPage={rowCountRef.current}
+                        setQuoteModal={setQuoteModal}
+                    />
+                </Styles.Scores>
+                <Pagination
+                    page={page}
+                    updatePage={updatePage}
+                    pageCount={pageCount}
+                    disabled={isFetching}
+                    marginBottom={marginBottom}
+                />
+            </Styles.Highscores>
+            {quoteModal && (
+                <QuoteModal quoteId={quoteModal} closeModal={() => setQuoteModal(null)} />
+            )}
+        </>
     );
 };
 
@@ -109,73 +105,51 @@ const RefreshButton = ({ fetchData }) => {
     };
 
     return (
-        <div
-            className={classnames("refresh-btn", {
-                "refresh-btn-disabled": isRefreshing,
-            })}
-            onClick={refresh}
-        >
-            <span
-                className={classnames({
-                    current: isRefreshing,
-                })}
-            >
+        <Styles.RefreshBtn onClick={refresh} $disabled={isRefreshing} $animate={isRefreshing}>
+            <span>
                 <FiRefreshCw />
             </span>
-        </div>
+        </Styles.RefreshBtn>
     );
 };
 
-const HighscoresData = ({ isFetching, data }) => {
-    if (isFetching) {
-        return (
-            <div className="empty">
-                <MoonLoader
-                    color="whitesmoke"
-                    loading={true}
-                    css="display: block;"
-                    size={60}
-                />
-            </div>
-        );
-    }
-    if (!data.length) {
-        return <div className="empty">No results found</div>;
-    }
-
-    return data.map((score, index) => <Score key={index} score={score} />);
-};
-
-const Score = ({ score }) => {
-    const [expanded, setExpanded] = useState(false);
+export const Header = () => {
     return (
-        <div className="result-wrapper">
-            <div className="num">{score.rank}</div>
-            <div className="details">
-                <div className="result">
-                    <Link className="username" to={`/profile/${score.username}`}>
-                        {score.display_name}
-                    </Link>
-
-                    <div className="wpm">{`${score.wpm}wpm`}</div>
-                    <div className="accuracy">{`${score.accuracy}%`}</div>
-                    <div className="time">{moment(score.played_at).fromNow()}</div>
-                    <div
-                        className={classnames("icon", {
-                            expanded,
-                        })}
-                    >
-                        <span onClick={() => setExpanded(!expanded)}>
-                            {expanded ? <FaAngleUp /> : <FaAngleDown />}
-                        </span>
-                    </div>
-                </div>
-                <Collapse isOpened={expanded}>
-                    <div className="quote">{`${score.text} (ID ${score.id})`}</div>
-                </Collapse>
-            </div>
-        </div>
+        <Styles.Header>
+            <Styles.Rank>#</Styles.Rank>
+            <Styles.Username>USERNAME</Styles.Username>
+            <Styles.Wpm>WPM</Styles.Wpm>
+            <Styles.Accuracy>ACCURACY</Styles.Accuracy>
+            <Styles.Time>TIME</Styles.Time>
+            <Styles.Quote>QUOTE</Styles.Quote>
+        </Styles.Header>
     );
+};
+
+const Scores = ({ scores, countPerPage, setQuoteModal }) => {
+    if (!scores) {
+        return null;
+    }
+    if (!scores.length) {
+        return <Styles.NoResults>No results found</Styles.NoResults>;
+    }
+
+    return scores.map((score, index) => (
+        <Styles.Result key={index} $hideBorder={index + 1 === countPerPage}>
+            <Styles.RankValue>{score.rank}</Styles.RankValue>
+            <Styles.UsernameValue>
+                <Link to={`/profile/${score.username}`}>{score.display_name}</Link>
+            </Styles.UsernameValue>
+            <Styles.WpmValue>{`${score.wpm}wpm`}</Styles.WpmValue>
+            <Styles.AccuracyValue>{`${score.accuracy}%`}</Styles.AccuracyValue>
+            <Styles.TimeValue>{moment(score.played_at).fromNow()}</Styles.TimeValue>
+            <Styles.QuoteValue>
+                <span
+                    onClick={() => setQuoteModal(score.quote_id)}
+                >{`${score.quote_id}`}</span>
+            </Styles.QuoteValue>
+        </Styles.Result>
+    ));
 };
 
 export default Highscores;
