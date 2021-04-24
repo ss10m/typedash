@@ -87,7 +87,7 @@ const getResults = async (id, cb) => {
 };
 
 const getTopResults = async (quoteId) => {
-    const topQuery = `SELECT users.display_name, res.wpm, res.accuracy, res.played_at,
+    const topQuery = `SELECT users.display_name, users.username, res.wpm, res.accuracy, res.played_at,
                       RANK () OVER (ORDER BY res.wpm DESC, res.accuracy DESC)
                       FROM results as res
                       INNER JOIN users ON users.id = res.user_id
@@ -100,7 +100,7 @@ const getTopResults = async (quoteId) => {
 };
 
 const getRecentResults = async (quoteId) => {
-    const topQuery = `SELECT users.display_name, res.wpm, res.accuracy, res.played_at,
+    const topQuery = `SELECT users.display_name, users.username, res.wpm, res.accuracy, res.played_at,
                       RANK () OVER (ORDER BY res.played_at DESC, res.wpm DESC)
                       FROM results as res
                       INNER JOIN users ON users.id = res.user_id

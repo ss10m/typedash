@@ -1,5 +1,6 @@
 // Libraries & utils
 import { useState, useEffect, forwardRef } from "react";
+import { Link } from "react-router-dom";
 import moment from "moment";
 
 // Constants
@@ -7,7 +8,7 @@ import { handleResponse } from "helpers";
 import { RESULT_TYPE } from "helpers/constants";
 
 // Components
-import withClickWatcher from "../withClickWatcher/withClickWatcher";
+import withClickWatcher from "components/withClickWatcher/withClickWatcher";
 
 // Styles
 import * as Styles from "./styles";
@@ -95,11 +96,11 @@ const Modal = withClickWatcher(
 const ResultsHeader = () => {
     return (
         <Styles.ResultsHeader>
-            <div>#</div>
-            <div>USERNAME</div>
-            <div>WPM</div>
-            <div>ACCURACY</div>
-            <div>TIME</div>
+            <Styles.Rank>#</Styles.Rank>
+            <Styles.Username>USERNAME</Styles.Username>
+            <Styles.Wpm>WPM</Styles.Wpm>
+            <Styles.Accuracy>ACCURACY</Styles.Accuracy>
+            <Styles.Time>TIME</Styles.Time>
         </Styles.ResultsHeader>
     );
 };
@@ -112,11 +113,13 @@ const ResultsData = ({ data }) => {
         <Styles.ResultsData>
             {data.map((score, index) => (
                 <Styles.Result key={index}>
-                    <div>{score.rank}</div>
-                    <div>{score.display_name}</div>
-                    <div>{`${score.wpm}wpm`}</div>
-                    <div>{`${score.accuracy}%`}</div>
-                    <div>{moment(score.played_at).fromNow()}</div>
+                    <Styles.RankValue>{score.rank}</Styles.RankValue>
+                    <Styles.UsernameValue>
+                        <Link to={`/profile/${score.username}`}>{score.display_name}</Link>
+                    </Styles.UsernameValue>
+                    <Styles.WpmValue>{`${score.wpm}wpm`}</Styles.WpmValue>
+                    <Styles.AccuracyValue>{`${score.accuracy}%`}</Styles.AccuracyValue>
+                    <Styles.TimeValue>{moment(score.played_at).fromNow()}</Styles.TimeValue>
                 </Styles.Result>
             ))}
         </Styles.ResultsData>

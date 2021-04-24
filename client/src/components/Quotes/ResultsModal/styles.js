@@ -31,7 +31,7 @@ export const Modal = styled.div`
     width: 100%;
     display: flex;
     flex-direction: column;
-    margin: 10px;
+    padding: 10px;
     color: whitesmoke;
 `;
 
@@ -70,7 +70,7 @@ export const Tab = styled.div`
 
 export const Results = styled.div`
     height: 442px;
-    background-color: #203140;
+    background-color: #233545;
     display: flex;
     flex-direction: column;
     border: 2px solid #3a5068;
@@ -90,27 +90,27 @@ export const ResultsHeader = styled.div`
     div {
         text-align: center;
         line-height: 40px;
-
-        &:nth-child(1) {
-            flex-basis: 8%;
-        }
-
-        &:nth-child(2) {
-            flex-basis: 30%;
-        }
-
-        &:nth-child(3) {
-            flex-basis: 18%;
-        }
-
-        &:nth-child(4) {
-            flex-basis: 18%;
-        }
-
-        &:nth-child(5) {
-            flex-basis: 26%;
-        }
     }
+`;
+
+export const Rank = styled.div`
+    flex-basis: 8%;
+`;
+
+export const Username = styled.div`
+    flex-basis: 30%;
+`;
+
+export const Wpm = styled.div`
+    flex-basis: 18%;
+`;
+
+export const Accuracy = styled.div`
+    flex-basis: 18%;
+`;
+
+export const Time = styled.div`
+    flex-basis: 26%;
 `;
 
 export const ResultsData = styled.div`
@@ -132,39 +132,49 @@ export const Result = styled.div`
     line-height: 40px;
     border-bottom: 2px solid #2c3f54;
 
-    div {
-        text-align: center;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-
-        &:nth-child(1) {
-            flex-basis: 8%;
-            font-weight: 600;
-            background-color: #2c3f54;
-        }
-
-        &:nth-child(2) {
-            flex-basis: 30%;
-            padding: 0 5px;
-        }
-
-        &:nth-child(3) {
-            flex-basis: 18%;
-        }
-
-        &:nth-child(4) {
-            flex-basis: 18%;
-        }
-
-        &:nth-child(5) {
-            flex-basis: 26%;
-        }
-    }
-
     &:nth-child(10) {
         border-bottom: 0;
     }
+`;
+
+const field = css`
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+`;
+
+export const RankValue = styled(Rank)`
+    ${field}
+    font-weight: 800;
+    background-color: #2c3f54;
+`;
+
+export const UsernameValue = styled(Username)`
+    ${field}
+
+    a {
+        padding: 0 5px;
+        text-decoration: none;
+        font-weight: 700;
+        color: whitesmoke;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+`;
+
+export const WpmValue = styled(Wpm)`
+    ${field}
+`;
+
+export const AccuracyValue = styled(Accuracy)`
+    ${field}
+`;
+
+export const TimeValue = styled(Time)`
+    ${field}
 `;
 
 export const Footer = styled.div`

@@ -10,7 +10,7 @@ import SocketAPI from "core/SocketClient";
 import { FaSortAmountDown, FaSortAmountDownAlt } from "react-icons/fa";
 
 // Components
-import ResultsModal from "components/ResultsModal/ResultsModal";
+import ResultsModal from "./ResultsModal/ResultsModal";
 
 // Constants
 import { handleResponse, roundToFixed } from "helpers";
@@ -62,23 +62,25 @@ const Quotes = () => {
     if (!isLoaded) return null;
 
     return (
-        <Styles.Quotes>
-            <Styles.Header>
-                <p>QUOTES</p>
-                <Sort setQuotes={setQuotes} />
-            </Styles.Header>
-            <div>
-                {quotes.map((quote) => (
-                    <Quote
-                        key={quote.id}
-                        quote={quote}
-                        createRoom={createRoom}
-                        setResultsModal={setResultsModal}
-                    />
-                ))}
-            </div>
+        <>
+            <Styles.Quotes>
+                <Styles.Header>
+                    <p>QUOTES</p>
+                    <Sort setQuotes={setQuotes} />
+                </Styles.Header>
+                <div>
+                    {quotes.map((quote) => (
+                        <Quote
+                            key={quote.id}
+                            quote={quote}
+                            createRoom={createRoom}
+                            setResultsModal={setResultsModal}
+                        />
+                    ))}
+                </div>
+            </Styles.Quotes>
             {resultsModal && <ResultsModal quoteId={resultsModal} closeModal={closeModal} />}
-        </Styles.Quotes>
+        </>
     );
 };
 
