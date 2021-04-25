@@ -83,6 +83,7 @@ const Player = ({ player, isCurrent, showReady, extended }) => {
 
     return (
         <div className={classNames("player-wrapper", { extended })}>
+            <div className="progress" style={{ width: `${player.stats.progress}%` }} />
             <div className={classNames("player", { left: player.leftRoom })}>
                 <div className="username">
                     {player.username}
@@ -124,7 +125,6 @@ const Player = ({ player, isCurrent, showReady, extended }) => {
                     </div>
                 )}
             </div>
-            <div className="progress" style={{ width: `${player.stats.progress}%` }} />
         </div>
     );
 };
