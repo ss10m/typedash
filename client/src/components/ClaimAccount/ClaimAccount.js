@@ -1,6 +1,5 @@
 // Libraries & utils
 import React, { forwardRef, useState, useEffect } from "react";
-import classNames from "classnames";
 
 // Redux
 import { useDispatch, useSelector } from "react-redux";
@@ -14,18 +13,32 @@ import { TEST_TYPE, FIELD_TYPE } from "helpers/constants";
 // Components
 import withClickWatcher from "components/withClickWatcher/withClickWatcher";
 
-// SCSS
-import "./ClaimAccount.scss";
+// Styles
+import * as Styles from "./styles";
 
 const ClaimAccount = () => {
+    useEffect(() => {
+        const scrollY = window.pageYOffset;
+        document.body.style.position = "fixed";
+        document.body.style.top = `-${scrollY}px`;
+
+        return () => {
+            document.body.style.position = "";
+            document.body.style.top = "";
+            window.scrollTo(0, scrollY);
+        };
+    }, []);
+
     return (
-        <div className="claim-account-wrapper">
-            <Inside />
-        </div>
+        <Styles.Background>
+            <Styles.Wrapper>
+                <Modal />
+            </Styles.Wrapper>
+        </Styles.Background>
     );
 };
 
-const Inside = withClickWatcher(
+const Modal = withClickWatcher(
     forwardRef((props, ref) => {
         const { isVisible } = props;
         const dispatch = useDispatch();
@@ -35,22 +48,22 @@ const Inside = withClickWatcher(
         }, [dispatch, isVisible]);
 
         return (
-            <div className="claim-account" ref={ref}>
+            <Styles.Modal ref={ref}>
                 <Header />
                 <Register />
-            </div>
+            </Styles.Modal>
         );
     })
 );
 
 const Header = () => {
     return (
-        <div className="header">
-            <div className="title">
+        <Styles.Header>
+            <div>
                 TYPE<span>DASH</span>
             </div>
             <div>CLAIM ACCOUNT</div>
-        </div>
+        </Styles.Header>
     );
 };
 
@@ -75,7 +88,7 @@ const Register = () => {
 
     return (
         <>
-            <div className="landing-width">
+            <div>
                 <InputChecker
                     test={TEST_TYPE.AVAILABLE}
                     type={FIELD_TYPE.USERNAME}
@@ -112,14 +125,14 @@ const Register = () => {
 const NavButtons = ({ name, isDisabled }) => {
     const dispatch = useDispatch();
     return (
-        <div className="landing-buttons">
-            <button className={classNames("button", { disabled: isDisabled })}>
+        <Styles.Buttons>
+            <Styles.Button $disabled={isDisabled} $primary>
                 <span>{name}</span>
-            </button>
-            <button className="button cancel" onClick={() => dispatch(hideClaimAccount())}>
+            </Styles.Button>
+            <Styles.Button onClick={() => dispatch(hideClaimAccount())} $cancel>
                 <span>CANCEL</span>
-            </button>
-        </div>
+            </Styles.Button>
+        </Styles.Buttons>
     );
 };
 
