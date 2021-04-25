@@ -60,7 +60,6 @@ const App = () => {
     return (
         <>
             <Styles.GlobalStyle />
-            {claimAccount && <ClaimAccount />}
             <Styles.App>
                 <div>
                     <Navbar />
@@ -84,6 +83,7 @@ const App = () => {
                             <Error />
                         </Route>
                     </Switch>
+                    {claimAccount && <ClaimAccount />}
                 </div>
             </Styles.App>
         </>
