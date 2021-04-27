@@ -11,7 +11,7 @@ import { useEventListener } from "hooks";
 // Components
 import Input from "../Input/Input";
 import InputChecker from "../InputChecker/InputChecker";
-import Spinner from "../Spinner/Spinner";
+import Checkmark from "../Checkmark/Checkmark";
 
 // Constants
 import { TEST_TYPE, FIELD_TYPE } from "helpers/constants";
@@ -61,12 +61,14 @@ const View = () => {
             return <Login setView={setView} />;
         case "register":
             return <Register setView={setView} />;
-        default:
+        case "checkmark":
             return (
-                <Styles.Loading>
-                    <Spinner />
-                </Styles.Loading>
+                <Styles.Body>
+                    <Checkmark />
+                </Styles.Body>
             );
+        default:
+            return null;
     }
 };
 
@@ -80,13 +82,17 @@ const GuestLogin = ({ setView, username, setUsername }) => {
     });
 
     const onSubmit = () => {
+        if (isFetching) return;
         setIsFetching(true);
         const userInfo = { username: username.value };
+        const onSuccess = () => {
+            setView("checkmark");
+        };
         const onFailure = () => {
             setIsFetching(false);
             setUsername((current) => ({ ...current, valid: false }));
         };
-        dispatch(loginAsGuest(userInfo, onFailure));
+        dispatch(loginAsGuest(userInfo, onSuccess, onFailure));
     };
 
     return (
@@ -143,10 +149,14 @@ const Login = ({ setView }) => {
     });
 
     const onSubmit = () => {
+        if (isFetching) return;
         setIsFetching(true);
         const loginInfo = {
             username: username.value,
             password: password.value,
+        };
+        const onSuccess = () => {
+            setView("checkmark");
         };
         const onFailure = (msg) => {
             setCredentials({
@@ -155,7 +165,7 @@ const Login = ({ setView }) => {
             });
             setIsFetching(false);
         };
-        dispatch(login(loginInfo, onFailure));
+        dispatch(login(loginInfo, onSuccess, onFailure));
     };
 
     return (
@@ -226,12 +236,16 @@ const Register = ({ setView }) => {
     });
 
     const onSubmit = () => {
+        if (isFetching) return;
         setIsFetching(true);
         const loginInfo = {
             username: username.value,
             email: email.value,
             password: password.value,
             confirmPassword: confirmPassword.value,
+        };
+        const onSuccess = () => {
+            setView("checkmark");
         };
         const onFailure = (msg) => {
             setCredentials({
@@ -240,7 +254,7 @@ const Register = ({ setView }) => {
             });
             setIsFetching(false);
         };
-        dispatch(register(loginInfo, onFailure));
+        dispatch(register(loginInfo, onSuccess, onFailure));
     };
 
     return (

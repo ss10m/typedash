@@ -37,8 +37,11 @@ export const Header = styled.div`
     }
 `;
 
-export const Loading = styled.div`
+export const Body = styled.div`
     flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 `;
 
 export const ErrorMsg = styled.div`
