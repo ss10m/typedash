@@ -104,7 +104,55 @@ const loginAsGuest = async (session, body, cb) => {
     }
 };
 
-const claimAccount = async (session, body, cb) => {};
+const claimAccount = async (session, body, cb) => {
+    try {
+        const { user } = session;
+        console.log(user);
+
+        const { username, email, password, confirmPassword } = body;
+        await Joi.validate({ username, email, password, confirmPassword }, signUp);
+
+        const query = "SELECT * FROM users WHERE username = $1";
+        const values = [username.toLowerCase()];
+        const result = await db.query(query, values);
+
+        if (result.rows.length && user.username !== username.toLowerCase()) {
+            cb({
+                meta: {
+                    ok: false,
+                    message: "Username already exists",
+                },
+                data: {},
+            });
+            return;
+        }
+
+        const { salt, hash } = encryptPassword(password);
+        const queryInsert = `UPDATE users
+                             SET account_type = $1,
+                                 username = $2,
+                                 display_name = $3,
+                                 email = $4,
+                                 salt = $5,
+                                 hash = $6
+                             WHERE id = $7
+                             RETURNING *`;
+        const valuesInsert = [2, username.toLowerCase(), username, email, salt, hash, user.id];
+        const updated = await db.query(queryInsert, valuesInsert);
+        session.user = sessionizeUser(updated.rows[0]);
+
+        cb({
+            meta: {
+                ok: true,
+                message: "",
+            },
+            data: { user: sessionUser },
+        });
+    } catch (err) {
+        let meta = { ok: false, message: parseError(err) };
+        cb({ meta, data: {} });
+    }
+};
 
 const register = async (session, body, cb) => {
     try {

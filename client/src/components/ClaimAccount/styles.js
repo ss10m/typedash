@@ -55,8 +55,18 @@ export const Header = styled.div`
     }
 `;
 
-export const Buttons = styled.div`
-    margin-top: 20px;
+export const Body = styled.div`
+    height: 340px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    ${(props) =>
+        props.$center &&
+        css`
+            justify-content: center;
+            align-items: center;
+        `}
 `;
 
 export const Button = styled.button`

@@ -26,7 +26,7 @@ const clearSession = () => ({
     type: "CLEAR_SESSION",
 });
 
-const login = (loginInfo, onFailure) => async (dispatch) => {
+const login = (loginInfo, onSuccess, onFailure) => async (dispatch) => {
     fetch("/api/session", {
         method: "POST",
         body: JSON.stringify(loginInfo),
@@ -36,16 +36,19 @@ const login = (loginInfo, onFailure) => async (dispatch) => {
     })
         .then(handleResponse)
         .then((data) => {
-            let sessionState = { isLoaded: true, user: data.user };
-            dispatch(setSession(sessionState));
-            socketIO.connect();
+            onSuccess();
+            const sessionState = { isLoaded: true, user: data.user };
+            setTimeout(() => {
+                dispatch(setSession(sessionState));
+                socketIO.connect();
+            }, 2000);
         })
         .catch((error) => {
             onFailure(error.message);
         });
 };
 
-const loginAsGuest = (userInfo, onFailure) => async (dispatch) => {
+const loginAsGuest = (userInfo, onSuccess, onFailure) => async (dispatch) => {
     fetch("/api/session/guest", {
         method: "POST",
         body: JSON.stringify(userInfo),
@@ -55,18 +58,38 @@ const loginAsGuest = (userInfo, onFailure) => async (dispatch) => {
     })
         .then(handleResponse)
         .then((data) => {
-            let sessionState = { isLoaded: true, user: data.user };
-            dispatch(setSession(sessionState));
-            socketIO.connect();
+            onSuccess();
+            const sessionState = { isLoaded: true, user: data.user };
+            setTimeout(() => {
+                dispatch(setSession(sessionState));
+                socketIO.connect();
+            }, 2000);
         })
         .catch(() => {
             onFailure();
         });
 };
 
-const claimAccount = () => async (dispatch) => {};
+const claimAccount = (userInfo, onSuccess, onFailure) => async (dispatch) => {
+    fetch("/api/session/claim", {
+        method: "POST",
+        body: JSON.stringify(userInfo),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then(handleResponse)
+        .then((data) => {
+            onSuccess();
+            const sessionState = { isLoaded: true, user: data.user };
+            dispatch(setSession(sessionState));
+        })
+        .catch((msg) => {
+            onFailure();
+        });
+};
 
-const register = (userInfo, onFailure) => async (dispatch) => {
+const register = (userInfo, onSuccess, onFailure) => async (dispatch) => {
     fetch("/api/session/register", {
         method: "POST",
         body: JSON.stringify(userInfo),
@@ -76,9 +99,12 @@ const register = (userInfo, onFailure) => async (dispatch) => {
     })
         .then(handleResponse)
         .then((data) => {
-            let sessionState = { isLoaded: true, user: data.user };
-            dispatch(setSession(sessionState));
-            socketIO.connect();
+            onSuccess();
+            const sessionState = { isLoaded: true, user: data.user };
+            setTimeout(() => {
+                dispatch(setSession(sessionState));
+                socketIO.connect();
+            }, 2000);
         })
         .catch((error) => {
             onFailure(error.message);
