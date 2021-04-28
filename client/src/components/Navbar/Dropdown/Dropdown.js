@@ -5,17 +5,10 @@ import moment from "moment";
 
 // Redux
 import { useDispatch, useSelector } from "react-redux";
-import { logout, showClaimAccount } from "store/actions";
+import { logout } from "store/actions";
 
 // Icons
-import {
-    FaUserCircle,
-    FaBirthdayCake,
-    FaRegCopy,
-    FaUnlockAlt,
-    FaRegUser,
-    FaSignOutAlt,
-} from "react-icons/fa";
+import { FaUserCircle, FaBirthdayCake, FaRegCopy, FaCog, FaSignOutAlt } from "react-icons/fa";
 
 // Constants
 import { ACCOUNT_TYPE } from "helpers/constants";
@@ -28,8 +21,9 @@ import * as Styles from "./styles.js";
 
 const Dropdown = withClickWatcher(
     forwardRef((props, ref) => {
-        const { hideDropdown, isVisible } = props;
+        const { isVisible, hideDropdown, showSettings, showClaimAccount } = props;
         const { user } = useSelector((state) => state.session);
+        const dispatch = useDispatch();
 
         useEffect(() => {
             if (!isVisible) hideDropdown();
@@ -37,7 +31,7 @@ const Dropdown = withClickWatcher(
 
         const handleLogout = () => {
             props.history.push("");
-            return logout();
+            dispatch(logout());
         };
 
         return (
@@ -48,28 +42,22 @@ const Dropdown = withClickWatcher(
                     <Button
                         icon={FaRegCopy}
                         text="Claim Account"
-                        action={showClaimAccount}
+                        onClick={showClaimAccount}
                         hideDropdown={hideDropdown}
                     />
                 ) : (
-                    <>
-                        <Button
-                            icon={FaRegUser}
-                            text="Change Username"
-                            hideDropdown={hideDropdown}
-                        />
-                        <Button
-                            icon={FaUnlockAlt}
-                            text="Change Password"
-                            hideDropdown={hideDropdown}
-                        />
-                    </>
+                    <Button
+                        icon={FaCog}
+                        text="Settings"
+                        onClick={showSettings}
+                        hideDropdown={hideDropdown}
+                    />
                 )}
                 <Styles.Divider />
                 <Button
                     icon={FaSignOutAlt}
                     text="Logout"
-                    action={handleLogout}
+                    onClick={handleLogout}
                     hideDropdown={hideDropdown}
                 />
             </Styles.Dropdown>
@@ -101,18 +89,16 @@ const Header = ({ user }) => {
 };
 
 const Button = (props) => {
-    const { icon, text, onClick, action, hideDropdown } = props;
+    const { icon, text, onClick, hideDropdown } = props;
     const Icon = icon;
-    const dispatch = useDispatch();
 
-    const onButtonClick = () => {
-        if (action) dispatch(action());
-        if (onClick) onClick();
+    const handleClick = () => {
+        onClick();
         hideDropdown();
     };
 
     return (
-        <Styles.Button onClick={onButtonClick}>
+        <Styles.Button onClick={handleClick}>
             <Styles.Icon $option>
                 <Icon />
             </Styles.Icon>

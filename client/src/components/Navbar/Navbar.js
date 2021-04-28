@@ -15,7 +15,7 @@ import Dropdown from "./Dropdown/Dropdown";
 // Styles
 import * as Styles from "./styles";
 
-const Navbar = () => {
+const Navbar = ({ showSettings, showClaimAccount }) => {
     const [pathname, setPathname] = useState("");
     const [showDropdown, setShowDropdown] = useState(false);
     const [containerWidth, setContainerWidth] = useState(null);
@@ -56,7 +56,13 @@ const Navbar = () => {
                 showDropdown={showDropdown}
                 toggleDropDown={toggleDropDown}
             />
-            {showDropdown && <Dropdown hideDropdown={() => setShowDropdown(false)} />}
+            {showDropdown && (
+                <Dropdown
+                    hideDropdown={() => setShowDropdown(false)}
+                    showSettings={showSettings}
+                    showClaimAccount={showClaimAccount}
+                />
+            )}
         </Styles.Navbar>
     );
 };

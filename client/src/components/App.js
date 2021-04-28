@@ -1,5 +1,5 @@
 // Libraries & utils
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Route, Switch } from "react-router-dom";
 import WebFont from "webfontloader";
 
@@ -17,13 +17,16 @@ import Highscores from "./Highscores/Highscores";
 import Profile from "./Profile/Profile";
 import Quotes from "./Quotes/Quotes";
 import ClaimAccount from "./ClaimAccount/ClaimAccount";
+import Settings from "./Settings/Settings";
 
 // Styles
 import * as Styles from "./styles";
 
 const App = () => {
-    const { session, error, claimAccount } = useSelector((state) => state);
     const dispatch = useDispatch();
+    const { session, error } = useSelector((state) => state);
+    const [showSettings, setShowSettings] = useState(false);
+    const [showClaimAccount, setShowClaimAccount] = useState(false);
 
     useEffect(() => {
         WebFont.load({
@@ -62,7 +65,10 @@ const App = () => {
             <Styles.GlobalStyle />
             <Styles.App>
                 <div>
-                    <Navbar />
+                    <Navbar
+                        showSettings={() => setShowSettings(true)}
+                        showClaimAccount={() => setShowClaimAccount(true)}
+                    />
                     <Switch>
                         <Route exact path="/">
                             <Rooms />
@@ -83,7 +89,10 @@ const App = () => {
                             <Error />
                         </Route>
                     </Switch>
-                    {claimAccount && <ClaimAccount />}
+                    {showSettings && <Settings hide={() => setShowSettings(false)} />}
+                    {showClaimAccount && (
+                        <ClaimAccount hide={() => setShowClaimAccount(false)} />
+                    )}
                 </div>
             </Styles.App>
         </>

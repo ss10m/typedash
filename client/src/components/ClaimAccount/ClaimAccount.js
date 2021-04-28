@@ -3,7 +3,7 @@ import React, { forwardRef, useState, useEffect } from "react";
 
 // Redux
 import { useDispatch, useSelector } from "react-redux";
-import { claimAccount, hideClaimAccount } from "store/actions";
+import { claimAccount } from "store/actions";
 
 import InputChecker from "../InputChecker/InputChecker";
 
@@ -17,7 +17,7 @@ import withClickWatcher from "components/withClickWatcher/withClickWatcher";
 // Styles
 import * as Styles from "./styles";
 
-const ClaimAccount = () => {
+const ClaimAccount = ({ hide }) => {
     useEffect(() => {
         const scrollY = window.pageYOffset;
         document.body.style.position = "fixed";
@@ -33,7 +33,7 @@ const ClaimAccount = () => {
     return (
         <Styles.Background>
             <Styles.Wrapper>
-                <Modal />
+                <Modal hide={hide} />
             </Styles.Wrapper>
         </Styles.Background>
     );
@@ -41,13 +41,12 @@ const ClaimAccount = () => {
 
 const Modal = withClickWatcher(
     forwardRef((props, ref) => {
-        const { isVisible } = props;
-        const dispatch = useDispatch();
+        const { isVisible, hide } = props;
         const [completed, setCompleted] = useState(false);
 
         useEffect(() => {
-            if (!isVisible) dispatch(hideClaimAccount());
-        }, [dispatch, isVisible]);
+            if (!isVisible) hide();
+        }, [isVisible, hide]);
 
         return (
             <Styles.Modal ref={ref}>
@@ -59,9 +58,9 @@ const Modal = withClickWatcher(
                 </Styles.Header>
                 <Styles.Body $center={completed}>
                     {completed ? (
-                        <Checkmark diameter={160} close={() => dispatch(hideClaimAccount())} />
+                        <Checkmark diameter={160} close={hide} />
                     ) : (
-                        <Inputs setCompleted={setCompleted} />
+                        <Inputs setCompleted={setCompleted} hide={hide} />
                     )}
                 </Styles.Body>
             </Styles.Modal>
@@ -69,7 +68,7 @@ const Modal = withClickWatcher(
     })
 );
 
-const Inputs = ({ setCompleted }) => {
+const Inputs = ({ setCompleted, hide }) => {
     const dispatch = useDispatch();
     const currentUsername = useSelector((state) => state.session.user.username);
     const [submitted, setSubmitted] = useState(false);
@@ -145,19 +144,18 @@ const Inputs = ({ setCompleted }) => {
                     invalid={mismatchedPasswords}
                 />
             </div>
-            <NavButtons name="claim" claim={claim} isDisabled={isDisabled} />
+            <NavButtons name="claim" claim={claim} hide={hide} isDisabled={isDisabled} />
         </>
     );
 };
 
-const NavButtons = ({ name, claim, isDisabled }) => {
-    const dispatch = useDispatch();
+const NavButtons = ({ name, claim, hide, isDisabled }) => {
     return (
         <div>
             <Styles.Button onClick={claim} $disabled={isDisabled} $primary>
                 <span>{name.toUpperCase()}</span>
             </Styles.Button>
-            <Styles.Button onClick={() => dispatch(hideClaimAccount())} $cancel>
+            <Styles.Button onClick={hide} $cancel>
                 <span>CANCEL</span>
             </Styles.Button>
         </div>
