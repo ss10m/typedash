@@ -139,14 +139,15 @@ const claimAccount = async (session, body, cb) => {
                              RETURNING *`;
         const valuesInsert = [2, username.toLowerCase(), username, email, salt, hash, user.id];
         const updated = await db.query(queryInsert, valuesInsert);
-        session.user = sessionizeUser(updated.rows[0]);
+        const userSession = sessionizeUser(updated.rows[0]);
+        session.user = userSession;
 
         cb({
             meta: {
                 ok: true,
                 message: "",
             },
-            data: { user: sessionUser },
+            data: { user: userSession },
         });
     } catch (err) {
         let meta = { ok: false, message: parseError(err) };
