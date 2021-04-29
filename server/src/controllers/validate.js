@@ -12,7 +12,9 @@ const validate = (body, session, cb) => {
         case TEST_TYPE.VALID:
             return validInput(type, value, cb);
         case TEST_TYPE.AVAILABLE:
-            return usernameAvailable(value, session, cb);
+            return usernameAvailable(value, false, session, cb);
+        case TEST_TYPE.AVAILABLE_OR_CURRENT:
+            return usernameAvailable(value, true, session, cb);
         case TEST_TYPE.EXISTS:
             return usernameExists(value, cb);
     }
@@ -44,14 +46,14 @@ const validInput = async (type, value, cb) => {
     }
 };
 
-const usernameAvailable = async (value, session, cb) => {
+const usernameAvailable = async (value, checkCurrent, session, cb) => {
     try {
         const { user } = session;
         const username = value.toLowerCase();
 
         await Joi.validate({ username: value }, usernameCheck);
 
-        if (user && user.username === username) {
+        if (checkCurrent && user && user.username === username) {
             cb({
                 meta: {
                     ok: true,

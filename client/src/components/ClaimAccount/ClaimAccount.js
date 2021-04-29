@@ -117,7 +117,7 @@ const Inputs = ({ setCompleted, hide }) => {
         <>
             <div>
                 <InputChecker
-                    test={TEST_TYPE.AVAILABLE}
+                    test={TEST_TYPE.AVAILABLE_OR_CURRENT}
                     type={FIELD_TYPE.USERNAME}
                     placeholder="Username"
                     initial={username}

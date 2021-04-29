@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 // Helpers
 import { handleResponse } from "helpers";
 
-const useInputValidator = (type, initial, setIsValid, test) => {
+const useInputValidator = (type, initial, setIsValid, setIsChecking, test) => {
     const [input, setInput] = useState(initial.value);
     const [containsError, setContainsError] = useState(!initial.valid);
     const [isFetching, setIsFetching] = useState(false);
@@ -17,6 +17,7 @@ const useInputValidator = (type, initial, setIsValid, test) => {
         if (!input) return;
 
         setIsFetching(true);
+        if (setIsChecking) setIsChecking(true);
         setIsValid((input) => ({ ...input, valid: false }));
 
         const handler = setTimeout(() => {
@@ -43,12 +44,14 @@ const useInputValidator = (type, initial, setIsValid, test) => {
                 })
                 .finally(() => {
                     setIsFetching(false);
+                    if (setIsChecking) setIsChecking(false);
                 });
         }, 1000);
 
         return () => {
             clearTimeout(handler);
             setIsFetching(false);
+            if (setIsChecking) setIsChecking(false);
         };
     }, [type, input, setIsValid, test]);
 

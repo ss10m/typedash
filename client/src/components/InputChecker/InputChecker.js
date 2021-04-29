@@ -21,6 +21,7 @@ const InputChecker = ({
     placeholder,
     initial,
     setIsValid,
+    setIsChecking,
     test,
     invalid,
     margin,
@@ -31,6 +32,7 @@ const InputChecker = ({
         type,
         initial,
         setIsValid,
+        setIsChecking,
         test
     );
 
