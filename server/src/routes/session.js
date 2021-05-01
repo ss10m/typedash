@@ -24,6 +24,11 @@ router.post("/claim", async ({ session, body }, res) => {
     Session.claimAccount(session, body, (data) => res.send(data));
 });
 
+// CHANGE USERNAME
+router.post("/username", async ({ session, body }, res) => {
+    Session.changeUsername(session, body, (data) => res.send(data));
+});
+
 // REGISTER
 router.post("/register", async ({ session, body }, res) => {
     Session.register(session, body, (data) => res.send(data));

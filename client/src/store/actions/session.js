@@ -89,6 +89,32 @@ const claimAccount = (userInfo, onSuccess, onFailure) => async (dispatch) => {
         });
 };
 
+const changeUsername = (userInfo, onSuccess, onFailure) => async (dispatch) => {
+    userInfo.socketId = socketIO.getSocketId();
+    fetch("/api/session/username", {
+        method: "POST",
+        body: JSON.stringify(userInfo),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then((response) => {
+            if (!response.ok) return Promise.reject();
+            return response.json();
+        })
+        .then(({ meta, data }) => {
+            if (!meta.ok) return onFailure(true);
+            onSuccess();
+            const sessionState = { isLoaded: true, user: data.user };
+            dispatch(setSession(sessionState));
+        })
+        .catch(() => {
+            onFailure();
+        });
+};
+
+const changePassword = (userInfo, onSuccess, onFailure) => async (dispatch) => {};
+
 const register = (userInfo, onSuccess, onFailure) => async (dispatch) => {
     fetch("/api/session/register", {
         method: "POST",
@@ -135,6 +161,8 @@ export {
     login,
     loginAsGuest,
     claimAccount,
+    changeUsername,
+    changePassword,
     register,
     logout,
 };

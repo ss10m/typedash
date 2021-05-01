@@ -558,6 +558,21 @@ export class Room {
         socket.to(this.id).emit("updated-room", { spectators });
     }
 
+    changeUsername(userId, username) {
+        const players = this.getPlayers();
+        const spectators = this.getSpectators();
+
+        players
+            .filter((player) => player.id === userId)
+            .forEach((player) => (player.username = username));
+
+        spectators
+            .filter((spectator) => spectator.id === userId)
+            .forEach((spectator) => (spectator.username = username));
+
+        this.updateClients("updated-room", { players, spectators });
+    }
+
     ///////////////////////////////////////////////
     ////////////  GETTERS / SETTERS  //////////////
     ///////////////////////////////////////////////

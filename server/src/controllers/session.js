@@ -5,7 +5,7 @@ import { SESS_NAME } from "../config/session.js";
 
 import { signUp, usernameCheck } from "../validations/user.js";
 
-import { Connection } from "../core/index.js";
+import { Connection, Room } from "../core/index.js";
 
 import {
     parseError,
@@ -155,6 +155,53 @@ const claimAccount = async (session, body, cb) => {
     }
 };
 
+const changeUsername = async (session, body, cb) => {
+    try {
+        const { user } = session;
+        const { username, socketId } = body;
+
+        await Joi.validate({ username }, usernameCheck);
+
+        const query = "SELECT * FROM users WHERE username = $1";
+        const values = [username.toLowerCase()];
+        const result = await db.query(query, values);
+        if (result.rows.length) {
+            cb({
+                meta: {
+                    ok: false,
+                    message: "Username already exists",
+                },
+                data: {},
+            });
+            return;
+        }
+
+        const queryInsert = `UPDATE users
+                             SET username = $1,
+                                 display_name = $2
+                             WHERE id = $3
+                             RETURNING *`;
+        const valuesInsert = [username.toLowerCase(), username, user.id];
+        const updated = await db.query(queryInsert, valuesInsert);
+        const userSession = sessionizeUser(updated.rows[0]);
+        session.user = userSession;
+
+        const room = Room.getRoomBySocketId(socketId);
+        if (room) room.changeUsername(user.id, username);
+
+        cb({
+            meta: {
+                ok: true,
+                message: "",
+            },
+            data: { user: userSession },
+        });
+    } catch (err) {
+        let meta = { ok: false, message: parseError(err) };
+        cb({ meta, data: {} });
+    }
+};
+
 const register = async (session, body, cb) => {
     try {
         const { username, email, password, confirmPassword } = body;
@@ -207,4 +254,4 @@ const logout = (session, body, res) => {
     });
 };
 
-export { getSession, login, loginAsGuest, claimAccount, register, logout };
+export { getSession, login, loginAsGuest, claimAccount, changeUsername, register, logout };
