@@ -3,7 +3,7 @@ import Joi from "joi";
 import db from ".././config/db.js";
 import { SESS_NAME } from "../config/session.js";
 
-import { signUp, usernameCheck, passwordCheck } from "../validations/user.js";
+import { signUp, usernameCheck, emailCheck, passwordCheck } from "../validations/user.js";
 
 import { Connection, Room } from "../core/index.js";
 
@@ -201,6 +201,45 @@ const changeUsername = async (session, body, cb) => {
     }
 };
 
+const changeEmail = async (session, body, cb) => {
+    try {
+        const { email } = body;
+
+        await Joi.validate({ email }, emailCheck);
+
+        const query = "SELECT * FROM users WHERE id = $1";
+        const values = [session.user.id];
+        const result = await db.query(query, values);
+        if (!result.rows.length) {
+            cb({
+                meta: {
+                    ok: false,
+                    message: "Account does not exist!",
+                },
+                data: {},
+            });
+            return;
+        }
+
+        const queryUpdate = `UPDATE users
+                             SET email = $1
+                             WHERE id = $2 RETURNING *`;
+        const valuesUpdate = [email, session.user.id];
+        await db.query(queryUpdate, valuesUpdate);
+
+        cb({
+            meta: {
+                ok: true,
+                message: "",
+            },
+            data: {},
+        });
+    } catch (err) {
+        let meta = { ok: false, message: parseError(err) };
+        cb({ meta, data: {} });
+    }
+};
+
 const verifyPassword = async (session, body, cb) => {
     try {
         const { password } = body;
@@ -353,6 +392,7 @@ export {
     loginAsGuest,
     claimAccount,
     changeUsername,
+    changeEmail,
     changePassword,
     verifyPassword,
     register,

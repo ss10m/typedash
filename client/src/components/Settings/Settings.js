@@ -3,7 +3,7 @@ import React, { forwardRef, useState, useEffect } from "react";
 
 // Redux
 import { useDispatch } from "react-redux";
-import { changeUsername, verifyPassword, changePassword } from "store/actions";
+import { changeUsername, changeEmail, verifyPassword, changePassword } from "store/actions";
 
 // Icons
 import { MdClose } from "react-icons/md";
@@ -70,6 +70,7 @@ const Modal = withClickWatcher(
                                 completed={completed}
                                 setCompleted={setCompleted}
                             />
+                            <EmailChanger completed={completed} setCompleted={setCompleted} />
                             <PasswordChanger
                                 completed={completed}
                                 setCompleted={setCompleted}
@@ -96,7 +97,10 @@ const UsernameChanger = ({ completed, setCompleted }) => {
     const onSubmit = (event) => {
         event.stopPropagation();
         event.preventDefault();
+
+        if (submitted) return;
         setSubmitted(true);
+
         const userInfo = { username: username.value };
         const onSuccess = () => {
             setCompleted(true);
@@ -130,7 +134,7 @@ const UsernameChanger = ({ completed, setCompleted }) => {
             <InputChecker
                 test={TEST_TYPE.AVAILABLE}
                 type={FIELD_TYPE.USERNAME}
-                placeholder="Username"
+                placeholder="New Username"
                 initial={username}
                 invalid={!isValid}
                 setIsValid={setUsername}
@@ -138,6 +142,58 @@ const UsernameChanger = ({ completed, setCompleted }) => {
                 isDisabled={submitted || completed}
             />
             <Styles.Message $color={msg.color}>{msg.text}</Styles.Message>
+        </form>
+    );
+};
+
+const EmailChanger = ({ completed, setCompleted }) => {
+    const dispatch = useDispatch();
+    const [email, setEmail] = useState({ value: "", valid: false });
+    const [isValid, setIsValid] = useState(true);
+    const [isChecking, setIsChecking] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+
+    useEffect(() => {
+        setIsValid(true);
+    }, [email]);
+
+    const onSubmit = (event) => {
+        event.stopPropagation();
+        event.preventDefault();
+
+        if (submitted) return;
+        setSubmitted(true);
+
+        const userInfo = { email: email.value };
+        const onSuccess = () => {
+            setCompleted(true);
+        };
+        const onFailure = (invalidEmail) => {
+            if (invalidEmail) setIsValid(false);
+            setSubmitted(false);
+        };
+        dispatch(changeEmail(userInfo, onSuccess, onFailure));
+    };
+
+    const disabled = submitted || completed || isChecking || !isValid || !email.valid;
+
+    return (
+        <form onSubmit={onSubmit}>
+            <Styles.ChangerHeader>
+                <p>CHANGE YOUR EMAIL</p>
+                <Styles.Button type="submit" disabled={disabled}>
+                    SAVE
+                </Styles.Button>
+            </Styles.ChangerHeader>
+            <InputChecker
+                type={FIELD_TYPE.EMAIL}
+                placeholder="New Email"
+                initial={email}
+                invalid={!isValid}
+                setIsValid={setEmail}
+                setIsChecking={setIsChecking}
+                isDisabled={submitted || completed}
+            />
         </form>
     );
 };

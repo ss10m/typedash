@@ -29,6 +29,11 @@ router.post("/username", async ({ session, body }, res) => {
     Session.changeUsername(session, body, (data) => res.send(data));
 });
 
+// CHANGE EMAIL
+router.post("/email/change", async ({ session, body }, res) => {
+    Session.changeEmail(session, body, (data) => res.send(data));
+});
+
 // VERIFY PASSWORD
 router.post("/password/verify", async ({ session, body }, res) => {
     Session.verifyPassword(session, body, (data) => res.send(data));

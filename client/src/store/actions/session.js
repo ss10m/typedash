@@ -113,6 +113,27 @@ const changeUsername = (userInfo, onSuccess, onFailure) => async (dispatch) => {
         });
 };
 
+const changeEmail = (email, onSuccess, onFailure) => async () => {
+    fetch("/api/session/email/change", {
+        method: "POST",
+        body: JSON.stringify(email),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then((response) => {
+            if (!response.ok) return Promise.reject();
+            return response.json();
+        })
+        .then(({ meta }) => {
+            if (!meta.ok) return onFailure(true);
+            onSuccess();
+        })
+        .catch(() => {
+            onFailure();
+        });
+};
+
 const verifyPassword = (password, onSuccess, onFailure) => async () => {
     fetch("/api/session/password/verify", {
         method: "POST",
@@ -202,6 +223,7 @@ export {
     loginAsGuest,
     claimAccount,
     changeUsername,
+    changeEmail,
     verifyPassword,
     changePassword,
     register,
