@@ -34,7 +34,7 @@ export const Modal = styled.div`
 `;
 
 export const Settings = styled.div`
-    height: 500px;
+    height: 420px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;

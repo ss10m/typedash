@@ -3,7 +3,7 @@ import Joi from "joi";
 import db from ".././config/db.js";
 import { SESS_NAME } from "../config/session.js";
 
-import { signUp, usernameCheck } from "../validations/user.js";
+import { signUp, usernameCheck, passwordCheck } from "../validations/user.js";
 
 import { Connection, Room } from "../core/index.js";
 
@@ -11,7 +11,7 @@ import {
     parseError,
     sessionizeUser,
     encryptPassword,
-    verifyPassword,
+    confirmPassword,
 } from "../util/helper.js";
 
 const getSession = (session, cb) => {
@@ -39,7 +39,7 @@ const login = async (session, body, cb) => {
         }
 
         const user = result.rows[0];
-        if (user && verifyPassword(user, password)) {
+        if (user && confirmPassword(user, password)) {
             const sessionUser = sessionizeUser(user);
             session.user = sessionUser;
 
@@ -107,9 +107,8 @@ const loginAsGuest = async (session, body, cb) => {
 const claimAccount = async (session, body, cb) => {
     try {
         const { user } = session;
-        console.log(user);
-
         const { username, email, password, confirmPassword } = body;
+
         await Joi.validate({ username, email, password, confirmPassword }, signUp);
 
         const query = "SELECT * FROM users WHERE username = $1";
@@ -202,6 +201,100 @@ const changeUsername = async (session, body, cb) => {
     }
 };
 
+const verifyPassword = async (session, body, cb) => {
+    try {
+        const { password } = body;
+
+        const query = "SELECT * FROM users WHERE id = $1";
+        const values = [session.user.id];
+        const result = await db.query(query, values);
+        if (!result.rows.length) {
+            cb({
+                meta: {
+                    ok: false,
+                    message: "Account does not exist!",
+                },
+                data: {},
+            });
+            return;
+        }
+
+        const user = result.rows[0];
+        if (user && confirmPassword(user, password)) {
+            cb({
+                meta: {
+                    ok: true,
+                    message: "",
+                },
+                data: {},
+            });
+        } else {
+            cb({
+                meta: {
+                    ok: false,
+                    message: "Invalid password",
+                },
+                data: {},
+            });
+        }
+    } catch (err) {
+        let meta = { ok: false, message: parseError(err) };
+        cb({ meta, data: {} });
+    }
+};
+
+const changePassword = async (session, body, cb) => {
+    try {
+        const { password, newPassword } = body;
+
+        await Joi.validate({ password: newPassword }, passwordCheck);
+
+        const query = "SELECT * FROM users WHERE id = $1";
+        const values = [session.user.id];
+        const result = await db.query(query, values);
+        if (!result.rows.length) {
+            cb({
+                meta: {
+                    ok: false,
+                    message: "Account does not exist!",
+                },
+                data: {},
+            });
+            return;
+        }
+
+        const user = result.rows[0];
+        if (!confirmPassword(user, password)) {
+            return cb({
+                meta: {
+                    ok: false,
+                    message: "Incorrect password",
+                },
+                data: {},
+            });
+        }
+
+        const { salt, hash } = encryptPassword(newPassword);
+        const queryUpdate = `UPDATE users
+                             SET salt = $1,
+                                 hash = $2
+                             WHERE id = $3`;
+        const valuesUpdate = [salt, hash, session.user.id];
+        await db.query(queryUpdate, valuesUpdate);
+
+        cb({
+            meta: {
+                ok: true,
+                message: "",
+            },
+            data: {},
+        });
+    } catch (err) {
+        let meta = { ok: false, message: parseError(err) };
+        cb({ meta, data: {} });
+    }
+};
+
 const register = async (session, body, cb) => {
     try {
         const { username, email, password, confirmPassword } = body;
@@ -254,4 +347,14 @@ const logout = (session, body, res) => {
     });
 };
 
-export { getSession, login, loginAsGuest, claimAccount, changeUsername, register, logout };
+export {
+    getSession,
+    login,
+    loginAsGuest,
+    claimAccount,
+    changeUsername,
+    changePassword,
+    verifyPassword,
+    register,
+    logout,
+};

@@ -26,7 +26,7 @@ export const encryptPassword = (password) => {
     return { salt, hash };
 };
 
-export const verifyPassword = (user, password) => {
+export const confirmPassword = (user, password) => {
     const hash = crypto.pbkdf2Sync(password, user.salt, 10000, 512, "sha512").toString("hex");
     return user.hash === hash;
 };

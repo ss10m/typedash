@@ -113,7 +113,47 @@ const changeUsername = (userInfo, onSuccess, onFailure) => async (dispatch) => {
         });
 };
 
-const changePassword = (userInfo, onSuccess, onFailure) => async (dispatch) => {};
+const verifyPassword = (password, onSuccess, onFailure) => async () => {
+    fetch("/api/session/password/verify", {
+        method: "POST",
+        body: JSON.stringify(password),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then((response) => {
+            if (!response.ok) return Promise.reject();
+            return response.json();
+        })
+        .then(({ meta }) => {
+            if (!meta.ok) return onFailure(true);
+            onSuccess();
+        })
+        .catch(() => {
+            onFailure();
+        });
+};
+
+const changePassword = (userInfo, onSuccess, onFailure) => async () => {
+    fetch("/api/session/password/change", {
+        method: "POST",
+        body: JSON.stringify(userInfo),
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then((response) => {
+            if (!response.ok) return Promise.reject();
+            return response.json();
+        })
+        .then(({ meta }) => {
+            if (!meta.ok) return onFailure();
+            onSuccess();
+        })
+        .catch((err) => {
+            onFailure();
+        });
+};
 
 const register = (userInfo, onSuccess, onFailure) => async (dispatch) => {
     fetch("/api/session/register", {
@@ -162,6 +202,7 @@ export {
     loginAsGuest,
     claimAccount,
     changeUsername,
+    verifyPassword,
     changePassword,
     register,
     logout,

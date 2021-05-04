@@ -3,7 +3,7 @@ import React, { forwardRef, useState, useEffect } from "react";
 
 // Redux
 import { useDispatch } from "react-redux";
-import { changeUsername, changePassword } from "store/actions";
+import { changeUsername, verifyPassword, changePassword } from "store/actions";
 
 // Icons
 import { MdClose } from "react-icons/md";
@@ -95,6 +95,7 @@ const UsernameChanger = ({ completed, setCompleted }) => {
 
     const onSubmit = (event) => {
         event.stopPropagation();
+        event.preventDefault();
         setSubmitted(true);
         const userInfo = { username: username.value };
         const onSuccess = () => {
@@ -119,10 +120,10 @@ const UsernameChanger = ({ completed, setCompleted }) => {
     const disabled = submitted || completed || isChecking || !isValid || !username.valid;
 
     return (
-        <div>
+        <form onSubmit={onSubmit}>
             <Styles.ChangerHeader>
                 <p>CHANGE YOUR USERNAME</p>
-                <Styles.Button onClick={onSubmit} disabled={disabled}>
+                <Styles.Button type="submit" disabled={disabled}>
                     SAVE
                 </Styles.Button>
             </Styles.ChangerHeader>
@@ -137,13 +138,141 @@ const UsernameChanger = ({ completed, setCompleted }) => {
                 isDisabled={submitted || completed}
             />
             <Styles.Message $color={msg.color}>{msg.text}</Styles.Message>
-        </div>
+        </form>
     );
 };
 
 const PasswordChanger = ({ completed, setCompleted }) => {
-    // to be implemented
-    return null;
+    const [verifiedPassword, setVerifiedPassword] = useState("");
+
+    return verifiedPassword ? (
+        <PasswordSetter
+            verifiedPassword={verifiedPassword}
+            completed={completed}
+            setCompleted={setCompleted}
+        />
+    ) : (
+        <PasswordVerifier setVerifiedPassword={setVerifiedPassword} />
+    );
+};
+
+const PasswordVerifier = ({ setVerifiedPassword }) => {
+    const dispatch = useDispatch();
+    const [password, setPassword] = useState({ value: "", valid: false });
+    const [credentials, setCredentials] = useState({ valid: true, msg: "" });
+    const [submitted, setSubmitted] = useState(false);
+
+    const onSubmit = (event) => {
+        event.stopPropagation();
+        event.preventDefault();
+
+        if (submitted) return;
+        setSubmitted(true);
+
+        const userInfo = { password: password.value };
+        const onSuccess = () => {
+            setVerifiedPassword(password.value);
+        };
+        const onFailure = (invalidUsername) => {
+            if (invalidUsername) setCredentials({ valid: false, msg: "INCORRECT PASSWORD" });
+            setSubmitted(false);
+        };
+
+        dispatch(verifyPassword(userInfo, onSuccess, onFailure));
+    };
+
+    const disabled = submitted || !password.valid || !credentials.valid;
+
+    return (
+        <form onSubmit={onSubmit}>
+            <Styles.ChangerHeader>
+                <p>CHANGE YOUR PASSWORD</p>
+                <Styles.Button type="submit" disabled={disabled}>
+                    VERIFY
+                </Styles.Button>
+            </Styles.ChangerHeader>
+            <Input
+                type={FIELD_TYPE.PASSWORD}
+                placeholder="Current Password"
+                input={password}
+                setInput={setPassword}
+                credentials={credentials}
+                setCredentials={setCredentials}
+                isDisabled={submitted}
+            />
+            {credentials && <Styles.Message $color={"red"}>{credentials.msg}</Styles.Message>}
+        </form>
+    );
+};
+
+const PasswordSetter = ({ verifiedPassword, completed, setCompleted }) => {
+    const dispatch = useDispatch();
+    const [password, setPassword] = useState({ value: "", valid: false });
+    const [confirmPassword, setConfirmPassword] = useState({ value: "", valid: false });
+    const [isChecking, setIsChecking] = useState(false);
+    const [mismatchedPasswords, setMismatchedPasswords] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+
+    useEffect(() => {
+        if (password.value && password.value !== confirmPassword.value) {
+            setMismatchedPasswords(true);
+        } else {
+            setMismatchedPasswords(false);
+        }
+    }, [password, confirmPassword]);
+
+    const onSubmit = (event) => {
+        event.stopPropagation();
+        event.preventDefault();
+
+        if (submitted) return;
+        setSubmitted(true);
+
+        const userInfo = { password: verifiedPassword, newPassword: password.value };
+        const onSuccess = () => {
+            setCompleted(true);
+        };
+        const onFailure = () => {
+            setSubmitted(false);
+        };
+        dispatch(changePassword(userInfo, onSuccess, onFailure));
+    };
+
+    const disabled =
+        submitted ||
+        completed ||
+        isChecking ||
+        mismatchedPasswords ||
+        !password.valid ||
+        !confirmPassword.valid;
+
+    return (
+        <form onSubmit={onSubmit}>
+            <Styles.ChangerHeader>
+                <p>CHANGE YOUR PASSWORD</p>
+                <Styles.Button type="submit" disabled={disabled}>
+                    SAVE
+                </Styles.Button>
+            </Styles.ChangerHeader>
+            <InputChecker
+                type={FIELD_TYPE.PASSWORD}
+                placeholder="New Password"
+                initial={password}
+                setIsValid={setPassword}
+                setIsChecking={setIsChecking}
+                isDisabled={submitted || completed}
+            />
+            <InputChecker
+                type={FIELD_TYPE.PASSWORD}
+                placeholder="Confirm New Password"
+                initial={confirmPassword}
+                setIsValid={setConfirmPassword}
+                invalid={mismatchedPasswords}
+                setIsChecking={setIsChecking}
+                isDisabled={submitted || completed}
+            />
+        </form>
+    );
 };
 
 export default Settings;

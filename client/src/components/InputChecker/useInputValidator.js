@@ -53,7 +53,7 @@ const useInputValidator = (type, initial, setIsValid, setIsChecking, test) => {
             setIsFetching(false);
             if (setIsChecking) setIsChecking(false);
         };
-    }, [type, input, setIsValid, test]);
+    }, [type, input, setIsValid, setIsChecking, test]);
 
     return { input, setInput, containsError, setContainsError, isFetching };
 };
