@@ -13,10 +13,6 @@ export const parseError = (err) => {
 export const sessionizeUser = (user) => {
     return {
         id: user.id,
-        username: user.username,
-        displayName: user.display_name,
-        accountType: user.account_type,
-        createdAt: user.created_at,
     };
 };
 
