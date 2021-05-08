@@ -50,11 +50,12 @@ export class Room {
         this.io.in(this.id).emit(key, data);
     }
 
-    join(socketId) {
+    async join(socketId) {
         const socket = this.io.sockets.connected[socketId];
         if (!socket) return;
 
-        const { id, displayName } = socket.handshake.session.user;
+        const { id } = socket.handshake.session.user;
+        const user = await RoomController.getUser(id);
 
         socket.join(this.id);
         Room.socketIdToRoom[socketId] = this;
@@ -89,9 +90,9 @@ export class Room {
             }
         } else {
             let player = {
-                id,
+                id: user.id,
                 socketId,
-                username: displayName,
+                username: user.display_name,
                 isReady: false,
                 leftRoom: false,
                 stats: {

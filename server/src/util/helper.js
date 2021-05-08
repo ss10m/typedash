@@ -5,7 +5,7 @@ export const parseError = (err) => {
     if (err && err.isJoi) {
         message = err.details[0].message;
     } else {
-        message = "Internal Server Error";
+        message = "Something went wrong";
     }
     return message;
 };
@@ -13,6 +13,10 @@ export const parseError = (err) => {
 export const sessionizeUser = (user) => {
     return {
         id: user.id,
+        username: user.username,
+        displayName: user.display_name,
+        accountType: user.account_type,
+        createdAt: user.created_at,
     };
 };
 

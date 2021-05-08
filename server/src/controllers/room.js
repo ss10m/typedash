@@ -24,6 +24,15 @@ const generateQuote = async (recentQuotes, requestedQuote = null) => {
     return { id, text, author, source, length, stats, results };
 };
 
+const getUser = async (userId) => {
+    const query = `SELECT id, display_name
+                   FROM users 
+                   WHERE id = $1`;
+    const values = [userId];
+    const results = await db.query(query, values);
+    return results.rows.length ? results.rows[0] : null;
+};
+
 const getQuote = async (quoteId) => {
     const quoteQuery = `SELECT * FROM quote 
                         WHERE id = $1`;
@@ -119,6 +128,7 @@ const generateExpressions = (rowCount, columnCount) => {
 
 export {
     generateQuote,
+    getUser,
     getStats,
     getTopResults,
     getRecentResults,

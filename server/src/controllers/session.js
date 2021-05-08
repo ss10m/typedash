@@ -17,10 +17,9 @@ import {
 import { ACCOUNT_TYPE } from "../util/constants.js";
 
 const getSession = async (session, cb) => {
-    console.log(session);
     let userSession = null;
     if (session.user) {
-        const user = await getUser(session.user.id);
+        const user = await getUserById(session.user.id);
         userSession = sessionizeUser(user);
     }
 
@@ -33,31 +32,27 @@ const getSession = async (session, cb) => {
 const login = async (session, body, cb) => {
     try {
         const { username, password } = body;
-        const query = "SELECT * FROM users WHERE username = $1";
-        const values = [username.toLowerCase()];
-        const result = await db.query(query, values);
-        if (!result.rows.length) {
-            cb({
+
+        const user = await getUserByUsername(username);
+        if (!user) {
+            return cb({
                 meta: {
                     ok: false,
-                    message: "Account does not exist!",
+                    message: "Account does not exist",
                 },
                 data: {},
             });
-            return;
         }
 
-        const user = result.rows[0];
         if (confirmPassword(user, password)) {
-            const sessionUser = sessionizeUser(user);
+            const userSession = sessionizeUser(user);
             session.user = { id: user.id };
-
             cb({
                 meta: {
                     ok: true,
                     message: "",
                 },
-                data: { user: sessionUser },
+                data: { user: userSession },
             });
         } else {
             cb({
@@ -69,7 +64,7 @@ const login = async (session, body, cb) => {
             });
         }
     } catch (err) {
-        let meta = { ok: false, message: parseError(err) };
+        const meta = { ok: false, message: parseError(err) };
         cb({ meta, data: {} });
     }
 };
@@ -77,29 +72,26 @@ const login = async (session, body, cb) => {
 const loginAsGuest = async (session, body, cb) => {
     try {
         const { username } = body;
+
         await Joi.validate({ username }, usernameCheck);
 
-        const query = "SELECT * FROM users WHERE username = $1";
-        const values = [username.toLowerCase()];
-        const result = await db.query(query, values);
-        if (result.rows.length) {
-            cb({
+        if (await getUserByUsername(username)) {
+            return cb({
                 meta: {
                     ok: false,
                     message: "Username already exists",
                 },
                 data: {},
             });
-            return;
         }
 
-        const queryInsert = `INSERT INTO users(account_type, username, display_name, email, salt, hash) 
-                    VALUES($1, $2, $3, $4, $5, $6) RETURNING *`;
-        const valuesInsert = [3, username.toLowerCase(), username, "", "", ""];
-        const resultInsert = await db.query(queryInsert, valuesInsert);
+        const query = `INSERT INTO users(account_type, username, display_name, email, salt, hash)
+                       VALUES($1, $2, $3, $4, $5, $6) RETURNING *`;
+        const values = [ACCOUNT_TYPE.GUEST, username.toLowerCase(), username, "", "", ""];
+        const results = await db.query(query, values);
 
-        const user = resultInsert.rows[0];
-        const sessionUser = sessionizeUser(user);
+        const user = results.rows[0];
+        const userSession = sessionizeUser(user);
         session.user = { id: user.id };
 
         cb({
@@ -107,10 +99,10 @@ const loginAsGuest = async (session, body, cb) => {
                 ok: true,
                 message: "",
             },
-            data: { user: sessionUser },
+            data: { user: userSession },
         });
     } catch (err) {
-        let meta = { ok: false, message: parseError(err) };
+        const meta = { ok: false, message: parseError(err) };
         cb({ meta, data: {} });
     }
 };
@@ -121,7 +113,7 @@ const claimAccount = async (session, body, cb) => {
 
         await Joi.validate({ username, email, password, confirmPassword }, signUp);
 
-        const user = await getUser(session.user.id);
+        const user = await getUserById(session.user.id);
         if (user.account_type !== ACCOUNT_TYPE.GUEST) {
             return cb({
                 meta: {
@@ -132,11 +124,8 @@ const claimAccount = async (session, body, cb) => {
             });
         }
 
-        const query = "SELECT * FROM users WHERE username = $1";
-        const values = [username.toLowerCase()];
-        const result = await db.query(query, values);
-
-        if (result.rows.length && result.rows[0].id !== session.user.id) {
+        const existingUser = await getUserByUsername(username);
+        if (existingUser && existingUser.id !== session.user.id) {
             return cb({
                 meta: {
                     ok: false,
@@ -147,16 +136,16 @@ const claimAccount = async (session, body, cb) => {
         }
 
         const { salt, hash } = encryptPassword(password);
-        const updateQuery = `UPDATE users
-                             SET account_type = $1,
-                                 username = $2,
-                                 display_name = $3,
-                                 email = $4,
-                                 salt = $5,
-                                 hash = $6
-                             WHERE id = $7
-                             RETURNING *`;
-        const updateValues = [
+        const query = `UPDATE users
+                       SET account_type = $1,
+                           username = $2,
+                           display_name = $3,
+                           email = $4,
+                           salt = $5,
+                           hash = $6
+                       WHERE id = $7
+                       RETURNING *`;
+        const values = [
             ACCOUNT_TYPE.NORMAL,
             username.toLowerCase(),
             username,
@@ -165,9 +154,9 @@ const claimAccount = async (session, body, cb) => {
             hash,
             user.id,
         ];
-        const updateResults = await db.query(updateQuery, updateValues);
+        const results = await db.query(query, values);
 
-        const updatedUser = updateResults.rows[0];
+        const updatedUser = results.rows[0];
         const userSession = sessionizeUser(updatedUser);
         session.user = { id: updatedUser.id };
 
@@ -179,44 +168,41 @@ const claimAccount = async (session, body, cb) => {
             data: { user: userSession },
         });
     } catch (err) {
-        let meta = { ok: false, message: parseError(err) };
+        const meta = { ok: false, message: parseError(err) };
         cb({ meta, data: {} });
     }
 };
 
 const changeUsername = async (session, body, cb) => {
     try {
-        const { user } = session;
         const { username, socketId } = body;
 
         await Joi.validate({ username }, usernameCheck);
 
-        const query = "SELECT * FROM users WHERE username = $1";
-        const values = [username.toLowerCase()];
-        const result = await db.query(query, values);
-        if (result.rows.length) {
-            cb({
+        if (await getUserByUsername(username)) {
+            return cb({
                 meta: {
                     ok: false,
                     message: "Username already exists",
                 },
                 data: {},
             });
-            return;
         }
 
-        const queryInsert = `UPDATE users
-                             SET username = $1,
-                                 display_name = $2
-                             WHERE id = $3
-                             RETURNING *`;
-        const valuesInsert = [username.toLowerCase(), username, user.id];
-        const updated = await db.query(queryInsert, valuesInsert);
-        const userSession = sessionizeUser(updated.rows[0]);
-        session.user = userSession;
+        const query = `UPDATE users
+                       SET username = $1,
+                           display_name = $2
+                       WHERE id = $3
+                       RETURNING *`;
+        const values = [username.toLowerCase(), username, session.user.id];
+        const results = await db.query(query, values);
+
+        const user = results.rows[0];
+        const userSession = sessionizeUser(user);
+        session.user = { id: user.id };
 
         const room = Room.getRoomBySocketId(socketId);
-        if (room) room.changeUsername(user.id, username);
+        if (room) room.changeUsername(session.user.id, username);
 
         cb({
             meta: {
@@ -226,7 +212,7 @@ const changeUsername = async (session, body, cb) => {
             data: { user: userSession },
         });
     } catch (err) {
-        let meta = { ok: false, message: parseError(err) };
+        const meta = { ok: false, message: parseError(err) };
         cb({ meta, data: {} });
     }
 };
@@ -265,7 +251,7 @@ const changeEmail = async (session, body, cb) => {
             data: {},
         });
     } catch (err) {
-        let meta = { ok: false, message: parseError(err) };
+        const meta = { ok: false, message: parseError(err) };
         cb({ meta, data: {} });
     }
 };
@@ -307,7 +293,7 @@ const verifyPassword = async (session, body, cb) => {
             });
         }
     } catch (err) {
-        let meta = { ok: false, message: parseError(err) };
+        const meta = { ok: false, message: parseError(err) };
         cb({ meta, data: {} });
     }
 };
@@ -359,7 +345,7 @@ const changePassword = async (session, body, cb) => {
             data: {},
         });
     } catch (err) {
-        let meta = { ok: false, message: parseError(err) };
+        const meta = { ok: false, message: parseError(err) };
         cb({ meta, data: {} });
     }
 };
@@ -367,39 +353,45 @@ const changePassword = async (session, body, cb) => {
 const register = async (session, body, cb) => {
     try {
         const { username, email, password, confirmPassword } = body;
+
         await Joi.validate({ username, email, password, confirmPassword }, signUp);
 
-        const query = "SELECT * FROM users WHERE username = $1";
-        const values = [username.toLowerCase()];
-        const result = await db.query(query, values);
-        if (result.rows.length) {
-            cb({
+        if (await getUserByUsername(username)) {
+            return cb({
                 meta: {
                     ok: false,
                     message: "Username already exists",
                 },
                 data: {},
             });
-            return;
         }
 
         const { salt, hash } = encryptPassword(password);
-        const queryInsert = `INSERT INTO users(account_type, username, display_name, email, salt, hash) 
-                    VALUES($1, $2, $3, $4, $5, $6) RETURNING *`;
-        const valuesInsert = [2, username.toLowerCase(), username, email, salt, hash];
-        const user = await db.query(queryInsert, valuesInsert);
+        const query = `INSERT INTO users(account_type, username, display_name, email, salt, hash) 
+                             VALUES($1, $2, $3, $4, $5, $6) RETURNING *`;
+        const values = [
+            ACCOUNT_TYPE.NORMAL,
+            username.toLowerCase(),
+            username,
+            email,
+            salt,
+            hash,
+        ];
+        const results = await db.query(query, values);
 
-        const sessionUser = sessionizeUser(user.rows[0]);
-        session.user = sessionUser;
+        const user = results.rows[0];
+        const userSession = sessionizeUser(user);
+        session.user = { id: user.id };
+
         cb({
             meta: {
                 ok: true,
                 message: "",
             },
-            data: { user: sessionUser },
+            data: { user: userSession },
         });
     } catch (err) {
-        let meta = { ok: false, message: parseError(err) };
+        const meta = { ok: false, message: parseError(err) };
         cb({ meta, data: {} });
     }
 };
@@ -416,9 +408,16 @@ const logout = (session, body, res) => {
     });
 };
 
-const getUser = async (userId) => {
+const getUserById = async (userId) => {
     const query = "SELECT * FROM users WHERE id = $1";
     const values = [userId];
+    const results = await db.query(query, values);
+    return results.rows.length ? results.rows[0] : null;
+};
+
+const getUserByUsername = async (username) => {
+    const query = "SELECT * FROM users WHERE username = $1";
+    const values = [username.toLowerCase()];
     const results = await db.query(query, values);
     return results.rows.length ? results.rows[0] : null;
 };
