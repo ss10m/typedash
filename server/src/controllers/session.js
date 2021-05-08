@@ -14,10 +14,19 @@ import {
     confirmPassword,
 } from "../util/helper.js";
 
-const getSession = (session, cb) => {
+import { ACCOUNT_TYPE } from "../util/constants.js";
+
+const getSession = async (session, cb) => {
+    console.log(session);
+    let userSession = null;
+    if (session.user) {
+        const user = await getUser(session.user.id);
+        userSession = sessionizeUser(user);
+    }
+
     cb({
         meta: { ok: true, message: "" },
-        data: { user: session.user },
+        data: { user: userSession },
     });
 };
 
@@ -39,9 +48,9 @@ const login = async (session, body, cb) => {
         }
 
         const user = result.rows[0];
-        if (user && confirmPassword(user, password)) {
+        if (confirmPassword(user, password)) {
             const sessionUser = sessionizeUser(user);
-            session.user = sessionUser;
+            session.user = { id: user.id };
 
             cb({
                 meta: {
@@ -87,10 +96,12 @@ const loginAsGuest = async (session, body, cb) => {
         const queryInsert = `INSERT INTO users(account_type, username, display_name, email, salt, hash) 
                     VALUES($1, $2, $3, $4, $5, $6) RETURNING *`;
         const valuesInsert = [3, username.toLowerCase(), username, "", "", ""];
-        const user = await db.query(queryInsert, valuesInsert);
+        const resultInsert = await db.query(queryInsert, valuesInsert);
 
-        const sessionUser = sessionizeUser(user.rows[0]);
-        session.user = sessionUser;
+        const user = resultInsert.rows[0];
+        const sessionUser = sessionizeUser(user);
+        session.user = { id: user.id };
+
         cb({
             meta: {
                 ok: true,
@@ -106,28 +117,37 @@ const loginAsGuest = async (session, body, cb) => {
 
 const claimAccount = async (session, body, cb) => {
     try {
-        const { user } = session;
         const { username, email, password, confirmPassword } = body;
 
         await Joi.validate({ username, email, password, confirmPassword }, signUp);
+
+        const user = await getUser(session.user.id);
+        if (user.account_type !== ACCOUNT_TYPE.GUEST) {
+            return cb({
+                meta: {
+                    ok: false,
+                    message: "Invalid accouny type",
+                },
+                data: {},
+            });
+        }
 
         const query = "SELECT * FROM users WHERE username = $1";
         const values = [username.toLowerCase()];
         const result = await db.query(query, values);
 
-        if (result.rows.length && user.username !== username.toLowerCase()) {
-            cb({
+        if (result.rows.length && result.rows[0].id !== session.user.id) {
+            return cb({
                 meta: {
                     ok: false,
                     message: "Username already exists",
                 },
                 data: {},
             });
-            return;
         }
 
         const { salt, hash } = encryptPassword(password);
-        const queryInsert = `UPDATE users
+        const updateQuery = `UPDATE users
                              SET account_type = $1,
                                  username = $2,
                                  display_name = $3,
@@ -136,10 +156,20 @@ const claimAccount = async (session, body, cb) => {
                                  hash = $6
                              WHERE id = $7
                              RETURNING *`;
-        const valuesInsert = [2, username.toLowerCase(), username, email, salt, hash, user.id];
-        const updated = await db.query(queryInsert, valuesInsert);
-        const userSession = sessionizeUser(updated.rows[0]);
-        session.user = userSession;
+        const updateValues = [
+            ACCOUNT_TYPE.NORMAL,
+            username.toLowerCase(),
+            username,
+            email,
+            salt,
+            hash,
+            user.id,
+        ];
+        const updateResults = await db.query(updateQuery, updateValues);
+
+        const updatedUser = updateResults.rows[0];
+        const userSession = sessionizeUser(updatedUser);
+        session.user = { id: updatedUser.id };
 
         cb({
             meta: {
@@ -384,6 +414,13 @@ const logout = (session, body, res) => {
         res.clearCookie(SESS_NAME);
         res.send({ meta: { ok: true, message: "" }, data: {} });
     });
+};
+
+const getUser = async (userId) => {
+    const query = "SELECT * FROM users WHERE id = $1";
+    const values = [userId];
+    const results = await db.query(query, values);
+    return results.rows.length ? results.rows[0] : null;
 };
 
 export {
