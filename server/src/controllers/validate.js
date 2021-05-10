@@ -17,6 +17,8 @@ const validate = (body, session, cb) => {
             return usernameAvailable(value, true, session, cb);
         case TEST_TYPE.EXISTS:
             return usernameExists(value, cb);
+        default:
+            return;
     }
 };
 
@@ -41,51 +43,36 @@ const validInput = async (type, value, cb) => {
             data: { value },
         });
     } catch (err) {
-        let meta = { ok: false, message: "Invalid Value" };
+        const meta = { ok: false, message: "Invalid Value" };
         cb({ meta, data: {} });
     }
 };
 
-const usernameAvailable = async (value, checkCurrent, session, cb) => {
+const usernameAvailable = async (username, checkCurrent, session, cb) => {
     try {
-        const { user } = session;
-        const username = value.toLowerCase();
+        await Joi.validate({ username }, usernameCheck);
 
-        await Joi.validate({ username: value }, usernameCheck);
+        const user = await getUserByUsername(username);
 
-        if (checkCurrent && user && user.username === username) {
-            cb({
+        if (!user || (checkCurrent && user.id === session.user.id)) {
+            return cb({
                 meta: {
                     ok: true,
                     message: "",
                 },
-                data: { value },
+                data: { value: username },
             });
-            return;
         }
 
-        const query = "SELECT * FROM users WHERE username = $1";
-        const values = [username];
-        const result = await db.query(query, values);
-        if (result.rows.length) {
-            cb({
-                meta: {
-                    ok: false,
-                    message: "Username already exists",
-                },
-                data: {},
-            });
-        } else {
-            cb({
-                meta: {
-                    ok: true,
-                    message: "",
-                },
-                data: { value },
-            });
-        }
+        cb({
+            meta: {
+                ok: false,
+                message: "Username already exists",
+            },
+            data: {},
+        });
     } catch (err) {
-        let meta = { ok: false, message: "Invalid Value" };
+        const meta = { ok: false, message: "Invalid Value" };
         cb({ meta, data: {} });
     }
 };
@@ -94,19 +81,10 @@ const usernameExists = async (username, cb) => {
     try {
         await Joi.validate({ username }, usernameCheck);
 
-        const query = "SELECT * FROM users WHERE username = $1";
-        const values = [username.toLowerCase()];
-        const result = await db.query(query, values);
-        if (result.rows.length) {
-            cb({
-                meta: {
-                    ok: true,
-                    message: "",
-                },
-                data: { value: username },
-            });
-        } else {
-            cb({
+        const user = await getUserByUsername(username);
+
+        if (!user) {
+            return cb({
                 meta: {
                     ok: false,
                     message: "Username does not exist",
@@ -114,10 +92,25 @@ const usernameExists = async (username, cb) => {
                 data: {},
             });
         }
+
+        cb({
+            meta: {
+                ok: true,
+                message: "",
+            },
+            data: { value: username },
+        });
     } catch (err) {
-        let meta = { ok: false, message: "Invalid Value" };
+        const meta = { ok: false, message: "Invalid Value" };
         cb({ meta, data: {} });
     }
+};
+
+const getUserByUsername = async (username) => {
+    const query = "SELECT * FROM users WHERE username = $1";
+    const values = [username.toLowerCase()];
+    const results = await db.query(query, values);
+    return results.rows.length ? results.rows[0] : null;
 };
 
 export default validate;

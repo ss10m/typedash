@@ -32,10 +32,14 @@ const useInputValidator = (type, initial, setIsValid, setIsChecking, test) => {
                     "Content-Type": "application/json",
                 },
             })
-                .then(handleResponse)
-                .then((res) => {
+                .then((response) => {
+                    if (!response.ok) return Promise.reject();
+                    return response.json();
+                })
+                .then(({ meta, data }) => {
+                    if (!meta.ok) throw new Error();
                     if (input !== inputRef.current) return;
-                    setIsValid({ value: res.value, valid: true });
+                    setIsValid({ value: data.value, valid: true });
                     setContainsError(false);
                 })
                 .catch(() => {
