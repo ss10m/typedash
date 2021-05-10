@@ -1,9 +1,6 @@
 // Libraries & utils
 import { useState, useEffect, useRef } from "react";
 
-// Helpers
-import { handleResponse } from "helpers";
-
 const useInputValidator = (type, initial, setIsValid, setIsChecking, test) => {
     const [input, setInput] = useState(initial.value);
     const [containsError, setContainsError] = useState(!initial.valid);
