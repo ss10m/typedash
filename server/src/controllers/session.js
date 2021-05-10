@@ -38,7 +38,7 @@ const login = async (session, body, cb) => {
             return cb({
                 meta: {
                     ok: false,
-                    message: "Account does not exist",
+                    message: "Account not found",
                 },
                 data: {},
             });
@@ -58,7 +58,7 @@ const login = async (session, body, cb) => {
             cb({
                 meta: {
                     ok: false,
-                    message: "Invalid password",
+                    message: "Incorrect password",
                 },
                 data: {},
             });

@@ -5,9 +5,6 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { login, loginAsGuest, register } from "store/actions";
 
-// Hooks
-import { useEventListener } from "hooks";
-
 // Components
 import Input from "../Input/Input";
 import InputChecker from "../InputChecker/InputChecker";
@@ -77,10 +74,6 @@ const GuestLogin = ({ setView, username, setUsername }) => {
     const [isFetching, setIsFetching] = useState(false);
     const isDisabled = !username.valid || isFetching;
 
-    useEventListener("keydown", (event) => {
-        if (!isDisabled && event.code === "Enter") onSubmit();
-    });
-
     const onSubmit = () => {
         if (isFetching) return;
         setIsFetching(true);
@@ -143,14 +136,12 @@ const Login = ({ setView }) => {
         });
     }, [username]);
 
-    useEventListener("keydown", (event) => {
-        if (event.code === "Escape") return setView("guest");
-        if (!isDisabled && event.code === "Enter") onSubmit();
-    });
+    const onSubmit = (event) => {
+        event.preventDefault();
 
-    const onSubmit = () => {
-        if (isFetching) return;
+        if (isDisabled) return;
         setIsFetching(true);
+
         const loginInfo = {
             username: username.value,
             password: password.value,
@@ -159,17 +150,20 @@ const Login = ({ setView }) => {
             setView("checkmark");
         };
         const onFailure = (msg) => {
-            setCredentials({
-                valid: false,
-                msg,
-            });
+            if (msg) {
+                setCredentials({
+                    valid: false,
+                    msg,
+                });
+            }
             setIsFetching(false);
         };
         dispatch(login(loginInfo, onSuccess, onFailure));
     };
 
     return (
-        <>
+        <Styles.Form onSubmit={onSubmit}>
+            <span />
             <Styles.InputFields>
                 <InputChecker
                     test={TEST_TYPE.EXISTS}
@@ -191,13 +185,8 @@ const Login = ({ setView }) => {
                 />
                 <Styles.ErrorMsg>{credentials.msg}</Styles.ErrorMsg>
             </Styles.InputFields>
-            <NavButtons
-                name="LOGIN"
-                setView={setView}
-                isDisabled={isDisabled}
-                onClick={onSubmit}
-            />
-        </>
+            <NavButtons name="LOGIN" setView={setView} isDisabled={isDisabled} />
+        </Styles.Form>
     );
 };
 
@@ -230,14 +219,12 @@ const Register = ({ setView }) => {
         }
     }, [password, confirmPassword]);
 
-    useEventListener("keydown", (event) => {
-        if (event.code === "Escape") return setView("guest");
-        if (!isDisabled && event.code === "Enter") onSubmit();
-    });
+    const onSubmit = (event) => {
+        event.preventDefault();
 
-    const onSubmit = () => {
-        if (isFetching) return;
+        if (isDisabled) return;
         setIsFetching(true);
+
         const loginInfo = {
             username: username.value,
             email: email.value,
@@ -248,17 +235,20 @@ const Register = ({ setView }) => {
             setView("checkmark");
         };
         const onFailure = (msg) => {
-            setCredentials({
-                valid: false,
-                msg,
-            });
+            if (msg) {
+                setCredentials({
+                    valid: false,
+                    msg,
+                });
+            }
             setIsFetching(false);
         };
         dispatch(register(loginInfo, onSuccess, onFailure));
     };
 
     return (
-        <>
+        <Styles.Form onSubmit={onSubmit}>
+            <span />
             <Styles.InputFields>
                 <InputChecker
                     test={TEST_TYPE.AVAILABLE}
@@ -293,23 +283,18 @@ const Register = ({ setView }) => {
                 />
                 <Styles.ErrorMsg>{credentials.msg}</Styles.ErrorMsg>
             </Styles.InputFields>
-            <NavButtons
-                name="REGISTER"
-                setView={setView}
-                isDisabled={isDisabled}
-                onClick={onSubmit}
-            />
-        </>
+            <NavButtons name="REGISTER" setView={setView} isDisabled={isDisabled} />
+        </Styles.Form>
     );
 };
 
-const NavButtons = ({ name, setView, isDisabled, onClick }) => {
+const NavButtons = ({ name, setView, isDisabled }) => {
     return (
         <Styles.Buttons>
-            <Styles.Button onClick={onClick} $disabled={isDisabled} $primary>
+            <Styles.Button type="submit" $disabled={isDisabled} $primary>
                 <span>{name}</span>
             </Styles.Button>
-            <Styles.Button onClick={() => setView("guest")} $cancel>
+            <Styles.Button type="reset" onClick={() => setView("guest")} $cancel>
                 <span>CANCEL</span>
             </Styles.Button>
         </Styles.Buttons>

@@ -93,7 +93,7 @@ export const Button = styled.button`
     ${(props) =>
         props.$disabled &&
         css`
-            opacity: 0.2;
+            opacity: 0.4;
             pointer-events: none;
         `}
 
@@ -155,6 +155,13 @@ export const Navigation = styled.div`
             background-color: #406182;
         }
     }
+`;
+
+export const Form = styled.form`
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 `;
 
 export const InputFields = styled.div`

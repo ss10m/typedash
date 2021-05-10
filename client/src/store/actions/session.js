@@ -34,8 +34,12 @@ const login = (loginInfo, onSuccess, onFailure) => async (dispatch) => {
             "Content-Type": "application/json",
         },
     })
-        .then(handleResponse)
-        .then((data) => {
+        .then((response) => {
+            if (!response.ok) return Promise.reject();
+            return response.json();
+        })
+        .then(({ meta, data }) => {
+            if (!meta.ok) return onFailure(meta.message);
             onSuccess();
             const sessionState = { isLoaded: true, user: data.user };
             setTimeout(() => {
@@ -43,8 +47,8 @@ const login = (loginInfo, onSuccess, onFailure) => async (dispatch) => {
                 socketIO.connect();
             }, 2000);
         })
-        .catch((error) => {
-            onFailure(error.message);
+        .catch(() => {
+            onFailure();
         });
 };
 
@@ -56,8 +60,12 @@ const loginAsGuest = (userInfo, onSuccess, onFailure) => async (dispatch) => {
             "Content-Type": "application/json",
         },
     })
-        .then(handleResponse)
-        .then((data) => {
+        .then((response) => {
+            if (!response.ok) return Promise.reject();
+            return response.json();
+        })
+        .then(({ meta, data }) => {
+            if (!meta.ok) return onFailure(meta.message);
             onSuccess();
             const sessionState = { isLoaded: true, user: data.user };
             setTimeout(() => {
@@ -184,8 +192,12 @@ const register = (userInfo, onSuccess, onFailure) => async (dispatch) => {
             "Content-Type": "application/json",
         },
     })
-        .then(handleResponse)
-        .then((data) => {
+        .then((response) => {
+            if (!response.ok) return Promise.reject();
+            return response.json();
+        })
+        .then(({ meta, data }) => {
+            if (!meta.ok) return onFailure(meta.message);
             onSuccess();
             const sessionState = { isLoaded: true, user: data.user };
             setTimeout(() => {
@@ -193,8 +205,8 @@ const register = (userInfo, onSuccess, onFailure) => async (dispatch) => {
                 socketIO.connect();
             }, 2000);
         })
-        .catch((error) => {
-            onFailure(error.message);
+        .catch(() => {
+            onFailure();
         });
 };
 
