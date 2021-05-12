@@ -30,13 +30,14 @@ CREATE TABLE "users" (
     "created_at" TIMESTAMP DEFAULT NOW()
 );
 
+CREATE INDEX "IDX_users_username" ON "users" ("username");
+
 CREATE TABLE "quote" (
     "id" SERIAL PRIMARY KEY,
     "text" TEXT NOT NULL,
     "author" TEXT,
     "source" TEXT,
-    "added_at" TIMESTAMP DEFAULT NOW(),
-    "tokens" TSVECTOR
+    "added_at" TIMESTAMP DEFAULT NOW()
 );
 
 ALTER SEQUENCE quote_id_seq RESTART WITH 1001;
@@ -50,3 +51,16 @@ CREATE TABLE "results" (
     "played_at" TIMESTAMP DEFAULT NOW()
 );
 
+CREATE FUNCTION generate_username() RETURNS text AS $$
+DECLARE
+    guest_username text;
+    done bool;
+BEGIN
+    done := false;
+    WHILE NOT done LOOP
+        guest_username := concat('Guest', floor(random() * 900000) + 100000);
+        done := NOT exists(SELECT 1 FROM users WHERE username=guest_username);
+    END LOOP;
+    RETURN guest_username;
+END;
+$$ LANGUAGE PLPGSQL VOLATILE;
