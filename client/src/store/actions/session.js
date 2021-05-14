@@ -5,8 +5,12 @@ import socketIO from "core/SocketClient";
 const getSession = () => async (dispatch) => {
     socketIO.setDispatch(dispatch);
     fetch("/api/session")
-        .then(handleResponse)
-        .then((data) => {
+        .then((response) => {
+            if (!response.ok) return Promise.reject();
+            return response.json();
+        })
+        .then(({ meta, data }) => {
+            if (!meta.ok) return;
             let session = { isLoaded: true };
             if (data.user) {
                 session.user = data.user;
@@ -226,7 +230,7 @@ const register = (userInfo, onSuccess, onFailure) => async (dispatch) => {
 };
 
 const logout = () => (dispatch) => {
-    let id = localStorage.getItem("sync-id");
+    const id = localStorage.getItem("sync-id");
     fetch("/api/session", {
         method: "DELETE",
         body: JSON.stringify({ id }),
@@ -234,7 +238,10 @@ const logout = () => (dispatch) => {
             "Content-Type": "application/json",
         },
     })
-        .then(handleResponse)
+        .then((response) => {
+            if (!response.ok) return Promise.reject();
+            return response.json();
+        })
         .then(() => {
             socketIO.disconnect();
             dispatch(clearSession());
