@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 // Redux
 import { useDispatch } from "react-redux";
-import { login, loginAsGuest, register } from "store/actions";
+import { generateUsername, login, loginAsGuest, register } from "store/actions";
 
 // Components
 import Input from "../Input/Input";
@@ -39,20 +39,36 @@ const Header = () => {
 };
 
 const View = () => {
+    const dispatch = useDispatch();
     const [view, setView] = useState("");
-    const [username, setUsername] = useState({ value: "czelo2", valid: true });
+    const [username, setUsername] = useState({ value: "", valid: false });
+    const [isValid, setIsValid] = useState(true);
 
     useEffect(() => {
-        console.log("FETCH NAME");
-        setTimeout(() => {
+        setIsValid(true);
+    }, [username]);
+
+    useEffect(() => {
+        const onSuccess = (username) => {
+            setUsername({ value: username, valid: true });
             setView("guest");
-        }, 20);
-    }, []);
+        };
+        const onFailure = () => {
+            setView("guest");
+        };
+        dispatch(generateUsername(onSuccess, onFailure));
+    }, [dispatch]);
 
     switch (view) {
         case "guest":
             return (
-                <GuestLogin setView={setView} username={username} setUsername={setUsername} />
+                <GuestLogin
+                    setView={setView}
+                    username={username}
+                    setUsername={setUsername}
+                    isValid={isValid}
+                    setIsValid={setIsValid}
+                />
             );
         case "login":
             return <Login setView={setView} />;
@@ -69,41 +85,46 @@ const View = () => {
     }
 };
 
-const GuestLogin = ({ setView, username, setUsername }) => {
+const GuestLogin = ({ setView, username, setUsername, isValid, setIsValid }) => {
     const dispatch = useDispatch();
-    const [isFetching, setIsFetching] = useState(false);
-    const isDisabled = !username.valid || isFetching;
+    const [isChecking, setIsChecking] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+    const isDisabled = submitted || isChecking || !isValid || !username.valid;
 
-    const onSubmit = () => {
-        if (isFetching) return;
-        setIsFetching(true);
+    const onSubmit = (event) => {
+        event.preventDefault();
+
+        if (isDisabled) return;
+        setSubmitted(true);
+
         const userInfo = { username: username.value };
         const onSuccess = () => {
             setView("checkmark");
         };
-        const onFailure = () => {
-            setIsFetching(false);
-            setUsername((current) => ({ ...current, valid: false }));
+        const onFailure = (processed) => {
+            if (processed) setIsValid(false);
+            setSubmitted(false);
         };
         dispatch(loginAsGuest(userInfo, onSuccess, onFailure));
     };
 
     return (
         <>
-            <Styles.GuestLogin>
+            <Styles.GuestLogin onSubmit={onSubmit}>
                 <p>Create a temporary account</p>
                 <InputChecker
                     test={TEST_TYPE.AVAILABLE}
                     type={FIELD_TYPE.USERNAME}
                     placeholder="Username"
                     initial={username}
+                    invalid={!isValid}
                     setIsValid={setUsername}
-                    invalid={!username.valid}
+                    setIsChecking={setIsChecking}
+                    isDisabled={submitted}
                     margin={false}
-                    isDisabled={isFetching}
                 />
-                <Styles.Button onClick={onSubmit} $disabled={isDisabled}>
-                    <span>JOIN</span>
+                <Styles.Button type="submit" $disabled={isDisabled}>
+                    <span>PLAY</span>
                 </Styles.Button>
             </Styles.GuestLogin>
             <Styles.Navigation>

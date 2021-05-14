@@ -17,7 +17,7 @@ const username = Joi.string()
     .required()
     .error(() => {
         return {
-            message: "Username must be at least 4 alphanumeric characters long",
+            message: "Username must be between 4 to 12 characters long",
         };
     });
 
@@ -26,7 +26,7 @@ const password = Joi.string()
     .required()
     .error(() => {
         return {
-            message: "Password must be at least 8 characters long",
+            message: "Password must be between 8 to 30 characters long",
         };
     });
 

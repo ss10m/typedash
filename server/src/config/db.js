@@ -32,11 +32,6 @@ pgPool.connect(async (err) => {
                 const valuesInsert = [quote.text, quote.author, quote.source];
                 await pgPool.query(queryInsert, valuesInsert);
             }
-
-            const queryVector = `UPDATE quote d1  
-                            SET tokens = to_tsvector(d1.text)  
-                            FROM quote d2;`;
-            await pgPool.query(queryVector, null);
         } else {
             QUOTE_IDS = ids;
         }

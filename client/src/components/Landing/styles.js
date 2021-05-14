@@ -50,7 +50,7 @@ export const ErrorMsg = styled.div`
     color: red;
 `;
 
-export const GuestLogin = styled.div`
+export const GuestLogin = styled.form`
     width: 260px;
 
     p {

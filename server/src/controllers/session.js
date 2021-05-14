@@ -173,6 +173,39 @@ const claimAccount = async (session, body, cb) => {
     }
 };
 
+const generateUsername = async (cb) => {
+    try {
+        const query = `SELECT generate_username AS username FROM generate_username();`;
+        const values = [];
+        const result = await db.query(query, values);
+
+        if (!result.rows.length) {
+            return cb({
+                meta: {
+                    ok: false,
+                    message: "Something went wrong",
+                },
+                data: {},
+            });
+        }
+
+        const username = result.rows[0].username;
+
+        await Joi.validate({ username }, usernameCheck);
+
+        cb({
+            meta: {
+                ok: true,
+                message: "",
+            },
+            data: { username },
+        });
+    } catch (err) {
+        const meta = { ok: false, message: parseError(err) };
+        cb({ meta, data: {} });
+    }
+};
+
 const changeUsername = async (session, body, cb) => {
     try {
         const { username, socketId } = body;
@@ -427,6 +460,7 @@ export {
     login,
     loginAsGuest,
     claimAccount,
+    generateUsername,
     changeUsername,
     changeEmail,
     changePassword,

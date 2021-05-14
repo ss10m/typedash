@@ -65,7 +65,7 @@ const loginAsGuest = (userInfo, onSuccess, onFailure) => async (dispatch) => {
             return response.json();
         })
         .then(({ meta, data }) => {
-            if (!meta.ok) return onFailure(meta.message);
+            if (!meta.ok) return onFailure(true);
             onSuccess();
             const sessionState = { isLoaded: true, user: data.user };
             setTimeout(() => {
@@ -93,6 +93,21 @@ const claimAccount = (userInfo, onSuccess, onFailure) => async (dispatch) => {
             dispatch(setSession(sessionState));
         })
         .catch((msg) => {
+            onFailure();
+        });
+};
+
+const generateUsername = (onSuccess, onFailure) => async () => {
+    fetch("/api/session/username")
+        .then((response) => {
+            if (!response.ok) return Promise.reject();
+            return response.json();
+        })
+        .then(({ meta, data }) => {
+            if (!meta.ok) return onFailure();
+            onSuccess(data.username);
+        })
+        .catch(() => {
             onFailure();
         });
 };
@@ -234,6 +249,7 @@ export {
     login,
     loginAsGuest,
     claimAccount,
+    generateUsername,
     changeUsername,
     changeEmail,
     verifyPassword,
