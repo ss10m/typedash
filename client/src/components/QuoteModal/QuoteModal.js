@@ -5,6 +5,9 @@ import { useHistory } from "react-router-dom";
 // Socket API
 import SocketAPI from "core/SocketClient";
 
+// Hooks
+import { useEventListener } from "hooks";
+
 // Constants
 import { handleResponse, roundToFixed } from "helpers";
 
@@ -50,6 +53,12 @@ const QuoteModal = ({ quoteId, closeModal }) => {
             window.scrollTo(0, scrollY);
         };
     }, []);
+
+    useEventListener("keydown", (event) => {
+        if (event.keyCode === 27) {
+            closeModal();
+        }
+    });
 
     const createRoom = (quoteId) => {
         if (isCreating) return;

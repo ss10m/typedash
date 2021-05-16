@@ -3,6 +3,9 @@ import { useState, useEffect, forwardRef } from "react";
 import { Link } from "react-router-dom";
 import moment from "moment";
 
+// Hooks
+import { useEventListener } from "hooks";
+
 // Constants
 import { handleResponse } from "helpers";
 import { RESULT_TYPE } from "helpers/constants";
@@ -36,6 +39,12 @@ const ResultsModal = ({ quoteId, closeModal }) => {
             window.scrollTo(0, scrollY);
         };
     }, []);
+
+    useEventListener("keydown", (event) => {
+        if (event.keyCode === 27) {
+            closeModal();
+        }
+    });
 
     return (
         <Styles.Background>
