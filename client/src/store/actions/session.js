@@ -1,5 +1,3 @@
-import { handleResponse } from "helpers";
-
 import socketIO from "core/SocketClient";
 
 const getSession = () => async (dispatch) => {
@@ -90,13 +88,17 @@ const claimAccount = (userInfo, onSuccess, onFailure) => async (dispatch) => {
             "Content-Type": "application/json",
         },
     })
-        .then(handleResponse)
-        .then((data) => {
+        .then((response) => {
+            if (!response.ok) return Promise.reject();
+            return response.json();
+        })
+        .then(({ meta, data }) => {
+            if (!meta.ok) return onFailure();
             onSuccess();
-            const sessionState = { isLoaded: true, user: data.user };
+            const sessionState = { user: data.user };
             dispatch(setSession(sessionState));
         })
-        .catch((msg) => {
+        .catch(() => {
             onFailure();
         });
 };

@@ -5,14 +5,16 @@ import React, { forwardRef, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { claimAccount } from "store/actions";
 
+// Hooks
+import { useEventListener } from "hooks";
+
+// Components
 import InputChecker from "../InputChecker/InputChecker";
+import Checkmark from "components/Checkmark/Checkmark";
+import withClickWatcher from "components/withClickWatcher/withClickWatcher";
 
 // Constants
 import { TEST_TYPE, FIELD_TYPE } from "helpers/constants";
-
-// Components
-import Checkmark from "components/Checkmark/Checkmark";
-import withClickWatcher from "components/withClickWatcher/withClickWatcher";
 
 // Styles
 import * as Styles from "./styles";
@@ -70,7 +72,7 @@ const Modal = withClickWatcher(
 
 const Inputs = ({ setCompleted, hide }) => {
     const dispatch = useDispatch();
-    const currentUsername = useSelector((state) => state.session.user.username);
+    const currentUsername = useSelector((state) => state.session.user.displayName);
     const [submitted, setSubmitted] = useState(false);
     const [username, setUsername] = useState({ value: currentUsername, valid: true });
     const [email, setEmail] = useState({ value: "", valid: false });
@@ -78,9 +80,31 @@ const Inputs = ({ setCompleted, hide }) => {
     const [confirmPassword, setConfirmPassword] = useState({ value: "", valid: false });
     const [mismatchedPasswords, setMismatchedPasswords] = useState(false);
 
+    const isDisabled =
+        submitted ||
+        mismatchedPasswords ||
+        [username, email, password, confirmPassword].some((input) => !input.valid);
+
+    useEffect(() => {
+        if (password.value && password.value !== confirmPassword.value) {
+            setMismatchedPasswords(true);
+        } else {
+            setMismatchedPasswords(false);
+        }
+    }, [password, confirmPassword]);
+
+    useEventListener("keydown", (event) => {
+        if (event.keyCode === 27) {
+            hide();
+        } else if (event.keyCode === 13) {
+            claim();
+        }
+    });
+
     const claim = () => {
-        if (submitted) return;
+        if (isDisabled) return;
         setSubmitted(true);
+
         const userInfo = {
             username: username.value,
             email: email.value,
@@ -96,23 +120,6 @@ const Inputs = ({ setCompleted, hide }) => {
         dispatch(claimAccount(userInfo, onSuccess, onFailure));
     };
 
-    const isDisabled =
-        submitted ||
-        mismatchedPasswords ||
-        [username, email, password, confirmPassword].some((input) => !input.valid);
-
-    useEffect(() => {
-        if (password.value && password.value !== confirmPassword.value) {
-            setMismatchedPasswords(true);
-        } else {
-            setMismatchedPasswords(false);
-        }
-    }, [password, confirmPassword]);
-
-    useEffect(() => {
-        setSubmitted(false);
-    }, [username, email, password, confirmPassword, setSubmitted]);
-
     return (
         <>
             <div>
@@ -122,12 +129,14 @@ const Inputs = ({ setCompleted, hide }) => {
                     placeholder="Username"
                     initial={username}
                     setIsValid={setUsername}
+                    isDisabled={submitted}
                 />
                 <InputChecker
                     type={FIELD_TYPE.EMAIL}
                     placeholder="Email"
                     initial={email}
                     setIsValid={setEmail}
+                    isDisabled={submitted}
                     autofocus
                 />
                 <InputChecker
@@ -135,6 +144,7 @@ const Inputs = ({ setCompleted, hide }) => {
                     placeholder="Password"
                     initial={password}
                     setIsValid={setPassword}
+                    isDisabled={submitted}
                 />
                 <InputChecker
                     type={FIELD_TYPE.PASSWORD}
@@ -142,6 +152,7 @@ const Inputs = ({ setCompleted, hide }) => {
                     initial={confirmPassword}
                     setIsValid={setConfirmPassword}
                     invalid={mismatchedPasswords}
+                    isDisabled={submitted}
                 />
             </div>
             <NavButtons name="claim" claim={claim} hide={hide} isDisabled={isDisabled} />
@@ -161,5 +172,4 @@ const NavButtons = ({ name, claim, hide, isDisabled }) => {
         </div>
     );
 };
-
 export default ClaimAccount;
