@@ -1,6 +1,3 @@
-// Libraries & utils
-import classNames from "classnames";
-
 // Hooks
 import useInputValidator from "./useInputValidator";
 
@@ -13,8 +10,8 @@ import Spinner from "../Spinner/Spinner";
 // Constants
 import { TEST_TYPE, FIELD_TYPE } from "helpers/constants";
 
-// SCSS
-import "./InputChecker.scss";
+// Styles
+import * as Styled from "./styles";
 
 const InputChecker = ({
     type,
@@ -46,10 +43,10 @@ const InputChecker = ({
     const showError = !isFetching && (invalid || containsError) && input.length;
 
     return (
-        <div className={classNames("input-checker", { margin })}>
+        <Styled.InputChecker $margin={margin}>
             <Icon type={type} showError={showError} />
-            <input
-                className={classNames({ error: showError })}
+            <Styled.Input
+                $error={showError}
                 type={type === FIELD_TYPE.PASSWORD ? "password" : "text"}
                 placeholder={placeholder}
                 value={input}
@@ -60,7 +57,7 @@ const InputChecker = ({
                 disabled={isDisabled}
             />
             <Status inputLength={input.length} showError={showError} isFetching={isFetching} />
-        </div>
+        </Styled.InputChecker>
     );
 };
 
@@ -87,7 +84,7 @@ const Icon = ({ type, showError }) => {
         default:
             break;
     }
-    return <div className={classNames("icon", { error: showError })}>{icon}</div>;
+    return <Styled.Icon $error={showError}>{icon}</Styled.Icon>;
 };
 
 const Status = ({ inputLength, showError, isFetching }) => {
@@ -99,16 +96,7 @@ const Status = ({ inputLength, showError, isFetching }) => {
     } else if (inputLength) {
         status = <FaCheckCircle />;
     }
-    return (
-        <div
-            className={classNames("status", {
-                success: !showError,
-                error: showError,
-            })}
-        >
-            {status}
-        </div>
-    );
+    return <Styled.Status $error={showError}>{status}</Styled.Status>;
 };
 
 export default InputChecker;
