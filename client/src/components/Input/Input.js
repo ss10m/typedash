@@ -1,6 +1,3 @@
-// Libraries & utils
-import classNames from "classnames";
-
 // Icons
 import { FaUser, FaKey, FaWindowClose } from "react-icons/fa";
 
