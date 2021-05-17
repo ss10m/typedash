@@ -20,7 +20,7 @@ import ClaimAccount from "./ClaimAccount/ClaimAccount";
 import Settings from "./Settings/Settings";
 
 // Styles
-import * as Styles from "./styles";
+import * as Styled from "./styles";
 
 const App = () => {
     const dispatch = useDispatch();
@@ -44,15 +44,15 @@ const App = () => {
         return null;
     } else if (error) {
         return (
-            <Styles.App>
-                <Styles.GlobalStyle />
+            <Styled.App>
+                <Styled.GlobalStyle />
                 <Error msg={error} forceRefresh />
-            </Styles.App>
+            </Styled.App>
         );
     } else if (!session.user) {
         return (
             <>
-                <Styles.GlobalStyle />
+                <Styled.GlobalStyle />
                 <Landing />
             </>
         );
@@ -62,8 +62,8 @@ const App = () => {
 
     return (
         <>
-            <Styles.GlobalStyle />
-            <Styles.App>
+            <Styled.GlobalStyle />
+            <Styled.App>
                 <div>
                     <Navbar
                         showSettings={() => setShowSettings(true)}
@@ -94,7 +94,7 @@ const App = () => {
                         <ClaimAccount hide={() => setShowClaimAccount(false)} />
                     )}
                 </div>
-            </Styles.App>
+            </Styled.App>
         </>
     );
 };

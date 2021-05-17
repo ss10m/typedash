@@ -18,7 +18,7 @@ import InputChecker from "components/InputChecker/InputChecker";
 import Checkmark from "components/Checkmark/Checkmark";
 
 // Styles
-import * as Styles from "./styles";
+import * as Styled from "./styles";
 
 const Settings = ({ hide }) => {
     useEffect(() => {
@@ -34,11 +34,11 @@ const Settings = ({ hide }) => {
     }, []);
 
     return (
-        <Styles.Background>
-            <Styles.Wrapper>
+        <Styled.Background>
+            <Styled.Wrapper>
                 <Modal hide={hide} />
-            </Styles.Wrapper>
-        </Styles.Background>
+            </Styled.Wrapper>
+        </Styled.Background>
     );
 };
 
@@ -52,18 +52,18 @@ const Modal = withClickWatcher(
         }, [isVisible, hide]);
 
         return (
-            <Styles.Modal>
-                <Styles.Settings ref={ref}>
-                    <Styles.Header>
+            <Styled.Modal>
+                <Styled.Settings ref={ref}>
+                    <Styled.Header>
                         <p>SETTINGS</p>
                         <span onClick={hide}>
                             <MdClose />
                         </span>
-                    </Styles.Header>
+                    </Styled.Header>
                     {completed ? (
-                        <Styles.IconWrapper>
+                        <Styled.IconWrapper>
                             <Checkmark diameter={160} close={hide} />
-                        </Styles.IconWrapper>
+                        </Styled.IconWrapper>
                     ) : (
                         <>
                             <UsernameChanger
@@ -77,8 +77,8 @@ const Modal = withClickWatcher(
                             />
                         </>
                     )}
-                </Styles.Settings>
-            </Styles.Modal>
+                </Styled.Settings>
+            </Styled.Modal>
         );
     })
 );
@@ -125,12 +125,12 @@ const UsernameChanger = ({ completed, setCompleted }) => {
 
     return (
         <form onSubmit={onSubmit}>
-            <Styles.ChangerHeader>
+            <Styled.ChangerHeader>
                 <p>CHANGE YOUR USERNAME</p>
-                <Styles.Button type="submit" disabled={disabled}>
+                <Styled.Button type="submit" disabled={disabled}>
                     SAVE
-                </Styles.Button>
-            </Styles.ChangerHeader>
+                </Styled.Button>
+            </Styled.ChangerHeader>
             <InputChecker
                 test={TEST_TYPE.AVAILABLE}
                 type={FIELD_TYPE.USERNAME}
@@ -141,7 +141,7 @@ const UsernameChanger = ({ completed, setCompleted }) => {
                 setIsChecking={setIsChecking}
                 isDisabled={submitted || completed}
             />
-            <Styles.Message $color={msg.color}>{msg.text}</Styles.Message>
+            <Styled.Message $color={msg.color}>{msg.text}</Styled.Message>
         </form>
     );
 };
@@ -179,12 +179,12 @@ const EmailChanger = ({ completed, setCompleted }) => {
 
     return (
         <form onSubmit={onSubmit}>
-            <Styles.ChangerHeader>
+            <Styled.ChangerHeader>
                 <p>CHANGE YOUR EMAIL</p>
-                <Styles.Button type="submit" disabled={disabled}>
+                <Styled.Button type="submit" disabled={disabled}>
                     SAVE
-                </Styles.Button>
-            </Styles.ChangerHeader>
+                </Styled.Button>
+            </Styled.ChangerHeader>
             <InputChecker
                 type={FIELD_TYPE.EMAIL}
                 placeholder="New Email"
@@ -241,12 +241,12 @@ const PasswordVerifier = ({ setVerifiedPassword }) => {
 
     return (
         <form onSubmit={onSubmit}>
-            <Styles.ChangerHeader>
+            <Styled.ChangerHeader>
                 <p>CHANGE YOUR PASSWORD</p>
-                <Styles.Button type="submit" disabled={disabled}>
+                <Styled.Button type="submit" disabled={disabled}>
                     VERIFY
-                </Styles.Button>
-            </Styles.ChangerHeader>
+                </Styled.Button>
+            </Styled.ChangerHeader>
             <Input
                 type={FIELD_TYPE.PASSWORD}
                 placeholder="Current Password"
@@ -256,7 +256,7 @@ const PasswordVerifier = ({ setVerifiedPassword }) => {
                 setCredentials={setCredentials}
                 isDisabled={submitted}
             />
-            {credentials && <Styles.Message $color={"red"}>{credentials.msg}</Styles.Message>}
+            {credentials && <Styled.Message $color={"red"}>{credentials.msg}</Styled.Message>}
         </form>
     );
 };
@@ -304,12 +304,12 @@ const PasswordSetter = ({ verifiedPassword, completed, setCompleted }) => {
 
     return (
         <form onSubmit={onSubmit}>
-            <Styles.ChangerHeader>
+            <Styled.ChangerHeader>
                 <p>CHANGE YOUR PASSWORD</p>
-                <Styles.Button type="submit" disabled={disabled}>
+                <Styled.Button type="submit" disabled={disabled}>
                     SAVE
-                </Styles.Button>
-            </Styles.ChangerHeader>
+                </Styled.Button>
+            </Styled.ChangerHeader>
             <InputChecker
                 type={FIELD_TYPE.PASSWORD}
                 placeholder="New Password"

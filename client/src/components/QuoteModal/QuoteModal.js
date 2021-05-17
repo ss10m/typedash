@@ -15,7 +15,7 @@ import { handleResponse, roundToFixed } from "helpers";
 import withClickWatcher from "../withClickWatcher/withClickWatcher";
 
 // Styles
-import * as Styles from "./styles";
+import * as Styled from "./styles";
 
 const QuoteModal = ({ quoteId, closeModal }) => {
     const history = useHistory();
@@ -67,13 +67,13 @@ const QuoteModal = ({ quoteId, closeModal }) => {
     };
 
     return (
-        <Styles.Background>
-            <Styles.Wrapper>
+        <Styled.Background>
+            <Styled.Wrapper>
                 {quote && (
                     <Modal quote={quote} createRoom={createRoom} closeModal={closeModal} />
                 )}
-            </Styles.Wrapper>
-        </Styles.Background>
+            </Styled.Wrapper>
+        </Styled.Background>
     );
 };
 
@@ -86,60 +86,60 @@ const Modal = withClickWatcher(
         }, [isVisible, closeModal]);
 
         return (
-            <Styles.Modal ref={ref}>
+            <Styled.Modal ref={ref}>
                 <Header quote={quote} createRoom={createRoom} closeModal={closeModal} />
-                <Styles.Quote>{quote.text}</Styles.Quote>
+                <Styled.Quote>{quote.text}</Styled.Quote>
                 <Stats quote={quote} />
-            </Styles.Modal>
+            </Styled.Modal>
         );
     })
 );
 
 const Header = ({ quote, createRoom, closeModal }) => {
     return (
-        <Styles.Header>
+        <Styled.Header>
             <p>{`#${quote.id}`}</p>
             <div>
-                <Styles.Button onClick={() => createRoom(quote.id)}>PLAY</Styles.Button>
-                <Styles.Button onClick={closeModal} close>
+                <Styled.Button onClick={() => createRoom(quote.id)}>PLAY</Styled.Button>
+                <Styled.Button onClick={closeModal} close>
                     CLOSE
-                </Styles.Button>
+                </Styled.Button>
             </div>
-        </Styles.Header>
+        </Styled.Header>
     );
 };
 
 const Stats = ({ quote }) => {
     return (
-        <Styles.Stats>
+        <Styled.Stats>
             <div>
-                <Styles.Stat>
+                <Styled.Stat>
                     <p>PLAYED</p>
                     <p>{quote.count}</p>
-                </Styles.Stat>
-                <Styles.Divider />
-                <Styles.Stat>
+                </Styled.Stat>
+                <Styled.Divider />
+                <Styled.Stat>
                     <p>AVG WPM</p>
                     <p>{roundToFixed(quote.avg_wpm)}</p>
-                </Styles.Stat>
-                <Styles.Divider />
-                <Styles.Stat>
+                </Styled.Stat>
+                <Styled.Divider />
+                <Styled.Stat>
                     <p>AVG ACC</p>
                     <p>{`${roundToFixed(quote.avg_acc)}%`}</p>
-                </Styles.Stat>
+                </Styled.Stat>
             </div>
             <div>
-                <Styles.Stat>
+                <Styled.Stat>
                     <p>AUTHOR</p>
                     <p>{quote.author}</p>
-                </Styles.Stat>
-                <Styles.Divider />
-                <Styles.Stat>
+                </Styled.Stat>
+                <Styled.Divider />
+                <Styled.Stat>
                     <p>BOOK</p>
                     <p>{quote.source}</p>
-                </Styles.Stat>
+                </Styled.Stat>
             </div>
-        </Styles.Stats>
+        </Styled.Stats>
     );
 };
 

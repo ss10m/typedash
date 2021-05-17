@@ -16,7 +16,7 @@ import ResultsModal from "./ResultsModal/ResultsModal";
 import { handleResponse, roundToFixed } from "helpers";
 
 // Styles
-import * as Styles from "./styles";
+import * as Styled from "./styles";
 
 const Quotes = () => {
     const [isCreating, setIsCreating] = useState(false);
@@ -63,11 +63,11 @@ const Quotes = () => {
 
     return (
         <>
-            <Styles.Quotes>
-                <Styles.Header>
+            <Styled.Quotes>
+                <Styled.Header>
                     <p>QUOTES</p>
                     <Sort setQuotes={setQuotes} />
-                </Styles.Header>
+                </Styled.Header>
                 <div>
                     {quotes.map((quote) => (
                         <Quote
@@ -78,7 +78,7 @@ const Quotes = () => {
                         />
                     ))}
                 </div>
-            </Styles.Quotes>
+            </Styled.Quotes>
             {resultsModal && <ResultsModal quoteId={resultsModal} closeModal={closeModal} />}
         </>
     );
@@ -174,7 +174,7 @@ const Sort = ({ setQuotes }) => {
 
     return (
         <div>
-            <Styles.SortSelect>
+            <Styled.SortSelect>
                 <Select
                     value={sort.selected}
                     options={selectOptions}
@@ -183,60 +183,60 @@ const Sort = ({ setQuotes }) => {
                     onChange={setSelected}
                     isDisabled={false}
                 />
-            </Styles.SortSelect>
-            <Styles.OrderToggle onClick={toggleSortOrder}>
+            </Styled.SortSelect>
+            <Styled.OrderToggle onClick={toggleSortOrder}>
                 {sort.order === "asc" ? <FaSortAmountDownAlt /> : <FaSortAmountDown />}
-            </Styles.OrderToggle>
+            </Styled.OrderToggle>
         </div>
     );
 };
 
 const Quote = ({ quote, createRoom, setResultsModal }) => {
     return (
-        <Styles.Quote>
-            <Styles.QuoteHeader>
+        <Styled.Quote>
+            <Styled.QuoteHeader>
                 <p>{`#${quote.id}`}</p>
                 <div>
-                    <Styles.Button onClick={() => createRoom(quote.id)}>PLAY</Styles.Button>
-                    <Styles.Button
+                    <Styled.Button onClick={() => createRoom(quote.id)}>PLAY</Styled.Button>
+                    <Styled.Button
                         className="button"
                         onClick={() => setResultsModal(quote.id)}
                     >
                         RESULTS
-                    </Styles.Button>
+                    </Styled.Button>
                 </div>
-            </Styles.QuoteHeader>
-            <Styles.Words>{quote.text}</Styles.Words>
-            <Styles.Stats>
+            </Styled.QuoteHeader>
+            <Styled.Words>{quote.text}</Styled.Words>
+            <Styled.Stats>
                 <div>
-                    <Styles.Stat>
+                    <Styled.Stat>
                         <p>PLAYED</p>
                         <p>{quote.count}</p>
-                    </Styles.Stat>
-                    <Styles.Divider />
-                    <Styles.Stat>
+                    </Styled.Stat>
+                    <Styled.Divider />
+                    <Styled.Stat>
                         <p>AVG WPM</p>
                         <p>{roundToFixed(quote.avg_wpm)}</p>
-                    </Styles.Stat>
-                    <Styles.Divider />
-                    <Styles.Stat>
+                    </Styled.Stat>
+                    <Styled.Divider />
+                    <Styled.Stat>
                         <p>AVG ACC</p>
                         <p>{`${roundToFixed(quote.avg_acc)}%`}</p>
-                    </Styles.Stat>
+                    </Styled.Stat>
                 </div>
                 <div>
-                    <Styles.Stat>
+                    <Styled.Stat>
                         <p>AUTHOR</p>
                         <p>{quote.author}</p>
-                    </Styles.Stat>
-                    <Styles.Divider />
-                    <Styles.Stat>
+                    </Styled.Stat>
+                    <Styled.Divider />
+                    <Styled.Stat>
                         <p>BOOK</p>
                         <p>{quote.source}</p>
-                    </Styles.Stat>
+                    </Styled.Stat>
                 </div>
-            </Styles.Stats>
-        </Styles.Quote>
+            </Styled.Stats>
+        </Styled.Quote>
     );
 };
 

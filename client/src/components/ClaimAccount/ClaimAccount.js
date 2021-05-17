@@ -17,7 +17,7 @@ import withClickWatcher from "components/withClickWatcher/withClickWatcher";
 import { TEST_TYPE, FIELD_TYPE } from "helpers/constants";
 
 // Styles
-import * as Styles from "./styles";
+import * as Styled from "./styles";
 
 const ClaimAccount = ({ hide }) => {
     useEffect(() => {
@@ -33,11 +33,11 @@ const ClaimAccount = ({ hide }) => {
     }, []);
 
     return (
-        <Styles.Background>
-            <Styles.Wrapper>
+        <Styled.Background>
+            <Styled.Wrapper>
                 <Modal hide={hide} />
-            </Styles.Wrapper>
-        </Styles.Background>
+            </Styled.Wrapper>
+        </Styled.Background>
     );
 };
 
@@ -51,21 +51,21 @@ const Modal = withClickWatcher(
         }, [isVisible, hide]);
 
         return (
-            <Styles.Modal ref={ref}>
-                <Styles.Header>
+            <Styled.Modal ref={ref}>
+                <Styled.Header>
                     <div>
                         TYPE<span>DASH</span>
                     </div>
                     <div>CLAIM ACCOUNT</div>
-                </Styles.Header>
-                <Styles.Body $center={completed}>
+                </Styled.Header>
+                <Styled.Body $center={completed}>
                     {completed ? (
                         <Checkmark diameter={160} close={hide} />
                     ) : (
                         <Inputs setCompleted={setCompleted} hide={hide} />
                     )}
-                </Styles.Body>
-            </Styles.Modal>
+                </Styled.Body>
+            </Styled.Modal>
         );
     })
 );
@@ -163,12 +163,12 @@ const Inputs = ({ setCompleted, hide }) => {
 const NavButtons = ({ name, claim, hide, isDisabled }) => {
     return (
         <div>
-            <Styles.Button onClick={claim} $disabled={isDisabled} $primary>
+            <Styled.Button onClick={claim} $disabled={isDisabled} $primary>
                 <span>{name.toUpperCase()}</span>
-            </Styles.Button>
-            <Styles.Button onClick={hide} $cancel>
+            </Styled.Button>
+            <Styled.Button onClick={hide} $cancel>
                 <span>CANCEL</span>
-            </Styles.Button>
+            </Styled.Button>
         </div>
     );
 };

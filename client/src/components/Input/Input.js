@@ -8,7 +8,7 @@ import { FaUser, FaKey, FaWindowClose } from "react-icons/fa";
 import { FIELD_TYPE } from "helpers/constants";
 
 // Styles
-import * as Styles from "./styles";
+import * as Styled from "./styles";
 
 const Input = ({
     type,
@@ -26,9 +26,9 @@ const Input = ({
     };
 
     return (
-        <Styles.Input>
+        <Styled.Input>
             <Icon type={type} credentials={credentials} />
-            <Styles.InputField
+            <Styled.InputField
                 $error={!credentials.valid}
                 type={type === FIELD_TYPE.PASSWORD ? "password" : "text"}
                 value={input.value}
@@ -39,23 +39,23 @@ const Input = ({
                 disabled={isDisabled}
             />
             <Status credentials={credentials} />
-        </Styles.Input>
+        </Styled.Input>
     );
 };
 
 const Icon = ({ type, credentials }) => {
     return (
-        <Styles.Icon $error={!credentials.valid}>
+        <Styled.Icon $error={!credentials.valid}>
             {type === FIELD_TYPE.USERNAME ? <FaUser /> : <FaKey />}
-        </Styles.Icon>
+        </Styled.Icon>
     );
 };
 
 const Status = ({ credentials }) => {
     return (
-        <Styles.Status $error={!credentials.valid}>
+        <Styled.Status $error={!credentials.valid}>
             {!credentials.valid && <FaWindowClose />}
-        </Styles.Status>
+        </Styled.Status>
     );
 };
 

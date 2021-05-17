@@ -17,7 +17,7 @@ import { ACCOUNT_TYPE } from "helpers/constants";
 import withClickWatcher from "components/withClickWatcher/withClickWatcher";
 
 // Styles
-import * as Styles from "./styles.js";
+import * as Styled from "./styles.js";
 
 const Dropdown = withClickWatcher(
     forwardRef((props, ref) => {
@@ -35,9 +35,9 @@ const Dropdown = withClickWatcher(
         };
 
         return (
-            <Styles.Dropdown ref={ref}>
+            <Styled.Dropdown ref={ref}>
                 <Header user={user} />
-                <Styles.Divider />
+                <Styled.Divider />
                 {user.accountType === ACCOUNT_TYPE.GUEST ? (
                     <Button
                         icon={FaRegCopy}
@@ -53,38 +53,38 @@ const Dropdown = withClickWatcher(
                         hideDropdown={hideDropdown}
                     />
                 )}
-                <Styles.Divider />
+                <Styled.Divider />
                 <Button
                     icon={FaSignOutAlt}
                     text="Logout"
                     onClick={handleLogout}
                     hideDropdown={hideDropdown}
                 />
-            </Styles.Dropdown>
+            </Styled.Dropdown>
         );
     })
 );
 
 const Header = ({ user }) => {
     return (
-        <Styles.Header>
-            <Styles.UserInfo $username>
-                <Styles.Icon $header>
+        <Styled.Header>
+            <Styled.UserInfo $username>
+                <Styled.Icon $header>
                     <FaUserCircle />
-                </Styles.Icon>
+                </Styled.Icon>
                 <div>
                     <p>{user.displayName}</p>
                 </div>
-            </Styles.UserInfo>
-            <Styles.UserInfo>
-                <Styles.Icon>
+            </Styled.UserInfo>
+            <Styled.UserInfo>
+                <Styled.Icon>
                     <FaBirthdayCake />
-                </Styles.Icon>
+                </Styled.Icon>
                 <div>
                     <p>{moment(user.createdAt).format("MMM Do, YYYY")}</p>
                 </div>
-            </Styles.UserInfo>
-        </Styles.Header>
+            </Styled.UserInfo>
+        </Styled.Header>
     );
 };
 
@@ -98,12 +98,12 @@ const Button = (props) => {
     };
 
     return (
-        <Styles.Button onClick={handleClick}>
-            <Styles.Icon $option>
+        <Styled.Button onClick={handleClick}>
+            <Styled.Icon $option>
                 <Icon />
-            </Styles.Icon>
+            </Styled.Icon>
             {text}
-        </Styles.Button>
+        </Styled.Button>
     );
 };
 

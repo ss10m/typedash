@@ -14,7 +14,7 @@ import QuoteModal from "components/QuoteModal/QuoteModal";
 import { handleResponse } from "helpers";
 
 // Styles
-import * as Styles from "./styles";
+import * as Styled from "./styles";
 
 const Highscores = () => {
     const [page, setPage] = useState(1);
@@ -65,19 +65,19 @@ const Highscores = () => {
 
     return (
         <>
-            <Styles.Highscores>
-                <Styles.Tabs>
+            <Styled.Highscores>
+                <Styled.Tabs>
                     <p>HIGHSCORES</p>
                     <RefreshButton fetchData={fetchData} disabled={isFetching} />
-                </Styles.Tabs>
+                </Styled.Tabs>
                 <Header />
-                <Styles.Scores ref={containerRef}>
+                <Styled.Scores ref={containerRef}>
                     <Scores
                         scores={scores}
                         countPerPage={rowCountRef.current}
                         setQuoteModal={setQuoteModal}
                     />
-                </Styles.Scores>
+                </Styled.Scores>
                 <Pagination
                     page={page}
                     updatePage={updatePage}
@@ -85,7 +85,7 @@ const Highscores = () => {
                     disabled={isFetching}
                     marginBottom={marginBottom}
                 />
-            </Styles.Highscores>
+            </Styled.Highscores>
             {quoteModal && (
                 <QuoteModal quoteId={quoteModal} closeModal={() => setQuoteModal(null)} />
             )}
@@ -105,7 +105,7 @@ const RefreshButton = ({ fetchData, disabled }) => {
     };
 
     return (
-        <Styles.RefreshBtn
+        <Styled.RefreshBtn
             onClick={refresh}
             $disabled={disabled || isRefreshing}
             $animate={isRefreshing}
@@ -113,20 +113,20 @@ const RefreshButton = ({ fetchData, disabled }) => {
             <span>
                 <FiRefreshCw />
             </span>
-        </Styles.RefreshBtn>
+        </Styled.RefreshBtn>
     );
 };
 
 export const Header = () => {
     return (
-        <Styles.Header>
-            <Styles.Rank>#</Styles.Rank>
-            <Styles.Username>USERNAME</Styles.Username>
-            <Styles.Wpm>WPM</Styles.Wpm>
-            <Styles.Accuracy>ACCURACY</Styles.Accuracy>
-            <Styles.Time>TIME</Styles.Time>
-            <Styles.Quote>QUOTE</Styles.Quote>
-        </Styles.Header>
+        <Styled.Header>
+            <Styled.Rank>#</Styled.Rank>
+            <Styled.Username>USERNAME</Styled.Username>
+            <Styled.Wpm>WPM</Styled.Wpm>
+            <Styled.Accuracy>ACCURACY</Styled.Accuracy>
+            <Styled.Time>TIME</Styled.Time>
+            <Styled.Quote>QUOTE</Styled.Quote>
+        </Styled.Header>
     );
 };
 
@@ -135,24 +135,24 @@ const Scores = ({ scores, countPerPage, setQuoteModal }) => {
         return null;
     }
     if (!scores.length) {
-        return <Styles.NoResults>No results found</Styles.NoResults>;
+        return <Styled.NoResults>No results found</Styled.NoResults>;
     }
 
     return scores.map((score, index) => (
-        <Styles.Result key={index} $hideBorder={index + 1 === countPerPage}>
-            <Styles.RankValue>{score.rank}</Styles.RankValue>
-            <Styles.UsernameValue>
+        <Styled.Result key={index} $hideBorder={index + 1 === countPerPage}>
+            <Styled.RankValue>{score.rank}</Styled.RankValue>
+            <Styled.UsernameValue>
                 <Link to={`/profile/${score.username}`}>{score.display_name}</Link>
-            </Styles.UsernameValue>
-            <Styles.WpmValue>{`${score.wpm}wpm`}</Styles.WpmValue>
-            <Styles.AccuracyValue>{`${score.accuracy}%`}</Styles.AccuracyValue>
-            <Styles.TimeValue>{moment(score.played_at).fromNow()}</Styles.TimeValue>
-            <Styles.QuoteValue>
+            </Styled.UsernameValue>
+            <Styled.WpmValue>{`${score.wpm}wpm`}</Styled.WpmValue>
+            <Styled.AccuracyValue>{`${score.accuracy}%`}</Styled.AccuracyValue>
+            <Styled.TimeValue>{moment(score.played_at).fromNow()}</Styled.TimeValue>
+            <Styled.QuoteValue>
                 <span
                     onClick={() => setQuoteModal(score.quote_id)}
                 >{`${score.quote_id}`}</span>
-            </Styles.QuoteValue>
-        </Styles.Result>
+            </Styled.QuoteValue>
+        </Styled.Result>
     ));
 };
 

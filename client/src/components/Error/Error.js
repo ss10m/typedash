@@ -5,23 +5,23 @@ import { useHistory } from "react-router-dom";
 import error from "./error.svg";
 
 // Styles
-import * as Styles from "./styles";
+import * as Styled from "./styles";
 
 const Error = ({ msg, forceRefresh }) => {
     const defaultMessage = "PAGE NOT FOUND";
 
     return (
-        <Styles.Wrapper>
-            <Styles.Error>
-                <Styles.Image src={error} alt="Page not found"></Styles.Image>
-                <Styles.Header>SOMETHING WENT WRONG</Styles.Header>
-                <Styles.Message>{msg ? msg.toUpperCase() : defaultMessage}</Styles.Message>
+        <Styled.Wrapper>
+            <Styled.Error>
+                <Styled.Image src={error} alt="Page not found"></Styled.Image>
+                <Styled.Header>SOMETHING WENT WRONG</Styled.Header>
+                <Styled.Message>{msg ? msg.toUpperCase() : defaultMessage}</Styled.Message>
                 <Button forceRefresh={forceRefresh} />
-                <Styles.Logo>
+                <Styled.Logo>
                     TYPE<span>DASH</span>
-                </Styles.Logo>
-            </Styles.Error>
-        </Styles.Wrapper>
+                </Styled.Logo>
+            </Styled.Error>
+        </Styled.Wrapper>
     );
 };
 
@@ -37,9 +37,9 @@ const Button = ({ forceRefresh }) => {
     };
 
     return (
-        <Styles.Button onClick={handleClick}>
+        <Styled.Button onClick={handleClick}>
             {forceRefresh ? "REFRESH" : "RETURN TO LOBBY"}
-        </Styles.Button>
+        </Styled.Button>
     );
 };
 

@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 
 // Styles
-import * as Styles from "./styles";
+import * as Styled from "./styles";
 
 const Checkmark = ({ diameter, close }) => {
     useEffect(() => {
@@ -16,16 +16,16 @@ const Checkmark = ({ diameter, close }) => {
     }, [close]);
 
     return (
-        <Styles.Checkmark
+        <Styled.Checkmark
             viewBox="0 0 26 26"
             xmlns="http://www.w3.org/2000/svg"
             $diameter={diameter || 150}
         >
             <g>
-                <Styles.Circle d="M13 1C6.372583 1 1 6.372583 1 13s5.372583 12 12 12 12-5.372583 12-12S19.627417 1 13 1z" />
-                <Styles.Tick d="M6.5 13.5L10 17 l8.808621-8.308621" />
+                <Styled.Circle d="M13 1C6.372583 1 1 6.372583 1 13s5.372583 12 12 12 12-5.372583 12-12S19.627417 1 13 1z" />
+                <Styled.Tick d="M6.5 13.5L10 17 l8.808621-8.308621" />
             </g>
-        </Styles.Checkmark>
+        </Styled.Checkmark>
     );
 };
 

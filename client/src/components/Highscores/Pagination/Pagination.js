@@ -13,7 +13,7 @@ import {
 } from "react-icons/fa";
 
 // Styles
-import * as Styles from "./styles";
+import * as Styled from "./styles";
 
 const Pagination = ({ page, updatePage, pageCount, disabled, marginBottom }) => {
     const handlePreviousClick = () => {
@@ -40,26 +40,26 @@ const Pagination = ({ page, updatePage, pageCount, disabled, marginBottom }) => 
     const disabledRight = disabled || page >= pageCount;
 
     return (
-        <Styles.Pagination $marginBottom={marginBottom}>
-            <Styles.Button onClick={handleBackwardClick} $disabled={disabledLeft} $left>
+        <Styled.Pagination $marginBottom={marginBottom}>
+            <Styled.Button onClick={handleBackwardClick} $disabled={disabledLeft} $left>
                 <FaAngleDoubleLeft />
-            </Styles.Button>
-            <Styles.Button onClick={handlePreviousClick} $disabled={disabledLeft} $left>
+            </Styled.Button>
+            <Styled.Button onClick={handlePreviousClick} $disabled={disabledLeft} $left>
                 <FaAngleLeft />
-            </Styles.Button>
+            </Styled.Button>
             <Input
                 page={page}
                 updatePage={updatePage}
                 pageCount={pageCount}
                 disabled={disabled}
             />
-            <Styles.Button onClick={handleNextClick} $disabled={disabledRight} $right>
+            <Styled.Button onClick={handleNextClick} $disabled={disabledRight} $right>
                 <FaAngleRight />
-            </Styles.Button>
-            <Styles.Button onClick={handleForwardClick} $disabled={disabledRight} $right>
+            </Styled.Button>
+            <Styled.Button onClick={handleForwardClick} $disabled={disabledRight} $right>
                 <FaAngleDoubleRight />
-            </Styles.Button>
-        </Styles.Pagination>
+            </Styled.Button>
+        </Styled.Pagination>
     );
 };
 
@@ -97,7 +97,7 @@ const Input = ({ page, updatePage, pageCount, disabled }) => {
     };
 
     return (
-        <Styles.InputContainer>
+        <Styled.InputContainer>
             <input
                 value={inputValue}
                 onChange={onChange}
@@ -106,7 +106,7 @@ const Input = ({ page, updatePage, pageCount, disabled }) => {
                 disabled={disabled}
             />
             <span>{` / ${pageCount}`}</span>
-        </Styles.InputContainer>
+        </Styled.InputContainer>
     );
 };
 

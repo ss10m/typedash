@@ -4,7 +4,7 @@ import { Chart } from "react-charts";
 import Select from "react-select";
 
 // Styles
-import * as Styles from "./styles";
+import * as Styled from "./styles";
 
 const chartOptions = {
     WPM: "WPM",
@@ -78,15 +78,15 @@ const Charts = ({
     if (graphWpm.length < 2 || graphAccuracy.length < 2) {
         if (!showEmpty) return null;
         return (
-            <Styles.EmptyChart>
+            <Styled.EmptyChart>
                 <div>NOT ENOUGH ROUNDS PLAYED</div>
-            </Styles.EmptyChart>
+            </Styled.EmptyChart>
         );
     }
 
     return (
         <>
-            <Styles.Header>
+            <Styled.Header>
                 <p>{header || `${selected.label} TIMELINE`}</p>
                 <div>
                     <Select
@@ -97,7 +97,7 @@ const Charts = ({
                         onChange={(value) => setSelected(value)}
                     />
                 </div>
-            </Styles.Header>
+            </Styled.Header>
             <DrawChart
                 type={type}
                 data={selected.value === chartOptions.WPM ? graphWpm : graphAccuracy}
@@ -135,17 +135,17 @@ const DrawChart = ({ type, data, selected, labelX, labelY }) => {
     );
 
     return (
-        <Styles.Chart>
-            <Styles.Background>
-                {labelY && <Styles.Tag $wpm>{selected.value}</Styles.Tag>}
-                {labelX && <Styles.Tag $progress>PROGRESS (%)</Styles.Tag>}
-            </Styles.Background>
-            <Styles.Foreground $padded={padded}>
+        <Styled.Chart>
+            <Styled.Background>
+                {labelY && <Styled.Tag $wpm>{selected.value}</Styled.Tag>}
+                {labelX && <Styled.Tag $progress>PROGRESS (%)</Styled.Tag>}
+            </Styled.Background>
+            <Styled.Foreground $padded={padded}>
                 <div>
                     <Chart data={currentData} axes={axes} primaryCursor secondaryCursor />
                 </div>
-            </Styles.Foreground>
-        </Styles.Chart>
+            </Styled.Foreground>
+        </Styled.Chart>
     );
 };
 

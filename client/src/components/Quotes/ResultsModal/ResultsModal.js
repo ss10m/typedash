@@ -14,7 +14,7 @@ import { RESULT_TYPE } from "helpers/constants";
 import withClickWatcher from "components/withClickWatcher/withClickWatcher";
 
 // Styles
-import * as Styles from "./styles";
+import * as Styled from "./styles";
 
 const ResultsModal = ({ quoteId, closeModal }) => {
     const [results, setResults] = useState(null);
@@ -47,13 +47,13 @@ const ResultsModal = ({ quoteId, closeModal }) => {
     });
 
     return (
-        <Styles.Background>
-            <Styles.Wrapper>
+        <Styled.Background>
+            <Styled.Wrapper>
                 {results && (
                     <Modal quoteId={quoteId} results={results} closeModal={closeModal} />
                 )}
-            </Styles.Wrapper>
-        </Styles.Background>
+            </Styled.Wrapper>
+        </Styled.Background>
     );
 };
 
@@ -72,66 +72,66 @@ const Modal = withClickWatcher(
         };
 
         return (
-            <Styles.Modal ref={ref}>
-                <Styles.Tabs>
-                    <Styles.Tab
+            <Styled.Modal ref={ref}>
+                <Styled.Tabs>
+                    <Styled.Tab
                         onClick={() => changeView(RESULT_TYPE.TOP)}
                         selected={view === RESULT_TYPE.TOP}
                     >
                         TOP 10
-                    </Styles.Tab>
-                    <Styles.Tab
+                    </Styled.Tab>
+                    <Styled.Tab
                         onClick={() => changeView(RESULT_TYPE.RECENT)}
                         selected={view === RESULT_TYPE.RECENT}
                     >
                         RECENT
-                    </Styles.Tab>
-                </Styles.Tabs>
-                <Styles.Results>
+                    </Styled.Tab>
+                </Styled.Tabs>
+                <Styled.Results>
                     <ResultsHeader />
                     <ResultsData
                         data={view === RESULT_TYPE.TOP ? results.top : results.recent}
                     />
-                </Styles.Results>
-                <Styles.Footer>
+                </Styled.Results>
+                <Styled.Footer>
                     <p>{`QUOTE#${quoteId}`}</p>
-                    <Styles.Button onClick={closeModal}>CLOSE</Styles.Button>
-                </Styles.Footer>
-            </Styles.Modal>
+                    <Styled.Button onClick={closeModal}>CLOSE</Styled.Button>
+                </Styled.Footer>
+            </Styled.Modal>
         );
     })
 );
 
 const ResultsHeader = () => {
     return (
-        <Styles.ResultsHeader>
-            <Styles.Rank>#</Styles.Rank>
-            <Styles.Username>USERNAME</Styles.Username>
-            <Styles.Wpm>WPM</Styles.Wpm>
-            <Styles.Accuracy>ACCURACY</Styles.Accuracy>
-            <Styles.Time>TIME</Styles.Time>
-        </Styles.ResultsHeader>
+        <Styled.ResultsHeader>
+            <Styled.Rank>#</Styled.Rank>
+            <Styled.Username>USERNAME</Styled.Username>
+            <Styled.Wpm>WPM</Styled.Wpm>
+            <Styled.Accuracy>ACCURACY</Styled.Accuracy>
+            <Styled.Time>TIME</Styled.Time>
+        </Styled.ResultsHeader>
     );
 };
 
 const ResultsData = ({ data }) => {
     if (!data.length) {
-        return <Styles.ResultsData empty>No results found</Styles.ResultsData>;
+        return <Styled.ResultsData empty>No results found</Styled.ResultsData>;
     }
     return (
-        <Styles.ResultsData>
+        <Styled.ResultsData>
             {data.map((score, index) => (
-                <Styles.Result key={index}>
-                    <Styles.RankValue>{score.rank}</Styles.RankValue>
-                    <Styles.UsernameValue>
+                <Styled.Result key={index}>
+                    <Styled.RankValue>{score.rank}</Styled.RankValue>
+                    <Styled.UsernameValue>
                         <Link to={`/profile/${score.username}`}>{score.display_name}</Link>
-                    </Styles.UsernameValue>
-                    <Styles.WpmValue>{`${score.wpm}wpm`}</Styles.WpmValue>
-                    <Styles.AccuracyValue>{`${score.accuracy}%`}</Styles.AccuracyValue>
-                    <Styles.TimeValue>{moment(score.played_at).fromNow()}</Styles.TimeValue>
-                </Styles.Result>
+                    </Styled.UsernameValue>
+                    <Styled.WpmValue>{`${score.wpm}wpm`}</Styled.WpmValue>
+                    <Styled.AccuracyValue>{`${score.accuracy}%`}</Styled.AccuracyValue>
+                    <Styled.TimeValue>{moment(score.played_at).fromNow()}</Styled.TimeValue>
+                </Styled.Result>
             ))}
-        </Styles.ResultsData>
+        </Styled.ResultsData>
     );
 };
 

@@ -13,7 +13,7 @@ import { FiPlay } from "react-icons/fi";
 import Dropdown from "./Dropdown/Dropdown";
 
 // Styles
-import * as Styles from "./styles";
+import * as Styled from "./styles";
 
 const Navbar = ({ showSettings, showClaimAccount }) => {
     const [pathname, setPathname] = useState("");
@@ -47,7 +47,7 @@ const Navbar = ({ showSettings, showClaimAccount }) => {
     };
 
     return (
-        <Styles.Navbar ref={containerRef}>
+        <Styled.Navbar ref={containerRef}>
             <Logo width={containerWidth} />
             <NavLinks
                 width={containerWidth}
@@ -63,24 +63,24 @@ const Navbar = ({ showSettings, showClaimAccount }) => {
                     showClaimAccount={showClaimAccount}
                 />
             )}
-        </Styles.Navbar>
+        </Styled.Navbar>
     );
 };
 
 const Logo = ({ width }) => {
     const initialsOnly = width < 510;
     return (
-        <Styles.Logo to="/" $minimized={width < 380}>
+        <Styled.Logo to="/" $minimized={width < 380}>
             {initialsOnly ? "T" : "TYPE"}
             <span>{initialsOnly ? "D" : "DASH"}</span>
-        </Styles.Logo>
+        </Styled.Logo>
     );
 };
 
 const NavLinks = (props) => {
     const { width, pathname, session, showDropdown, toggleDropDown } = props;
     return (
-        <Styles.NavLinks>
+        <Styled.NavLinks>
             <NavLink
                 width={width}
                 link=""
@@ -110,7 +110,7 @@ const NavLinks = (props) => {
                 active={pathname === "profile"}
             />
             <User width={width} showDropdown={showDropdown} toggleDropDown={toggleDropDown} />
-        </Styles.NavLinks>
+        </Styled.NavLinks>
     );
 };
 
@@ -118,23 +118,23 @@ const NavLink = (props) => {
     const { width, link, name, icon, active } = props;
     const Icon = icon;
     return (
-        <Styles.NavLink to={`${link}`} $active={active} $minimized={width < 390}>
-            <Styles.Icon>
+        <Styled.NavLink to={`${link}`} $active={active} $minimized={width < 390}>
+            <Styled.Icon>
                 <Icon />
-            </Styles.Icon>
+            </Styled.Icon>
             {width >= 810 && <span>{name.toUpperCase()}</span>}
-        </Styles.NavLink>
+        </Styled.NavLink>
     );
 };
 
 const User = ({ width, showDropdown, toggleDropDown }) => {
     return (
-        <Styles.User onClick={toggleDropDown} $minimized={width < 380}>
-            <Styles.Icon>
+        <Styled.User onClick={toggleDropDown} $minimized={width < 380}>
+            <Styled.Icon>
                 <FaUserCircle />
-            </Styles.Icon>
-            <Styles.Icon>{showDropdown ? <FaChevronUp /> : <FaChevronDown />}</Styles.Icon>
-        </Styles.User>
+            </Styled.Icon>
+            <Styled.Icon>{showDropdown ? <FaChevronUp /> : <FaChevronDown />}</Styled.Icon>
+        </Styled.User>
     );
 };
 

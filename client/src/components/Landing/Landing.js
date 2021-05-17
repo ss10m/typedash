@@ -14,27 +14,27 @@ import Checkmark from "../Checkmark/Checkmark";
 import { TEST_TYPE, FIELD_TYPE } from "helpers/constants";
 
 // Styles
-import * as Styles from "./styles";
+import * as Styled from "./styles";
 
 const Landing = () => {
     return (
-        <Styles.Wrapper>
-            <Styles.Landing>
+        <Styled.Wrapper>
+            <Styled.Landing>
                 <Header />
                 <View />
-            </Styles.Landing>
-        </Styles.Wrapper>
+            </Styled.Landing>
+        </Styled.Wrapper>
     );
 };
 
 const Header = () => {
     return (
-        <Styles.Header>
+        <Styled.Header>
             <p>WELCOME TO</p>
             <p>
                 TYPE<span>DASH</span>
             </p>
-        </Styles.Header>
+        </Styled.Header>
     );
 };
 
@@ -76,9 +76,9 @@ const View = () => {
             return <Register setView={setView} />;
         case "checkmark":
             return (
-                <Styles.Body>
+                <Styled.Body>
                     <Checkmark />
-                </Styles.Body>
+                </Styled.Body>
             );
         default:
             return null;
@@ -110,7 +110,7 @@ const GuestLogin = ({ setView, username, setUsername, isValid, setIsValid }) => 
 
     return (
         <>
-            <Styles.GuestLogin onSubmit={onSubmit}>
+            <Styled.GuestLogin onSubmit={onSubmit}>
                 <p>Create a temporary account</p>
                 <InputChecker
                     test={TEST_TYPE.AVAILABLE}
@@ -123,11 +123,11 @@ const GuestLogin = ({ setView, username, setUsername, isValid, setIsValid }) => 
                     isDisabled={submitted}
                     margin={false}
                 />
-                <Styles.Button type="submit" $disabled={isDisabled}>
+                <Styled.Button type="submit" $disabled={isDisabled}>
                     <span>PLAY</span>
-                </Styles.Button>
-            </Styles.GuestLogin>
-            <Styles.Navigation>
+                </Styled.Button>
+            </Styled.GuestLogin>
+            <Styled.Navigation>
                 <div>
                     Already have an account?
                     <button onClick={() => setView("login")}>SIGN IN</button>
@@ -136,7 +136,7 @@ const GuestLogin = ({ setView, username, setUsername, isValid, setIsValid }) => 
                     Need a new account?
                     <button onClick={() => setView("register")}>REGISTER</button>
                 </div>
-            </Styles.Navigation>
+            </Styled.Navigation>
         </>
     );
 };
@@ -183,9 +183,9 @@ const Login = ({ setView }) => {
     };
 
     return (
-        <Styles.Form onSubmit={onSubmit}>
+        <Styled.Form onSubmit={onSubmit}>
             <span />
-            <Styles.InputFields>
+            <Styled.InputFields>
                 <InputChecker
                     test={TEST_TYPE.EXISTS}
                     type={FIELD_TYPE.USERNAME}
@@ -204,10 +204,10 @@ const Login = ({ setView }) => {
                     setCredentials={setCredentials}
                     isDisabled={isFetching}
                 />
-                <Styles.ErrorMsg>{credentials.msg}</Styles.ErrorMsg>
-            </Styles.InputFields>
+                <Styled.ErrorMsg>{credentials.msg}</Styled.ErrorMsg>
+            </Styled.InputFields>
             <NavButtons name="LOGIN" setView={setView} isDisabled={isDisabled} />
-        </Styles.Form>
+        </Styled.Form>
     );
 };
 
@@ -268,9 +268,9 @@ const Register = ({ setView }) => {
     };
 
     return (
-        <Styles.Form onSubmit={onSubmit}>
+        <Styled.Form onSubmit={onSubmit}>
             <span />
-            <Styles.InputFields>
+            <Styled.InputFields>
                 <InputChecker
                     test={TEST_TYPE.AVAILABLE}
                     type={FIELD_TYPE.USERNAME}
@@ -302,23 +302,23 @@ const Register = ({ setView }) => {
                     invalid={mismatchedPasswords}
                     isDisabled={isFetching}
                 />
-                <Styles.ErrorMsg>{credentials.msg}</Styles.ErrorMsg>
-            </Styles.InputFields>
+                <Styled.ErrorMsg>{credentials.msg}</Styled.ErrorMsg>
+            </Styled.InputFields>
             <NavButtons name="REGISTER" setView={setView} isDisabled={isDisabled} />
-        </Styles.Form>
+        </Styled.Form>
     );
 };
 
 const NavButtons = ({ name, setView, isDisabled }) => {
     return (
-        <Styles.Buttons>
-            <Styles.Button type="submit" $disabled={isDisabled} $primary>
+        <Styled.Buttons>
+            <Styled.Button type="submit" $disabled={isDisabled} $primary>
                 <span>{name}</span>
-            </Styles.Button>
-            <Styles.Button type="reset" onClick={() => setView("guest")} $cancel>
+            </Styled.Button>
+            <Styled.Button type="reset" onClick={() => setView("guest")} $cancel>
                 <span>CANCEL</span>
-            </Styles.Button>
-        </Styles.Buttons>
+            </Styled.Button>
+        </Styled.Buttons>
     );
 };
 
