@@ -1,6 +1,5 @@
 // Libraries & utils
 import React, { useState, useEffect } from "react";
-import classNames from "classnames";
 import { useHistory } from "react-router-dom";
 
 // Socket API
@@ -16,8 +15,8 @@ import { FaTimes, FaUser } from "react-icons/fa";
 // Images
 import keyboard from "./kb.jpg";
 
-// SCSS
-import "./Rooms.scss";
+// Styles
+import * as Styled from "./styles";
 
 const Rooms = () => {
     const [loaded, setLoaded] = useState(false);
@@ -35,37 +34,37 @@ const Rooms = () => {
     if (!loaded) return null;
 
     return (
-        <div className="rooms">
-            <img src={keyboard} alt="keyboard" />
+        <Styled.Rooms>
+            <Styled.Banner src={keyboard} alt="keyboard" />
             <Navigation filter={filter} setFilter={setFilter} />
-            <div className="header">
-                <div className="name">NAME</div>
-                <div className="currentStatus">STATUS</div>
-                <div className="number">
+            <Styled.Header>
+                <Styled.NameHeader>NAME</Styled.NameHeader>
+                <Styled.StatusHeader>STATUS</Styled.StatusHeader>
+                <Styled.CountHeader>
                     <span>
                         <FaUser />
                     </span>
-                </div>
-                <div className="uptime">UPTIME</div>
-                <div className="join"></div>
-            </div>
-            <div className="results-wrapper">
-                <div className="results">
+                </Styled.CountHeader>
+                <Styled.UptimeHeader>UPTIME</Styled.UptimeHeader>
+                <Styled.JoinHeader />
+            </Styled.Header>
+            <Styled.Results>
+                <div>
                     <RoomList filter={filter} resetFilter={resetFilter} />
                 </div>
-            </div>
-            <div className="rooms-footer"></div>
-        </div>
+            </Styled.Results>
+            <Styled.Footer />
+        </Styled.Rooms>
     );
 };
 
 const Navigation = ({ filter, setFilter }) => {
     return (
-        <div className="nagivation">
+        <Styled.Navigation>
             <CreateRoomButton />
             <RefreshButton />
             <Filter filter={filter} setFilter={setFilter} />
-        </div>
+        </Styled.Navigation>
     );
 };
 
@@ -90,11 +89,7 @@ const CreateRoomButton = () => {
         SocketAPI.createRoom();
     };
 
-    return (
-        <div className="create-btn" onClick={createRoom}>
-            Create Room
-        </div>
-    );
+    return <Styled.CreateButton onClick={createRoom}>Create Room</Styled.CreateButton>;
 };
 
 const RefreshButton = () => {
@@ -109,33 +104,22 @@ const RefreshButton = () => {
     };
 
     return (
-        <div
-            className={classNames("refresh-btn", {
-                "refresh-btn-disabled": isRefreshing,
-            })}
-            onClick={refresh}
-        >
-            <span
-                className={classNames({
-                    current: isRefreshing,
-                })}
-            >
+        <Styled.RefreshButton onClick={refresh} $disabled={isRefreshing}>
+            <span>
                 <FiRefreshCw />
             </span>
-        </div>
+        </Styled.RefreshButton>
     );
 };
 
 const Filter = ({ filter, setFilter }) => {
     return (
-        <div className="input-wrapper">
-            <div className="icon">
+        <Styled.Filter>
+            <Styled.Icon>
                 <FiSearch />
-            </div>
-            <input
-                className={classNames({
-                    rounded: !filter,
-                })}
+            </Styled.Icon>
+            <Styled.Input
+                $rounded={!filter}
                 type="text"
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
@@ -144,13 +128,13 @@ const Filter = ({ filter, setFilter }) => {
                 autoComplete="off"
             />
             {filter && (
-                <div className="icon right">
+                <Styled.Icon $right={filter}>
                     <span onClick={() => setFilter("")}>
                         <FaTimes />
                     </span>
-                </div>
+                </Styled.Icon>
             )}
-        </div>
+        </Styled.Filter>
     );
 };
 
@@ -182,53 +166,42 @@ const RoomList = ({ filter, resetFilter }) => {
     if (filterMatch) {
         filteredRooms = rooms.filter((room) => {
             const lowerName = room.name.toLowerCase();
-            if (lowerName.includes(filterMatch)) return true;
-            if (lowerName.includes("room " + filterMatch)) return true;
-            return false;
+            const partialMatch = lowerName.includes(filterMatch);
+            const fullMatch = lowerName.includes("room " + filterMatch);
+            return partialMatch || fullMatch;
         });
     }
 
     if (!filteredRooms.length) {
         return (
-            <div className="empty">
+            <Styled.EmptyList>
                 <p>No rooms found</p>
                 {filter && (
-                    <div className="reset" onClick={resetFilter}>
-                        Reset Filter
-                    </div>
+                    <Styled.ResetButton onClick={resetFilter}>Reset Filter</Styled.ResetButton>
                 )}
-            </div>
+            </Styled.EmptyList>
         );
     }
 
-    return (
-        <div className="results">
-            {filteredRooms.map((room) => (
-                <Room key={room.id} room={room} time={time} />
-            ))}
-        </div>
-    );
+    return filteredRooms.map((room) => <Room key={room.id} room={room} time={time} />);
 };
 
 const Room = ({ room, time }) => {
     const history = useHistory();
-
     const upTime = calcUptime(room.startTime, time);
 
     return (
-        <div className="room">
-            <div className="name">{room.name}</div>
-            <div className="currentStatus">
-                <span className={classNames({ playing: room.isPlaying })}>
-                    {room.isPlaying ? "PLAYING" : "WAITING"}
-                </span>
-            </div>
-            <div className="users">{room.users}</div>
-            <div className="uptime">{`${upTime.minutes}:${upTime.seconds}`}</div>
-            <div className="join">
+        <Styled.Room>
+            <Styled.NameValue>{room.name}</Styled.NameValue>
+            <Styled.StatusValue $playing={room.isPlaying}>
+                <span>{room.isPlaying ? "PLAYING" : "WAITING"}</span>
+            </Styled.StatusValue>
+            <Styled.CountValue>{room.users}</Styled.CountValue>
+            <Styled.UptimeValue>{`${upTime.minutes}:${upTime.seconds}`}</Styled.UptimeValue>
+            <Styled.JoinValue>
                 <button onClick={() => history.push(`/room/${room.id}`)}>JOIN</button>
-            </div>
-        </div>
+            </Styled.JoinValue>
+        </Styled.Room>
     );
 };
 
