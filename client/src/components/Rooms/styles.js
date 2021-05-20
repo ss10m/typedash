@@ -60,6 +60,8 @@ export const CreateButton = styled(Button)`
 
     &:hover {
         cursor: pointer;
+        background-color: #233646;
+        box-shadow: 0px 0px 3px 1px #080808;
     }
 
     @media (max-width: 400px) {
@@ -85,6 +87,8 @@ export const RefreshButton = styled(Button)`
             : css`
                   &:hover {
                       cursor: pointer;
+                      background-color: #233646;
+                      box-shadow: 0px 0px 3px 1px #080808;
                   }
               `}
 
@@ -108,7 +112,6 @@ export const Filter = styled.div`
     height: 100%;
     display: flex;
     box-sizing: border-box;
-    box-shadow: 0px 0px 2px 1px #203140;
     border-radius: 7px;
 `;
 
@@ -119,7 +122,7 @@ export const Input = styled.input`
     outline: none;
     font-size: 30px;
     color: whitesmoke;
-    background-color: #354a61;
+    background-color: #203140ad;
 
     ${(props) =>
         props.$rounded &&
@@ -144,7 +147,7 @@ export const Icon = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #354a61;
+    background-color: #203140ad;
     box-sizing: border-box;
     border-radius: 7px 0 0 7px;
     font-size: 30px;
@@ -164,7 +167,7 @@ export const Icon = styled.div`
 
                 &:hover {
                     cursor: pointer;
-                    background-color: #2c3f54;
+                    background-color: #3a5068;
                 }
             }
         `}
@@ -270,7 +273,7 @@ export const EmptyList = styled.div`
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 500;
 
     @media (max-width: 600px) {
@@ -280,7 +283,7 @@ export const EmptyList = styled.div`
 
 export const ResetButton = styled.div`
     font-size: 16px;
-    margin-top: 5px;
+    margin-top: 10px;
     padding: 5px 10px;
     border-radius: 7px;
     font-weight: 500;
