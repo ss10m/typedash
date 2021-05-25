@@ -1,4 +1,4 @@
-import styled, { css, keyframes } from "styled-components";
+import styled, { css } from "styled-components";
 
 export const Wrapper = styled.div`
     margin: 20px 0;
@@ -32,7 +32,7 @@ export const Key = styled.div`
     float: left;
     background-color: #fffff4;
     color: #000000;
-    line-height: 48px;
+    line-height: 50px;
     text-align: center;
     margin-left: 2px;
     font-size: 15px;
@@ -45,8 +45,14 @@ export const Key = styled.div`
         `}
 
     ${(props) =>
-        props.$pressed &&
+        props.$valid &&
         css`
-            background-color: orange;
+            background-color: #899fb7;
+        `}
+
+    ${(props) =>
+        props.$invalid &&
+        css`
+            background-color: #ff9797;
         `}
 `;

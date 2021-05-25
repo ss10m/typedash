@@ -4,15 +4,17 @@ import { useState, useEffect, useRef } from "react";
 // Hooks
 import { useEventListener } from "hooks";
 
+// Helpers
 import keys from "./keys";
 
 // Styles
 import * as Styled from "./styles";
 
-const Keyboard = ({ isRunning, quote, wordIndex, correctLength }) => {
+const Keyboard = ({ isRunning, quote, wordIndex, correctLength, typoLength }) => {
     const [pressed, setPressed] = useState({});
-    const containerRef = useRef(null);
     const [containerWidth, setContainerWidth] = useState(null);
+    const containerRef = useRef(null);
+    const keyToTimeoutId = useRef({});
 
     useEffect(() => {
         const handleResize = () => {
@@ -28,25 +30,48 @@ const Keyboard = ({ isRunning, quote, wordIndex, correctLength }) => {
 
     const keyDownHandler = (event) => {
         if (!isRunning) return;
-        if (pressed[event.code] && pressed[event.code].pressed) return;
-        setPressed((prevState) => ({ ...prevState, [event.code]: { pressed: true } }));
+        if (!quote.current || !quote.current.length) return;
+        const currentWord = quote.current[wordIndex];
+        if (!currentWord) return;
+        const char = currentWord.charAt(correctLength);
+        if (!char) return;
 
-        setTimeout(
-            () =>
-                setPressed((prevState) => ({
-                    ...prevState,
-                    [event.code]: { pressed: false },
-                })),
-            200
-        );
+        if (keyToTimeoutId.current[event.code]) {
+            clearTimeout(keyToTimeoutId.current[event.code]);
+        }
+
+        let valid = false;
+        if (typoLength) {
+            valid = event.keyCode === 8;
+        } else {
+            if (
+                event.keyCode === 16 &&
+                (char === char.toUpperCase() || `!@#$%^&*()_+{}|:"<>?`.includes(char))
+            ) {
+                valid = true;
+            } else {
+                valid = event.key === char;
+            }
+        }
+
+        setPressed((prevState) => ({
+            ...prevState,
+            [event.code]: { valid },
+        }));
+
+        const id = setTimeout(() => {
+            delete keyToTimeoutId.current[event.code];
+            setPressed((prevState) => {
+                const current = { ...prevState };
+                delete current[event.code];
+                return current;
+            });
+        }, 200);
+
+        keyToTimeoutId.current[event.code] = id;
     };
 
     useEventListener("keydown", keyDownHandler);
-
-    //console.log(quote.current[wordIndex]);
-    if (quote.current[wordIndex]) {
-        console.log(quote.current[wordIndex].charAt(correctLength));
-    }
 
     const width = Math.max(Math.min(containerWidth, 787), 280);
     const scale = width / 787;
@@ -71,7 +96,8 @@ const Keyboard = ({ isRunning, quote, wordIndex, correctLength }) => {
                                 key={keyIndex}
                                 $width={key.width}
                                 $secondary={key.secondary}
-                                $pressed={pressed[key.code] && pressed[key.code].pressed}
+                                $valid={pressed[key.code] && pressed[key.code].valid}
+                                $invalid={pressed[key.code] && !pressed[key.code].valid}
                             >
                                 {key.secondary && <span>{key.secondary}</span>}
                                 {key.display}
