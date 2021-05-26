@@ -1,20 +1,16 @@
 // Libraries & utils
 import React, { useState, useEffect, useRef } from "react";
-import classNames from "classnames";
-
-// Hooks
-import { useEventListener } from "hooks";
 
 // Helpers
 import { longestCommonSubstring, roundToFixed } from "helpers";
 import { STATE } from "helpers/constants";
-import keyboard from "./keyboard";
 
 // Components
+import Keyboard from "../Keyboard/Keyboard";
 import Tooltip from "components/Tooltip/Tooltip";
 
-// SCSS
-import "./Racer.scss";
+// Styles
+import * as Styled from "./styles";
 
 const Racer = ({
     state,
@@ -174,7 +170,7 @@ const Racer = ({
     };
 
     return (
-        <div className="race">
+        <>
             <Quote
                 isRunning={isRunning}
                 quote={quote}
@@ -192,8 +188,14 @@ const Racer = ({
                 containsTypo={typoLength > 0}
                 isDisabled={!isRunning}
             />
-            <Keyboard isRunning={isRunning} />
-        </div>
+            <Keyboard
+                isRunning={isRunning}
+                quote={quote}
+                wordIndex={wordIndex}
+                correctLength={correctLength}
+                typoLength={typoLength}
+            />
+        </>
     );
 };
 
@@ -222,10 +224,8 @@ const Input = React.forwardRef((props, ref) => {
     }
 
     return (
-        <input
-            className={classNames({
-                typo: props.containsTypo,
-            })}
+        <Styled.Input
+            $typo={props.containsTypo}
             ref={ref}
             type="text"
             spellCheck={false}
@@ -234,14 +234,14 @@ const Input = React.forwardRef((props, ref) => {
             value={props.input}
             onChange={props.handleChange}
             disabled={props.isDisabled}
-        ></input>
+        />
     );
 });
 
 const Quote = ({ isRunning, quote, wordIndex, correctLength, typoLength }) => {
     return (
-        <div className="quote">
-            <div className="words">
+        <Styled.Quote>
+            <Styled.Words>
                 {quote.current.map((word, i) => (
                     <Word
                         key={i}
@@ -253,45 +253,45 @@ const Quote = ({ isRunning, quote, wordIndex, correctLength, typoLength }) => {
                         typoLength={typoLength}
                     />
                 ))}
-            </div>
-            <div className="quote-stats">
+            </Styled.Words>
+            <Styled.Stats>
                 <div>
                     <Tooltip msg="ALL TIME PLAY COUNT" placement="bottom-start" visible={true}>
-                        <div className="item">
-                            <div className="header">COUNT</div>
-                            <div className="value">{quote.stats.count}</div>
-                        </div>
+                        <Styled.Stat>
+                            <Styled.Header>COUNT</Styled.Header>
+                            <Styled.Value>{quote.stats.count}</Styled.Value>
+                        </Styled.Stat>
                     </Tooltip>
-                    <div className="divider" />
+                    <Styled.Divider />
                     <Tooltip msg="AVERAGE WORDS PER MINUTE" placement="bottom" visible={true}>
-                        <div className="item">
-                            <div className="header">AVG WPM</div>
-                            <div className="value">{roundToFixed(quote.stats.avg_wpm)}</div>
-                        </div>
+                        <Styled.Stat>
+                            <Styled.Header>AVG WPM</Styled.Header>
+                            <Styled.Value>{roundToFixed(quote.stats.avg_wpm)}</Styled.Value>
+                        </Styled.Stat>
                     </Tooltip>
-                    <div className="divider" />
+                    <Styled.Divider />
                     <Tooltip msg="AVERAGE ACCURACY" placement="bottom" visible={true}>
-                        <div className="item">
-                            <div className="header">AVG ACC</div>
-                            <div className="value">{`${roundToFixed(
+                        <Styled.Stat>
+                            <Styled.Header>AVG ACC</Styled.Header>
+                            <Styled.Value>{`${roundToFixed(
                                 quote.stats.avg_acc
-                            )}%`}</div>
-                        </div>
+                            )}%`}</Styled.Value>
+                        </Styled.Stat>
                     </Tooltip>
                 </div>
                 <div>
-                    <div className="item">
-                        <div className="header">AUTHOR</div>
-                        <div className="value">{quote.author}</div>
-                    </div>
-                    <div className="divider" />
-                    <div className="item">
-                        <div className="header">BOOK</div>
-                        <div className="value">{quote.source}</div>
-                    </div>
+                    <Styled.Stat>
+                        <Styled.Header>AUTHOR</Styled.Header>
+                        <Styled.Value>{quote.author}</Styled.Value>
+                    </Styled.Stat>
+                    <Styled.Divider />
+                    <Styled.Stat>
+                        <Styled.Header>BOOK</Styled.Header>
+                        <Styled.Value>{quote.source}</Styled.Value>
+                    </Styled.Stat>
                 </div>
-            </div>
-        </div>
+            </Styled.Stats>
+        </Styled.Quote>
     );
 };
 
@@ -309,101 +309,21 @@ const Word = ({ isRunning, word, id, wordIndex, correctLength, typoLength }) => 
         ));
     }
 
-    return <span className={classNames({ "word-correct": id < wordIndex })}>{word}</span>;
+    return <Styled.Word $correct={id < wordIndex}>{word}</Styled.Word>;
 };
 
 const Letter = ({ isRunning, letter, letterIndex, correctLength, typoLength }) => {
-    let letterClass = "";
-    if (letterIndex < correctLength) {
-        letterClass = "letter-correct";
-    } else if (letterIndex < correctLength + typoLength) {
-        letterClass = "letter-typo";
-    }
+    const isCorrect = letterIndex < correctLength;
 
     return (
-        <span
-            className={classNames({
-                [letterClass]: letterClass,
-                "word-current": isRunning && letter !== " ",
-                "letter-current": isRunning && letterIndex === correctLength + typoLength,
-            })}
+        <Styled.Letter
+            $current={isRunning && letterIndex === correctLength + typoLength}
+            $currentWord={isRunning && letter !== " "}
+            $correct={isCorrect}
+            $typo={!isCorrect && letterIndex < correctLength + typoLength}
         >
             {letter}
-        </span>
-    );
-};
-
-const Keyboard = ({ isRunning }) => {
-    const [pressed, setPressed] = useState({});
-    const containerRef = useRef(null);
-    const [containerWidth, setContainerWidth] = useState(null);
-
-    useEffect(() => {
-        const handleResize = () => {
-            if (!containerRef.current) return;
-            setContainerWidth(containerRef.current.clientWidth);
-        };
-
-        window.addEventListener("resize", handleResize);
-        handleResize();
-
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
-
-    const keyDownHandler = (event) => {
-        if (!isRunning) return;
-        if (pressed[event.code] && pressed[event.code].pressed) return;
-        setPressed((prevState) => ({ ...prevState, [event.code]: { pressed: true } }));
-
-        setTimeout(
-            () =>
-                setPressed((prevState) => ({
-                    ...prevState,
-                    [event.code]: { pressed: false },
-                })),
-            200
-        );
-    };
-
-    useEventListener("keydown", keyDownHandler);
-
-    const width = Math.max(Math.min(containerWidth, 787), 280);
-    const scale = width / 787;
-    const height = 270 * scale;
-
-    return (
-        <div
-            class="keyboard-wrapper"
-            style={{
-                height,
-            }}
-            ref={containerRef}
-        >
-            <div
-                className="keyboard"
-                style={{
-                    transform: `translate(-50%, -50%) scale(${scale})`,
-                }}
-            >
-                {keyboard.map((row, rowIndex) => (
-                    <div key={rowIndex} className="row">
-                        {row.map((key, keyIndex) => (
-                            <div
-                                key={keyIndex}
-                                className={classNames("key", {
-                                    [key.class]: key.class,
-                                    key__symbols: key.secondary,
-                                    pressed: pressed[key.code] && pressed[key.code].pressed,
-                                })}
-                            >
-                                {key.secondary && <span>{key.secondary}</span>}
-                                {key.display}
-                            </div>
-                        ))}
-                    </div>
-                ))}
-            </div>
-        </div>
+        </Styled.Letter>
     );
 };
 
