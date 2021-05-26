@@ -1,13 +1,13 @@
 // Libraries & utils
 import { useEffect, useState, useRef } from "react";
+import { Link } from "react-router-dom";
 import moment from "moment";
-import classnames from "classnames";
 
 // Constants
 import { RESULT_TYPE } from "helpers/constants";
 
-// SCSS
-import "./Results.scss";
+// Styles
+import * as Styled from "./styles";
 
 const Results = ({ quote, updateResults }) => {
     const [view, setView] = useState(RESULT_TYPE.TOP);
@@ -34,64 +34,66 @@ const Results = ({ quote, updateResults }) => {
     };
 
     return (
-        <div className="recent-results">
-            <div className="tabs">
-                <div
-                    className={classnames({ selected: view === RESULT_TYPE.TOP })}
+        <>
+            <Styled.Tabs>
+                <Styled.Tab
+                    $selected={view === RESULT_TYPE.TOP}
                     onClick={() => changeView(RESULT_TYPE.TOP)}
                 >
                     TOP 10
-                </div>
-                <div
-                    className={classnames({ selected: view === RESULT_TYPE.RECENT })}
+                </Styled.Tab>
+                <Styled.Tab
+                    $selected={view === RESULT_TYPE.RECENT}
                     onClick={() => changeView(RESULT_TYPE.RECENT)}
                 >
                     RECENT
-                </div>
-                <div
-                    className={classnames({ selected: view === RESULT_TYPE.PLAYER_TOP })}
+                </Styled.Tab>
+                <Styled.Tab
+                    $selected={view === RESULT_TYPE.PLAYER_TOP}
                     onClick={() => changeView(RESULT_TYPE.PLAYER_TOP)}
                 >
                     YOUR TOP 10
-                </div>
-                <div
-                    className={classnames({ selected: view === RESULT_TYPE.PLAYER_RECENT })}
+                </Styled.Tab>
+                <Styled.Tab
+                    $selected={view === RESULT_TYPE.PLAYER_RECENT}
                     onClick={() => changeView(RESULT_TYPE.PLAYER_RECENT)}
                 >
                     YOUR RECENT
-                </div>
-            </div>
-            <div className="results">
-                <div className="header">
-                    <div className="rank">#</div>
-                    <div className="username">USERNAME</div>
-                    <div className="wpm">WPM</div>
-                    <div className="accuracy">ACCURACY</div>
-                    <div className="time">TIME</div>
-                </div>
-                <div className="data">
-                    <ResultsData data={data} />
-                </div>
-            </div>
-            <div className="results-footer"></div>
-        </div>
+                </Styled.Tab>
+            </Styled.Tabs>
+            <Styled.Results>
+                <Styled.ResultsHeader>
+                    <Styled.Rank>#</Styled.Rank>
+                    <Styled.Username>USERNAME</Styled.Username>
+                    <Styled.Wpm>WPM</Styled.Wpm>
+                    <Styled.Accuracy>ACCURACY</Styled.Accuracy>
+                    <Styled.Time>TIME</Styled.Time>
+                </Styled.ResultsHeader>
+                <ResultsData data={data} />
+            </Styled.Results>
+            <Styled.Footer />
+        </>
     );
 };
 
 const ResultsData = ({ data }) => {
     if (!data.length) {
-        return <div className="empty">No results found</div>;
+        return <Styled.ResultsData empty>No results found</Styled.ResultsData>;
     }
-
-    return data.map((score, index) => (
-        <div key={index} className="result">
-            <div className="rank">{score.rank}</div>
-            <div className="username">{score.display_name}</div>
-            <div className="wpm">{`${score.wpm}wpm`}</div>
-            <div className="accuracy">{`${score.accuracy}%`}</div>
-            <div className="time">{moment(score.played_at).fromNow()}</div>
-        </div>
-    ));
+    return (
+        <Styled.ResultsData>
+            {data.map((score, index) => (
+                <Styled.Result key={index}>
+                    <Styled.RankValue>{score.rank}</Styled.RankValue>
+                    <Styled.UsernameValue>
+                        <Link to={`/profile/${score.username}`}>{score.display_name}</Link>
+                    </Styled.UsernameValue>
+                    <Styled.WpmValue>{`${score.wpm}wpm`}</Styled.WpmValue>
+                    <Styled.AccuracyValue>{`${score.accuracy}%`}</Styled.AccuracyValue>
+                    <Styled.TimeValue>{moment(score.played_at).fromNow()}</Styled.TimeValue>
+                </Styled.Result>
+            ))}
+        </Styled.ResultsData>
+    );
 };
-
 export default Results;

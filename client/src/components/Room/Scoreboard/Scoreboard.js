@@ -1,6 +1,5 @@
 // Libraries & utils
 import React, { useState, useEffect } from "react";
-import classNames from "classnames";
 
 // Helpers
 import { STATE } from "helpers/constants";
@@ -8,8 +7,8 @@ import { STATE } from "helpers/constants";
 // Icons
 import { FaTrophy } from "react-icons/fa";
 
-// SCSS
-import "./Scoreboard.scss";
+// Styles
+import * as Styled from "./styles";
 
 const Scoreboard = ({ state, players, socketId, isSpectating, setSpectate }) => {
     if (!players.length) return <AwaitPlayers />;
@@ -20,24 +19,16 @@ const Scoreboard = ({ state, players, socketId, isSpectating, setSpectate }) => 
     const extended = state.current === STATE.POSTGAME;
 
     return (
-        <div className="scoreboard">
-            <div className="header">
-                <div>SCOREBOARD</div>
+        <Styled.Scoreboard>
+            <Styled.Header>
+                <p>SCOREBOARD</p>
                 {canSpectate && (
-                    <div className="button" onClick={() => setSpectate(true)}>
-                        SPECTATE
-                    </div>
+                    <Styled.Button onClick={() => setSpectate(true)}>SPECTATE</Styled.Button>
                 )}
-            </div>
-            <div className="scores">
-                <div
-                    className={classNames("start", {
-                        mini: players.length === 1,
-                    })}
-                >
-                    START
-                </div>
-                <div className="players">
+            </Styled.Header>
+            <Styled.Scores>
+                <Styled.StartLine $minimized={players.length === 1}>START</Styled.StartLine>
+                <Styled.Players>
                     {players.map((player) => (
                         <Player
                             key={player.socketId}
@@ -47,10 +38,10 @@ const Scoreboard = ({ state, players, socketId, isSpectating, setSpectate }) => 
                             extended={extended}
                         />
                     ))}
-                </div>
-                <div className="flag"></div>
-            </div>
-        </div>
+                </Styled.Players>
+                <Styled.FinishLine />
+            </Styled.Scores>
+        </Styled.Scoreboard>
     );
 };
 
@@ -70,11 +61,11 @@ const AwaitPlayers = () => {
     }
 
     return (
-        <div className="scoreboard">
-            <div className="wait">
+        <Styled.Scoreboard>
+            <Styled.Spectating>
                 WAITING FOR PLAYERS<span>{dots}</span>
-            </div>
-        </div>
+            </Styled.Spectating>
+        </Styled.Scoreboard>
     );
 };
 
@@ -82,20 +73,20 @@ const Player = ({ player, isCurrent, showReady, extended }) => {
     const dot = String.fromCharCode(183);
 
     return (
-        <div className={classNames("player-wrapper", { extended })}>
-            <div className="progress" style={{ width: `${player.stats.progress}%` }} />
-            <div className={classNames("player", { left: player.leftRoom })}>
-                <div className="username">
+        <Styled.PlayerWrapper $minimized={extended}>
+            <Styled.PlayerProgress $progress={player.stats.progress} />
+            <Styled.Player $left={player.leftRoom}>
+                <Styled.Username>
                     {player.username}
-                    {isCurrent && <div>YOU</div>}
-                </div>
+                    {isCurrent && <span>YOU</span>}
+                </Styled.Username>
                 {player.stats.wpm && !player.stats.position && (
-                    <div className="wpm">{`${player.stats.wpm}wpm`}</div>
+                    <Styled.Wpm>{`${player.stats.wpm}wpm`}</Styled.Wpm>
                 )}
                 {(player.stats.position || showReady) && (
-                    <div className="details">
+                    <Styled.Details>
                         {player.stats.position && (
-                            <div className="position">
+                            <Styled.Position>
                                 {player.stats.position <= 3 && (
                                     <span
                                         style={{
@@ -109,23 +100,17 @@ const Player = ({ player, isCurrent, showReady, extended }) => {
                                 {player.stats.wpm && `  ${dot}  ${player.stats.wpm}wpm`}
                                 {player.stats.accuracy &&
                                     `  ${dot}  ${player.stats.accuracy}%`}
-                            </div>
+                            </Styled.Position>
                         )}
                         {showReady && (
-                            <div className="ready-wrapper">
-                                <div
-                                    className={classNames("ready", {
-                                        not: !player.isReady,
-                                    })}
-                                >
-                                    {player.isReady ? "READY" : "NOT READY"}
-                                </div>
-                            </div>
+                            <Styled.ReadySwitch $notReady={!player.isReady}>
+                                <div>{player.isReady ? "READY" : "NOT READY"}</div>
+                            </Styled.ReadySwitch>
                         )}
-                    </div>
+                    </Styled.Details>
                 )}
-            </div>
-        </div>
+            </Styled.Player>
+        </Styled.PlayerWrapper>
     );
 };
 

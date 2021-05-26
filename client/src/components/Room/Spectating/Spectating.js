@@ -5,25 +5,21 @@ import Switch from "react-switch";
 // Constants
 import { STATE } from "helpers/constants";
 
-// SCSS
-import "./Spectating.scss";
+// Styles
+import * as Styled from "./styles";
 
 const Spectating = (props) => {
     return (
-        <div className="spectating">
+        <Styled.Spectating>
             <p>YOU ARE SPECTATING</p>
             <ToggleSpectate {...props} />
-        </div>
+        </Styled.Spectating>
     );
 };
 
 const ToggleSpectate = ({ state, setSpectate, playNext, setPlayNext }) => {
     if (state.current === STATE.PREGAME || state.current === STATE.COUNTDOWN) {
-        return (
-            <div className="button" onClick={() => setSpectate(false)}>
-                PLAY
-            </div>
-        );
+        return <Styled.Button onClick={() => setSpectate(false)}>PLAY</Styled.Button>;
     }
     return <QueueToggle playNext={playNext} setPlayNext={setPlayNext} />;
 };
@@ -42,10 +38,10 @@ const QueueToggle = ({ playNext, setPlayNext }) => {
     };
 
     return (
-        <label>
+        <Styled.Label>
             <span>PLAY NEXT ROUND</span>
             <Switch onChange={toggle} checked={playNext} />
-        </label>
+        </Styled.Label>
     );
 };
 

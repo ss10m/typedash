@@ -1,6 +1,5 @@
 // Libraries & utils
 import React, { useState, useEffect, useRef } from "react";
-import classnames from "classnames";
 
 // Icons
 import { FaChevronLeft, FaEye } from "react-icons/fa";
@@ -8,8 +7,8 @@ import { FaChevronLeft, FaEye } from "react-icons/fa";
 // Componments
 import Tooltip from "components/Tooltip/Tooltip";
 
-// SCSS
-import "./Navigation.scss";
+// Styles
+import * as Styled from "./styles";
 
 const Navigation = (props) => {
     const [isExtended, setIsExtended] = useState(false);
@@ -28,23 +27,23 @@ const Navigation = (props) => {
     }, []);
 
     return (
-        <div className="navigation" ref={containerRef}>
+        <Styled.Navigation ref={containerRef}>
             <LeaveButton leaveRoom={props.leaveRoom} extended={isExtended} />
-            <div className="room-name">{props.roomName}</div>
+            <Styled.RoomName>{props.roomName}</Styled.RoomName>
             <Spectators extended={isExtended} setViewSpectators={props.setViewSpectators} />
-        </div>
+        </Styled.Navigation>
     );
 };
 
 const LeaveButton = ({ leaveRoom, extended }) => {
     return (
         <Tooltip msg="LEAVE ROOM" placement="right" visible={!extended}>
-            <div className={classnames("button", { extended })} onClick={leaveRoom}>
+            <Styled.Button onClick={leaveRoom} $extended={extended}>
                 <span>
                     <FaChevronLeft />
                 </span>
                 {extended && "LEAVE ROOM"}
-            </div>
+            </Styled.Button>
         </Tooltip>
     );
 };
@@ -52,15 +51,12 @@ const LeaveButton = ({ leaveRoom, extended }) => {
 const Spectators = ({ extended, setViewSpectators }) => {
     return (
         <Tooltip msg="VIEW SPECTATORS" placement="left" visible={!extended}>
-            <div
-                className={classnames("button", { extended })}
-                onClick={() => setViewSpectators(true)}
-            >
+            <Styled.Button onClick={() => setViewSpectators(true)} $extended={extended}>
                 <span>
                     <FaEye />
                 </span>
                 {extended && "SPECTATORS"}
-            </div>
+            </Styled.Button>
         </Tooltip>
     );
 };

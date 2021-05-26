@@ -10,8 +10,8 @@ import { STATE } from "helpers/constants";
 // Components
 import Tooltip from "components/Tooltip/Tooltip";
 
-// SCSS
-import "./Stats.scss";
+// Styles
+import * as Styled from "./styles";
 
 const Stats = ({ state, isSpectating, wpm, accuracy, isReady, setReady }) => {
     const [uptime, setUptime] = useState({
@@ -22,36 +22,36 @@ const Stats = ({ state, isSpectating, wpm, accuracy, isReady, setReady }) => {
     const showReadyUp = !isSpectating && state.current !== STATE.PLAYING;
 
     return (
-        <div className="stats">
+        <Styled.Stats>
             <Details wpm={wpm} accuracy={accuracy} uptime={uptime} />
             {showReadyUp && <ReadyUp state={state} isReady={isReady} setReady={setReady} />}
             <Tooltip msg="TIME LEFT" placement="left" visible={true}>
                 <Timer state={state} setUptime={setUptime} />
             </Tooltip>
-        </div>
+        </Styled.Stats>
     );
 };
 
 const Details = ({ wpm, accuracy, uptime }) => {
     return (
-        <div className="details">
+        <Styled.Details>
             <Tooltip msg="WORDS PER MINUTE" placement="bottom-start" visible={true}>
-                <div className="column left">
-                    <div className="title">WPM</div>
-                    <div className="number">{wpm}</div>
-                </div>
+                <Styled.Column $width={55}>
+                    <Styled.Title>WPM</Styled.Title>
+                    <Styled.Value>{wpm}</Styled.Value>
+                </Styled.Column>
             </Tooltip>
-            <div className="divider" />
-            <div className="column middle">
-                <div className="title">ACCURACY</div>
-                <div className="number">{Math.round(accuracy) + "%"}</div>
-            </div>
-            <div className="divider" />
-            <div className="column right">
-                <div className="title">TIMER</div>
-                <div className="number">{`${uptime.minutes}:${uptime.seconds}`}</div>
-            </div>
-        </div>
+            <Styled.Divider />
+            <Styled.Column $width={80}>
+                <Styled.Title>ACCURACY</Styled.Title>
+                <Styled.Value>{Math.round(accuracy) + "%"}</Styled.Value>
+            </Styled.Column>
+            <Styled.Divider />
+            <Styled.Column $width={75}>
+                <Styled.Title>TIMER</Styled.Title>
+                <Styled.Value>{`${uptime.minutes}:${uptime.seconds}`}</Styled.Value>
+            </Styled.Column>
+        </Styled.Details>
     );
 };
 
@@ -69,10 +69,10 @@ const ReadyUp = ({ isReady, setReady }) => {
     };
 
     return (
-        <label>
+        <Styled.ReadySwitch>
             <span>READY</span>
             <Switch onChange={toggle} checked={isReady.current} />
-        </label>
+        </Styled.ReadySwitch>
     );
 };
 
@@ -167,9 +167,9 @@ const Timer = ({ state, setUptime }) => {
     };
 
     return (
-        <div className="timer">
+        <Styled.Timer>
             <p>{`${time.minutes}:${time.seconds}`}</p>
-        </div>
+        </Styled.Timer>
     );
 };
 

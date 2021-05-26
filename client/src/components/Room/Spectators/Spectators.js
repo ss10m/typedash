@@ -1,6 +1,5 @@
 // Libraries & utils
 import React, { forwardRef, useEffect } from "react";
-import classnames from "classnames";
 
 // Icons
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
@@ -8,8 +7,8 @@ import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 // Components
 import withClickWatcher from "components/withClickWatcher/withClickWatcher";
 
-// SCSS
-import "./Spectators.scss";
+// Styles
+import * as Styled from "./styles";
 
 const Spectators = (props) => {
     return <Inside {...props} />;
@@ -24,53 +23,45 @@ const Inside = withClickWatcher(
         }, [isVisible, setIsVisible]);
 
         return (
-            <div className="spectators" ref={ref}>
+            <Styled.Spectators ref={ref}>
                 <ListHeader />
                 <List spectators={spectators} />
-            </div>
+            </Styled.Spectators>
         );
     })
 );
 
 const ListHeader = () => {
     return (
-        <div className="list-header">
-            <div className="username">USERNAME</div>
-            <div className="next">PLAY NEXT</div>
-        </div>
+        <Styled.Header>
+            <Styled.Username>USERNAME</Styled.Username>
+            <Styled.Status>PLAY NEXT</Styled.Status>
+        </Styled.Header>
     );
 };
 
 const List = ({ spectators }) => {
-    if (!spectators.length) {
-        return (
-            <div className="list">
-                <div className="empty">NO ACTIVE SPECTATORS</div>
-            </div>
-        );
-    }
-
     return (
-        <div className="list">
-            {spectators.map((spectator) => (
-                <Spectator key={spectator.socketId} spectator={spectator} />
-            ))}
-        </div>
+        <Styled.SpectatorList $empty={!spectators.length}>
+            {spectators.length ? (
+                spectators.map((spectator) => (
+                    <Spectator key={spectator.socketId} spectator={spectator} />
+                ))
+            ) : (
+                <p>NO ACTIVE SPECTATORS</p>
+            )}
+        </Styled.SpectatorList>
     );
 };
 
 const Spectator = ({ spectator }) => {
     return (
-        <div className="spectator">
-            <div className="username">{spectator.username}</div>
-            <div
-                className={classnames("status", {
-                    play: spectator.playNext,
-                })}
-            >
+        <Styled.Spectator>
+            <Styled.UsernameValue>{spectator.username}</Styled.UsernameValue>
+            <Styled.StatusValue $playNext={spectator.playNext}>
                 {spectator.playNext ? <FaCheckCircle /> : <FaTimesCircle />}
-            </div>
-        </div>
+            </Styled.StatusValue>
+        </Styled.Spectator>
     );
 };
 

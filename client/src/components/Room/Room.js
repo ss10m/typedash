@@ -20,8 +20,8 @@ import Results from "./Results/Results";
 import Spectators from "./Spectators/Spectators";
 import Error from "../Error/Error";
 
-// SCSS
-import "./Room.scss";
+// Styles
+import * as Styled from "./styles";
 
 const Room = () => {
     const {
@@ -51,7 +51,7 @@ const Room = () => {
     const socketId = SocketAPI.getSocketId();
 
     return (
-        <div className="room">
+        <Styled.Room>
             {viewSpectators && (
                 <Spectators spectators={spectators} setIsVisible={setViewSpectators} />
             )}
@@ -105,7 +105,7 @@ const Room = () => {
             />
             <Charts graphWpm={graphWpm} graphAccuracy={graphAccuracy} labelX labelY />
             <Results quote={quote} updateResults={SocketAPI.updateResults} />
-        </div>
+        </Styled.Room>
     );
 };
 

@@ -2,8 +2,8 @@
 import { useState, useEffect } from "react";
 import CountdownInterval from "core/CountdownInterval";
 
-// SCSS
-import "./Countdown.scss";
+// Styles
+import * as Styled from "./styles";
 
 const Countdown = ({ duration, isSpectating, onCancel }) => {
     const [totalTime, setTotalTime] = useState(0);
@@ -29,16 +29,16 @@ const Countdown = ({ duration, isSpectating, onCancel }) => {
     }, [duration]);
 
     return (
-        <div className="countdown">
+        <Styled.Countdown>
             <Circle max={totalTime} remaining={timeLeft} />
-            <div className="starting">STARTING IN</div>
-            <div className="value">{timeLeft !== null && timeLeft + 1}</div>
+            <Styled.Header>STARTING IN</Styled.Header>
+            <Styled.Count>{timeLeft !== null && timeLeft + 1}</Styled.Count>
             {!isSpectating && (
-                <div className="cancel" onClick={() => onCancel(false)}>
+                <Styled.CancelButton onClick={() => onCancel(false)}>
                     CANCEL
-                </div>
+                </Styled.CancelButton>
             )}
-        </div>
+        </Styled.Countdown>
     );
 };
 
@@ -52,8 +52,7 @@ const Circle = ({ max, remaining }) => {
         Math.min(length - Math.ceil(2 * radius * Math.PI) * (remaining / max), length) || 0;
 
     return (
-        <svg
-            className="circle"
+        <Styled.Circle
             width={size}
             height={size}
             viewBox={`0 0 ${size} ${size}`}
@@ -68,8 +67,7 @@ const Circle = ({ max, remaining }) => {
                     strokeWidth={strokeWidth}
                     fill="none"
                 />
-                <circle
-                    className="indicator"
+                <Styled.Progress
                     r={radius}
                     cx={radius + strokeWidth}
                     cy={radius + strokeWidth}
@@ -80,7 +78,7 @@ const Circle = ({ max, remaining }) => {
                     fill="none"
                 />
             </g>
-        </svg>
+        </Styled.Circle>
     );
 };
 
