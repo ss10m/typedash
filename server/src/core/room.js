@@ -116,7 +116,7 @@ export class Room {
                     break;
                 case STATE.PLAYING:
                     this.spectators[socketId] = {
-                        username: displayName,
+                        username: user.display_name,
                         id,
                         socketId,
                         playNext: false,
@@ -127,7 +127,7 @@ export class Room {
                     break;
                 case STATE.POSTGAME:
                     this.spectators[socketId] = {
-                        username: displayName,
+                        username: user.display_name,
                         id,
                         socketId,
                         playNext: false,
@@ -583,8 +583,9 @@ export class Room {
     }
 
     getNumOfUsers() {
-        const players = Object.values(this.players).filter((player) => !player.leftRoom)
-            .length;
+        const players = Object.values(this.players).filter(
+            (player) => !player.leftRoom
+        ).length;
         const spectators = Object.values(this.spectators).length;
         return players + spectators;
     }
