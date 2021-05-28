@@ -47,7 +47,7 @@ export const Key = styled.div`
     ${(props) =>
         props.$valid &&
         css`
-            background-color: #899fb7;
+            background-color: #c4ffc4;
         `}
 
     ${(props) =>
