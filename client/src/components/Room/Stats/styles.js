@@ -32,6 +32,7 @@ export const Title = styled.p`
 export const Value = styled.p`
     font-size: 18px;
     font-weight: 800;
+    font-variant-numeric: tabular-nums;
 `;
 
 export const Divider = styled.div`
@@ -60,7 +61,7 @@ export const ReadySwitch = styled.label`
 export const Timer = styled.div`
     font-weight: 700;
     font-size: 40px;
-    letter-spacing: 1px;
+    font-variant-numeric: tabular-nums;
 
     @media (max-width: 615px) {
         margin-top: 15px;

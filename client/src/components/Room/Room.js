@@ -39,6 +39,7 @@ const Room = () => {
     } = useRoomApi();
 
     const history = useHistory();
+    const [completed, setCompleted] = useState(false);
     const [wpm, setWpm] = useState(0);
     const [accuracy, setAccuracy] = useState(100);
     const [graphWpm, setGraphWpm] = useState([]);
@@ -85,7 +86,9 @@ const Room = () => {
             />
             <Stats
                 state={state}
+                isPlaying={isRunning && !isSpectating}
                 isSpectating={isSpectating}
+                completed={completed}
                 wpm={wpm}
                 accuracy={accuracy}
                 isReady={isReady}
@@ -98,6 +101,7 @@ const Room = () => {
                 setIsRunning={setIsRunning}
                 currentQuote={quote}
                 updateStatus={SocketAPI.updateStatus}
+                setCompleted={setCompleted}
                 setWpm={setWpm}
                 setAccuracy={setAccuracy}
                 setGraphWpm={setGraphWpm}

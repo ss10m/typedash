@@ -18,6 +18,7 @@ const Racer = ({
     isSpectating,
     setIsRunning,
     currentQuote,
+    setCompleted,
     updateStatus,
     setWpm,
     setAccuracy,
@@ -58,11 +59,12 @@ const Racer = ({
         setCorrectLength(0);
         accuracyRef.current = { correct: 0, incorrect: 0 };
         wordIndexRef.current = 0;
+        setCompleted(false);
         setAccuracy(100);
         setWpm(0);
         setGraphWpm([]);
         setGraphAccuracy([]);
-    }, [currentQuote, setWpm, setAccuracy, setGraphWpm, setGraphAccuracy]);
+    }, [currentQuote, setCompleted, setWpm, setAccuracy, setGraphWpm, setGraphAccuracy]);
 
     useEffect(() => {
         if (isRunning) {
@@ -160,6 +162,7 @@ const Racer = ({
         );
 
         if (newIndex === quote.length) {
+            setCompleted(true);
             setIsRunning(false);
             clearInterval(wpmIntervalRef.current);
             setWpm(wpm);
