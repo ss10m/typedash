@@ -2,16 +2,22 @@
 import { useState, useEffect } from "react";
 import CountdownInterval from "core/CountdownInterval";
 
+// Context
+import { useRoomContext } from "../context";
+
 // Styles
 import * as Styled from "./styles";
 
-const Countdown = ({ duration, isSpectating, onCancel }) => {
+const Countdown = ({ onCancel }) => {
     const [totalTime, setTotalTime] = useState(0);
     const [timeLeft, setTimeLeft] = useState(null);
 
+    const { data } = useRoomContext();
+    const { state, isSpectating } = data;
+
     useEffect(() => {
-        const durationSeconds = Math.floor(duration / 1000);
-        const delay = duration % 1000;
+        const durationSeconds = Math.floor(state.countdown / 1000);
+        const delay = state.countdown % 1000;
 
         const onStep = (time) => {
             setTimeLeft(time - 1);
@@ -26,7 +32,7 @@ const Countdown = ({ duration, isSpectating, onCancel }) => {
         }, Math.max(100, delay));
 
         return () => countdown.clear();
-    }, [duration]);
+    }, [state]);
 
     return (
         <Styled.Countdown>

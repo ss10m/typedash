@@ -1,6 +1,9 @@
 // Libraries & utils
 import React, { forwardRef, useEffect } from "react";
 
+// Context
+import { useRoomContext, setViewSpectators } from "../context";
+
 // Icons
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
@@ -16,16 +19,17 @@ const Spectators = (props) => {
 
 const Inside = withClickWatcher(
     forwardRef((props, ref) => {
-        const { spectators, isVisible, setIsVisible } = props;
+        const { isVisible } = props;
+        const { data, dispatch } = useRoomContext();
 
         useEffect(() => {
-            if (!isVisible) setIsVisible();
-        }, [isVisible, setIsVisible]);
+            if (!isVisible) setViewSpectators(dispatch, false);
+        }, [isVisible, dispatch]);
 
         return (
             <Styled.Spectators ref={ref}>
                 <ListHeader />
-                <List spectators={spectators} />
+                <List spectators={data.spectators} />
             </Styled.Spectators>
         );
     })

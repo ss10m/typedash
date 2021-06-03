@@ -9,24 +9,20 @@ import { STATE } from "helpers/constants";
 import Keyboard from "../Keyboard/Keyboard";
 import Tooltip from "components/Tooltip/Tooltip";
 
+import {
+    useRoomContext,
+    toggleIsRunning,
+    setCompleted,
+    setGraph,
+    clearGraph,
+} from "../context";
+
 // Styles
 import * as Styled from "./styles";
 
-const Racer = ({
-    state,
-    isRunning,
-    isSpectating,
-    setIsRunning,
-    currentQuote,
-    setCompleted,
-    updateStatus,
-    setWpm,
-    setAccuracy,
-    setGraphWpm,
-    setGraphAccuracy,
-}) => {
+const Racer = ({ updateStatus, setWpm, setAccuracy }) => {
     const [input, setInput] = useState("");
-    const [quote, setQuote] = useState({
+    const [quoteData, setQuote] = useState({
         current: [],
         length: 0,
         author: "",
@@ -42,15 +38,21 @@ const Racer = ({
     const wpmIntervalRef = useRef(null);
     const accuracyRef = useRef({ correct: 0, incorrect: 0 });
 
+    const { data, dispatch } = useRoomContext();
+
+    const { state, isRunning, isSpectating, quote } = data;
+
+    const isActive = isRunning && !isSpectating;
+
     useEffect(() => {
-        if (!currentQuote) return;
-        if (!currentQuote.id) {
-            if (currentQuote.stats) {
-                setQuote((current) => ({ ...current, stats: currentQuote.stats }));
+        if (!quote) return;
+        if (!quote.id) {
+            if (quote.stats) {
+                setQuote((current) => ({ ...current, stats: quote.stats }));
             }
             return;
         }
-        const { text, length, author, source, stats } = currentQuote;
+        const { text, length, author, source, stats } = quote;
         const words = text.split(" ").map((word) => word + " ");
         const lastIndex = length - 1;
         words[lastIndex] = words[lastIndex].trim();
@@ -59,15 +61,14 @@ const Racer = ({
         setCorrectLength(0);
         accuracyRef.current = { correct: 0, incorrect: 0 };
         wordIndexRef.current = 0;
-        setCompleted(false);
-        setAccuracy(100);
+        setCompleted(dispatch, false);
+        setAccuracy(0);
         setWpm(0);
-        setGraphWpm([]);
-        setGraphAccuracy([]);
-    }, [currentQuote, setCompleted, setWpm, setAccuracy, setGraphWpm, setGraphAccuracy]);
+        clearGraph(dispatch);
+    }, [dispatch, quote, setWpm, setAccuracy]);
 
     useEffect(() => {
-        if (isRunning) {
+        if (isActive) {
             inputRef.current.focus();
             const startTime = new Date();
             setStartTime(startTime);
@@ -81,12 +82,12 @@ const Racer = ({
             setTypoLength(0);
             clearInterval(wpmIntervalRef.current);
         }
-    }, [isRunning, setWpm]);
+    }, [isActive, setWpm]);
 
     const handleChange = (event) => {
-        if (!isRunning) return;
+        if (!isActive) return;
         const input = event.target.value;
-        const currentWord = quote.current[wordIndex];
+        const currentWord = quoteData.current[wordIndex];
 
         if (!currentWord) return;
 
@@ -148,22 +149,22 @@ const Racer = ({
 
         const time = Math.max(new Date() - startTime, 800);
         const wpm = Math.round(wordIndexRef.current / (time / (1000 * 60)));
-        const progress = Math.ceil((wordIndexRef.current / quote.length) * 100);
+        const progress = Math.ceil((wordIndexRef.current / quoteData.length) * 100);
 
         const floatAccuracy =
             accuracyRef.current.correct /
             (accuracyRef.current.correct + accuracyRef.current.incorrect);
         const actualAccuracy = roundToFixed(floatAccuracy * 100);
 
-        setGraphWpm((data) => (wordIndex === 0 ? [[0, wpm]] : [...data, [progress, wpm]]));
+        const graph = {
+            wpm: [wordIndex === 0 ? 0 : progress, wpm],
+            accuracy: [wordIndex === 0 ? 0 : progress, actualAccuracy],
+        };
+        setGraph(dispatch, graph);
 
-        setGraphAccuracy((data) =>
-            wordIndex === 0 ? [[0, actualAccuracy]] : [...data, [progress, actualAccuracy]]
-        );
-
-        if (newIndex === quote.length) {
-            setCompleted(true);
-            setIsRunning(false);
+        if (newIndex === quoteData.length) {
+            setCompleted(dispatch, true);
+            toggleIsRunning(dispatch, false);
             clearInterval(wpmIntervalRef.current);
             setWpm(wpm);
             updateStatus({ progress: newIndex, wpm, time, accuracy: actualAccuracy });
@@ -175,8 +176,8 @@ const Racer = ({
     return (
         <>
             <Quote
-                isRunning={isRunning}
-                quote={quote}
+                isActive={isActive}
+                quoteData={quoteData}
                 wordIndex={wordIndex}
                 correctLength={correctLength}
                 typoLength={typoLength}
@@ -184,16 +185,16 @@ const Racer = ({
             <Input
                 ref={inputRef}
                 state={state}
-                isRunning={isRunning}
+                isActive={isActive}
                 isSpectating={isSpectating}
                 input={input}
                 handleChange={handleChange}
                 containsTypo={typoLength > 0}
-                isDisabled={!isRunning}
+                isDisabled={!isActive}
             />
             <Keyboard
-                isRunning={isRunning}
-                quote={quote}
+                isActive={isActive}
+                quote={quoteData}
                 wordIndex={wordIndex}
                 correctLength={correctLength}
                 typoLength={typoLength}
@@ -206,7 +207,7 @@ const Input = React.forwardRef((props, ref) => {
     let placeholder = "";
     if (props.isSpectating) {
         placeholder = "You are spectating";
-    } else if (!props.isRunning) {
+    } else if (!props.isActive) {
         switch (props.state.current) {
             case STATE.PREGAME:
                 placeholder = "Waiting for players to ready up";
@@ -241,14 +242,14 @@ const Input = React.forwardRef((props, ref) => {
     );
 });
 
-const Quote = ({ isRunning, quote, wordIndex, correctLength, typoLength }) => {
+const Quote = ({ isActive, quoteData, wordIndex, correctLength, typoLength }) => {
     return (
         <Styled.Quote>
             <Styled.Words>
-                {quote.current.map((word, i) => (
+                {quoteData.current.map((word, i) => (
                     <Word
                         key={i}
-                        isRunning={isRunning}
+                        isActive={isActive}
                         word={word}
                         id={i}
                         wordIndex={wordIndex}
@@ -262,14 +263,16 @@ const Quote = ({ isRunning, quote, wordIndex, correctLength, typoLength }) => {
                     <Tooltip msg="ALL TIME PLAY COUNT" placement="bottom-start" visible={true}>
                         <Styled.Stat>
                             <Styled.Header>COUNT</Styled.Header>
-                            <Styled.Value>{quote.stats.count}</Styled.Value>
+                            <Styled.Value>{quoteData.stats.count}</Styled.Value>
                         </Styled.Stat>
                     </Tooltip>
                     <Styled.Divider />
                     <Tooltip msg="AVERAGE WORDS PER MINUTE" placement="bottom" visible={true}>
                         <Styled.Stat>
                             <Styled.Header>AVG WPM</Styled.Header>
-                            <Styled.Value>{roundToFixed(quote.stats.avg_wpm)}</Styled.Value>
+                            <Styled.Value>
+                                {roundToFixed(quoteData.stats.avg_wpm)}
+                            </Styled.Value>
                         </Styled.Stat>
                     </Tooltip>
                     <Styled.Divider />
@@ -277,7 +280,7 @@ const Quote = ({ isRunning, quote, wordIndex, correctLength, typoLength }) => {
                         <Styled.Stat>
                             <Styled.Header>AVG ACC</Styled.Header>
                             <Styled.Value>{`${roundToFixed(
-                                quote.stats.avg_acc
+                                quoteData.stats.avg_acc
                             )}%`}</Styled.Value>
                         </Styled.Stat>
                     </Tooltip>
@@ -285,12 +288,12 @@ const Quote = ({ isRunning, quote, wordIndex, correctLength, typoLength }) => {
                 <div>
                     <Styled.Stat>
                         <Styled.Header>AUTHOR</Styled.Header>
-                        <Styled.Value>{quote.author}</Styled.Value>
+                        <Styled.Value>{quoteData.author}</Styled.Value>
                     </Styled.Stat>
                     <Styled.Divider />
                     <Styled.Stat>
                         <Styled.Header>BOOK</Styled.Header>
-                        <Styled.Value>{quote.source}</Styled.Value>
+                        <Styled.Value>{quoteData.source}</Styled.Value>
                     </Styled.Stat>
                 </div>
             </Styled.Stats>
@@ -298,12 +301,12 @@ const Quote = ({ isRunning, quote, wordIndex, correctLength, typoLength }) => {
     );
 };
 
-const Word = ({ isRunning, word, id, wordIndex, correctLength, typoLength }) => {
+const Word = ({ isActive, word, id, wordIndex, correctLength, typoLength }) => {
     if (id === wordIndex) {
         return [...word].map((letter, i) => (
             <Letter
                 key={i}
-                isRunning={isRunning}
+                isActive={isActive}
                 letter={letter}
                 letterIndex={i}
                 correctLength={correctLength}
@@ -315,13 +318,13 @@ const Word = ({ isRunning, word, id, wordIndex, correctLength, typoLength }) => 
     return <Styled.Word $correct={id < wordIndex}>{word}</Styled.Word>;
 };
 
-const Letter = ({ isRunning, letter, letterIndex, correctLength, typoLength }) => {
+const Letter = ({ isActive, letter, letterIndex, correctLength, typoLength }) => {
     const isCorrect = letterIndex < correctLength;
 
     return (
         <Styled.Letter
-            $current={isRunning && letterIndex === correctLength + typoLength}
-            $currentWord={isRunning && letter !== " "}
+            $current={isActive && letterIndex === correctLength + typoLength}
+            $currentWord={isActive && letter !== " "}
             $correct={isCorrect}
             $typo={!isCorrect && letterIndex < correctLength + typoLength}
         >

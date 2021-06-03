@@ -2,6 +2,9 @@
 import { useState, useEffect } from "react";
 import Switch from "react-switch";
 
+// Context
+import { useRoomContext } from "../context";
+
 // Constants
 import { STATE } from "helpers/constants";
 
@@ -17,7 +20,10 @@ const Spectating = (props) => {
     );
 };
 
-const ToggleSpectate = ({ state, setSpectate, playNext, setPlayNext }) => {
+const ToggleSpectate = ({ setSpectate, setPlayNext }) => {
+    const { data } = useRoomContext();
+    const { state, playNext } = data;
+
     if (state.current === STATE.PREGAME || state.current === STATE.COUNTDOWN) {
         return <Styled.Button onClick={() => setSpectate(false)}>PLAY</Styled.Button>;
     }

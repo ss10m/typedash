@@ -3,6 +3,9 @@ import React, { useState, useEffect } from "react";
 import Switch from "react-switch";
 import useInterval from "./useInterval";
 
+// Context
+import { useRoomContext } from "../context";
+
 // Constants
 import { STATE } from "helpers/constants";
 
@@ -12,20 +15,16 @@ import Tooltip from "components/Tooltip/Tooltip";
 // Styles
 import * as Styled from "./styles";
 
-const Stats = ({
-    state,
-    isPlaying,
-    isSpectating,
-    completed,
-    wpm,
-    accuracy,
-    isReady,
-    setReady,
-}) => {
-    const [isRunning, setIsRunning] = useState(false);
+const Stats = ({ wpm, accuracy, setReady }) => {
+    const [active, setActive] = useState(false);
     const [startTime, setStartTime] = useState(null);
     const [timer, setTimer] = useState(0);
     const [stopwatch, setStopwatch] = useState(0);
+
+    const { data } = useRoomContext();
+    const { state, completed, isRunning, isSpectating, isReady } = data;
+
+    const isPlaying = isRunning && !isSpectating;
 
     useEffect(() => {
         switch (state.current) {
@@ -33,21 +32,21 @@ const Stats = ({
                 setStartTime(null);
                 setTimer(60000);
                 setStopwatch(0);
-                setIsRunning(false);
+                setActive(false);
                 break;
             case STATE.COUNTDOWN:
                 setStartTime(null);
                 setTimer(60000);
                 setStopwatch(0);
-                setIsRunning(false);
+                setActive(false);
                 break;
             case STATE.PLAYING:
                 setStartTime(new Date() - (60000 - state.timer));
-                setIsRunning(true);
+                setActive(true);
                 break;
             case STATE.POSTGAME:
                 setTimer(0);
-                setIsRunning(false);
+                setActive(false);
                 break;
             default:
                 break;
@@ -65,7 +64,7 @@ const Stats = ({
             setTimer(60000 - timeDiff);
             if (isPlaying) setStopwatch(timeDiff);
         },
-        isRunning ? 100 : null
+        active ? 100 : null
     );
 
     const showReadyUp = !isSpectating && state.current !== STATE.PLAYING;
@@ -114,13 +113,13 @@ const ReadyUp = ({ isReady, setReady }) => {
     const toggle = () => {
         if (isToggleDisabled) return;
         setIsToggleDisabled(true);
-        setReady(!isReady.current);
+        setReady(!isReady);
     };
 
     return (
         <Styled.ReadySwitch>
             <span>READY</span>
-            <Switch onChange={toggle} checked={isReady.current} />
+            <Switch onChange={toggle} checked={isReady} />
         </Styled.ReadySwitch>
     );
 };

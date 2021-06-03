@@ -1,6 +1,9 @@
 // Libraries & utils
 import React, { useState, useEffect } from "react";
 
+// Context
+import { useRoomContext } from "../context";
+
 // Helpers
 import { STATE } from "helpers/constants";
 
@@ -10,7 +13,10 @@ import { FaTrophy } from "react-icons/fa";
 // Styles
 import * as Styled from "./styles";
 
-const Scoreboard = ({ state, players, socketId, isSpectating, setSpectate }) => {
+const Scoreboard = ({ setSpectate, socketId }) => {
+    const { data } = useRoomContext();
+    const { state, players, isSpectating } = data;
+
     if (!players.length) return <AwaitPlayers />;
     const canSpectate =
         !isSpectating &&

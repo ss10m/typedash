@@ -3,16 +3,22 @@ import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import moment from "moment";
 
+// Context
+import { useRoomContext } from "../context";
+
 // Constants
 import { RESULT_TYPE } from "helpers/constants";
 
 // Styles
 import * as Styled from "./styles";
 
-const Results = ({ quote, updateResults }) => {
+const Results = ({ updateResults }) => {
     const [view, setView] = useState(RESULT_TYPE.TOP);
     const viewRef = useRef(RESULT_TYPE.TOP);
-    const [data, setData] = useState([]);
+    const [results, setResults] = useState([]);
+
+    const { data } = useRoomContext();
+    const { quote } = data;
 
     useEffect(() => {
         if (!quote) return;
@@ -23,7 +29,7 @@ const Results = ({ quote, updateResults }) => {
             viewRef.current = type;
             setView(type);
         }
-        setData(data);
+        setResults(data);
     }, [quote]);
 
     const changeView = (newView) => {
@@ -69,20 +75,20 @@ const Results = ({ quote, updateResults }) => {
                     <Styled.Accuracy>ACCURACY</Styled.Accuracy>
                     <Styled.Time>TIME</Styled.Time>
                 </Styled.ResultsHeader>
-                <ResultsData data={data} />
+                <ResultsData results={results} />
             </Styled.Results>
             <Styled.Footer />
         </>
     );
 };
 
-const ResultsData = ({ data }) => {
-    if (!data.length) {
+const ResultsData = ({ results }) => {
+    if (!results.length) {
         return <Styled.ResultsData empty>No results found</Styled.ResultsData>;
     }
     return (
         <Styled.ResultsData>
-            {data.map((score, index) => (
+            {results.map((score, index) => (
                 <Styled.Result key={index}>
                     <Styled.RankValue>{score.rank}</Styled.RankValue>
                     <Styled.UsernameValue>

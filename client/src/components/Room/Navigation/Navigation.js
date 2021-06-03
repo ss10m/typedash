@@ -1,5 +1,9 @@
 // Libraries & utils
 import React, { useState, useEffect, useRef } from "react";
+import { useHistory } from "react-router-dom";
+
+// Context
+import { useRoomContext, setViewSpectators } from "../context";
 
 // Icons
 import { FaChevronLeft, FaEye } from "react-icons/fa";
@@ -10,9 +14,16 @@ import Tooltip from "components/Tooltip/Tooltip";
 // Styles
 import * as Styled from "./styles";
 
-const Navigation = (props) => {
+const Navigation = () => {
     const [isExtended, setIsExtended] = useState(false);
     const containerRef = useRef(null);
+    const history = useHistory();
+
+    const { data, dispatch } = useRoomContext();
+
+    const viewSpectators = () => {
+        setViewSpectators(dispatch, true);
+    };
 
     useEffect(() => {
         const handleResize = () => {
@@ -28,9 +39,9 @@ const Navigation = (props) => {
 
     return (
         <Styled.Navigation ref={containerRef}>
-            <LeaveButton leaveRoom={props.leaveRoom} extended={isExtended} />
-            <Styled.RoomName>{props.roomName}</Styled.RoomName>
-            <Spectators extended={isExtended} setViewSpectators={props.setViewSpectators} />
+            <LeaveButton leaveRoom={() => history.push("")} extended={isExtended} />
+            <Styled.RoomName>{data.room.name}</Styled.RoomName>
+            <Spectators extended={isExtended} viewSpectators={viewSpectators} />
         </Styled.Navigation>
     );
 };
@@ -48,10 +59,10 @@ const LeaveButton = ({ leaveRoom, extended }) => {
     );
 };
 
-const Spectators = ({ extended, setViewSpectators }) => {
+const Spectators = ({ extended, viewSpectators }) => {
     return (
         <Tooltip msg="VIEW SPECTATORS" placement="left" visible={!extended}>
-            <Styled.Button onClick={() => setViewSpectators(true)} $extended={extended}>
+            <Styled.Button onClick={viewSpectators} $extended={extended}>
                 <span>
                     <FaEye />
                 </span>
