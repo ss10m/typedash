@@ -15,12 +15,13 @@ import {
     setCompleted,
     setGraph,
     clearGraph,
+    setStats,
 } from "../context";
 
 // Styles
 import * as Styled from "./styles";
 
-const Racer = ({ updateStatus, setWpm, setAccuracy }) => {
+const Racer = ({ updateStatus }) => {
     const [input, setInput] = useState("");
     const [quoteData, setQuote] = useState({
         current: [],
@@ -62,10 +63,9 @@ const Racer = ({ updateStatus, setWpm, setAccuracy }) => {
         accuracyRef.current = { correct: 0, incorrect: 0 };
         wordIndexRef.current = 0;
         setCompleted(dispatch, false);
-        setAccuracy(0);
-        setWpm(0);
+        setStats(dispatch, { wpm: 0, accuracy: 0 });
         clearGraph(dispatch);
-    }, [dispatch, quote, setWpm, setAccuracy]);
+    }, [dispatch, quote]);
 
     useEffect(() => {
         if (isActive) {
@@ -75,14 +75,14 @@ const Racer = ({ updateStatus, setWpm, setAccuracy }) => {
             wpmIntervalRef.current = setInterval(() => {
                 const time = new Date() - startTime;
                 const wpm = Math.round(wordIndexRef.current / (time / (1000 * 60)));
-                setWpm(wpm);
+                setStats(dispatch, { wpm });
             }, 1000);
         } else {
             setInput("");
             setTypoLength(0);
             clearInterval(wpmIntervalRef.current);
         }
-    }, [isActive, setWpm]);
+    }, [dispatch, isActive]);
 
     const handleChange = (event) => {
         if (!isActive) return;
@@ -135,7 +135,7 @@ const Racer = ({ updateStatus, setWpm, setAccuracy }) => {
             accuracyRef.current.correct /
             (accuracyRef.current.correct + accuracyRef.current.incorrect);
         const actualAccuracy = roundToFixed(floatAccuracy * 100);
-        setAccuracy(actualAccuracy);
+        setStats(dispatch, { accuracy: actualAccuracy });
     };
 
     const nextWord = () => {
@@ -166,7 +166,7 @@ const Racer = ({ updateStatus, setWpm, setAccuracy }) => {
             setCompleted(dispatch, true);
             toggleIsRunning(dispatch, false);
             clearInterval(wpmIntervalRef.current);
-            setWpm(wpm);
+            setStats(dispatch, { wpm });
             updateStatus({ progress: newIndex, wpm, time, accuracy: actualAccuracy });
         } else {
             updateStatus({ progress: newIndex });

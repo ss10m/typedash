@@ -30,6 +30,10 @@ const initialState = {
     quote: null,
     players: [],
     spectators: [],
+    stats: {
+        wpm: 0,
+        accuracy: 0,
+    },
     graph: {
         wpm: [],
         accuracy: [],
@@ -56,6 +60,14 @@ const reducer = (state, action) => {
                 graph: {
                     wpm: [],
                     accuracy: [],
+                },
+            };
+        case "SET_STATS":
+            return {
+                ...state,
+                stats: {
+                    ...state.stats,
+                    ...action.stats,
                 },
             };
         default: {
@@ -111,6 +123,10 @@ const clearGraph = (dispatch) => {
     dispatch({ type: "CLEAR_GRAPH" });
 };
 
+const setStats = (dispatch, stats) => {
+    dispatch({ type: "SET_STATS", stats });
+};
+
 export {
     RoomProvider,
     useRoomContext,
@@ -120,4 +136,5 @@ export {
     setCompleted,
     setGraph,
     clearGraph,
+    setStats,
 };

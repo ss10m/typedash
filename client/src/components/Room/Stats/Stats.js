@@ -15,14 +15,14 @@ import Tooltip from "components/Tooltip/Tooltip";
 // Styles
 import * as Styled from "./styles";
 
-const Stats = ({ wpm, accuracy, setReady }) => {
+const Stats = ({ setReady }) => {
     const [active, setActive] = useState(false);
     const [startTime, setStartTime] = useState(null);
     const [timer, setTimer] = useState(0);
     const [stopwatch, setStopwatch] = useState(0);
 
     const { data } = useRoomContext();
-    const { state, completed, isRunning, isSpectating, isReady } = data;
+    const { state, completed, isRunning, isSpectating, isReady, stats } = data;
 
     const isPlaying = isRunning && !isSpectating;
 
@@ -71,7 +71,7 @@ const Stats = ({ wpm, accuracy, setReady }) => {
 
     return (
         <Styled.Stats>
-            <Details wpm={wpm} accuracy={accuracy} stopwatch={stopwatch} />
+            <Details stats={stats} stopwatch={stopwatch} />
             {showReadyUp && <ReadyUp state={state} isReady={isReady} setReady={setReady} />}
             <Tooltip msg="TIME LEFT" placement="left" visible={true}>
                 <Timer timer={timer} />
@@ -80,19 +80,19 @@ const Stats = ({ wpm, accuracy, setReady }) => {
     );
 };
 
-const Details = ({ wpm, accuracy, stopwatch }) => {
+const Details = ({ stats, stopwatch }) => {
     return (
         <Styled.Details>
             <Tooltip msg="WORDS PER MINUTE" placement="bottom-start" visible={true}>
                 <Styled.Column $width={55}>
                     <Styled.Title>WPM</Styled.Title>
-                    <Styled.Value>{wpm}</Styled.Value>
+                    <Styled.Value>{stats.wpm}</Styled.Value>
                 </Styled.Column>
             </Tooltip>
             <Styled.Divider />
             <Styled.Column $width={80}>
                 <Styled.Title>ACCURACY</Styled.Title>
-                <Styled.Value>{Math.round(accuracy) + "%"}</Styled.Value>
+                <Styled.Value>{Math.round(stats.accuracy) + "%"}</Styled.Value>
             </Styled.Column>
             <Styled.Divider />
             <Styled.Column $width={75}>

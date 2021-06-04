@@ -1,5 +1,5 @@
 // Libraries & utils
-import React, { useState } from "react";
+import React from "react";
 
 // Socket API
 import SocketAPI from "core/SocketClient";
@@ -28,9 +28,6 @@ import * as Styled from "./styles";
 const Room = () => {
     const { data, dispatch } = useRoomReducer();
 
-    const [wpm, setWpm] = useState(0);
-    const [accuracy, setAccuracy] = useState(100);
-
     const { room, state, isSpectating, viewSpectators, graph, error } = data;
 
     if (error) return <Error msg={error} />;
@@ -54,12 +51,8 @@ const Room = () => {
                     setSpectate={SocketAPI.setSpectate}
                     socketId={SocketAPI.getSocketId()}
                 />
-                <Stats wpm={wpm} accuracy={accuracy} setReady={SocketAPI.setReady} />
-                <Racer
-                    updateStatus={SocketAPI.updateStatus}
-                    setWpm={setWpm}
-                    setAccuracy={setAccuracy}
-                />
+                <Stats setReady={SocketAPI.setReady} />
+                <Racer updateStatus={SocketAPI.updateStatus} />
                 <Charts graphWpm={graph.wpm} graphAccuracy={graph.accuracy} labelX labelY />
                 <Results updateResults={SocketAPI.updateResults} />
             </Styled.Room>
