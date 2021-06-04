@@ -10,7 +10,7 @@ import keys from "./keys";
 // Styles
 import * as Styled from "./styles";
 
-const Keyboard = ({ isRunning, quote, wordIndex, correctLength, typoLength }) => {
+const Keyboard = ({ isActive, quote, wordIndex, correctLength, typoLength }) => {
     const [pressed, setPressed] = useState({});
     const [containerWidth, setContainerWidth] = useState(null);
     const containerRef = useRef(null);
@@ -29,7 +29,7 @@ const Keyboard = ({ isRunning, quote, wordIndex, correctLength, typoLength }) =>
     }, []);
 
     const keyDownHandler = (event) => {
-        if (!isRunning) return;
+        if (!isActive) return;
         if (!quote.current || !quote.current.length) return;
         const currentWord = quote.current[wordIndex];
         if (!currentWord) return;
