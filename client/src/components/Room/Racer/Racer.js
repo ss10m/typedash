@@ -34,13 +34,14 @@ const Racer = ({ updateStatus }) => {
     const [correctLength, setCorrectLength] = useState(0);
     const [typoLength, setTypoLength] = useState(0);
     const inputRef = useRef(null);
-    const wordIndexRef = useRef(0);
-    const [startTime, setStartTime] = useState(null);
-    const wpmIntervalRef = useRef(null);
-    const accuracyRef = useRef({ correct: 0, incorrect: 0 });
+    const statsRef = useRef({
+        wordIndex: 0,
+        startTime: null,
+        intervalId: null,
+        accuracy: { correct: 0, incorrect: 0 },
+    });
 
     const { data, dispatch } = useRoomContext();
-
     const { state, isRunning, isSpectating, quote } = data;
 
     const isActive = isRunning && !isSpectating;
@@ -60,35 +61,38 @@ const Racer = ({ updateStatus }) => {
         setQuote({ current: words, length, author, source, stats });
         setWordIndex(0);
         setCorrectLength(0);
-        accuracyRef.current = { correct: 0, incorrect: 0 };
-        wordIndexRef.current = 0;
+        setTypoLength(0);
+        statsRef.current.wordIndex = 0;
+        statsRef.current.accuracy = { correct: 0, incorrect: 0 };
         setCompleted(dispatch, false);
         setStats(dispatch, { wpm: 0, accuracy: 0 });
         clearGraph(dispatch);
     }, [dispatch, quote]);
 
     useEffect(() => {
+        let intervalId = statsRef.current.intervalId;
         if (isActive) {
             inputRef.current.focus();
             const startTime = new Date();
-            setStartTime(startTime);
-            wpmIntervalRef.current = setInterval(() => {
+            statsRef.current.startTime = startTime;
+            intervalId = setInterval(() => {
                 const time = new Date() - startTime;
-                const wpm = Math.round(wordIndexRef.current / (time / (1000 * 60)));
+                const wpm = Math.round(statsRef.current.wordIndex / (time / (1000 * 60)));
                 setStats(dispatch, { wpm });
             }, 1000);
+            statsRef.current.intervalId = intervalId;
         } else {
             setInput("");
             setTypoLength(0);
-            clearInterval(wpmIntervalRef.current);
+            clearInterval(intervalId);
         }
+        return () => clearInterval(intervalId);
     }, [dispatch, isActive]);
 
     const handleChange = (event) => {
         if (!isActive) return;
         const input = event.target.value;
         const currentWord = quoteData.current[wordIndex];
-
         if (!currentWord) return;
 
         if (currentWord === input) {
@@ -112,64 +116,62 @@ const Racer = ({ updateStatus }) => {
     };
 
     const updateAccuracy = (newCorrectLength, newIncorrectLetters) => {
-        const { correct, incorrect } = accuracyRef.current;
+        const { correct, incorrect } = statsRef.current.accuracy;
 
         if (newCorrectLength > correctLength && newIncorrectLetters > typoLength) {
-            accuracyRef.current = {
+            statsRef.current.accuracy = {
                 correct: correct + 1,
                 incorrect: incorrect + 1,
             };
         } else if (newCorrectLength > correctLength) {
-            accuracyRef.current = {
+            statsRef.current.accuracy = {
                 correct: correct + 1,
                 incorrect,
             };
         } else if (newIncorrectLetters > typoLength) {
-            accuracyRef.current = {
+            statsRef.current.accuracy = {
                 correct,
                 incorrect: incorrect + 1,
             };
         }
 
         const floatAccuracy =
-            accuracyRef.current.correct /
-            (accuracyRef.current.correct + accuracyRef.current.incorrect);
+            statsRef.current.accuracy.correct /
+            (statsRef.current.accuracy.correct + statsRef.current.accuracy.incorrect);
         const actualAccuracy = roundToFixed(floatAccuracy * 100);
         setStats(dispatch, { accuracy: actualAccuracy });
     };
 
     const nextWord = () => {
-        const newIndex = wordIndex + 1;
+        statsRef.current.wordIndex = statsRef.current.wordIndex + 1;
+        const { wordIndex, startTime, accuracy } = statsRef.current;
+
         setInput("");
-        setWordIndex(newIndex);
+        setWordIndex(wordIndex);
         setCorrectLength(0);
         setTypoLength(0);
 
-        wordIndexRef.current = newIndex;
-
         const time = Math.max(new Date() - startTime, 800);
-        const wpm = Math.round(wordIndexRef.current / (time / (1000 * 60)));
-        const progress = Math.ceil((wordIndexRef.current / quoteData.length) * 100);
+        const wpm = Math.round(wordIndex / (time / (1000 * 60)));
+        const progress = Math.ceil((wordIndex / quoteData.length) * 100);
 
-        const floatAccuracy =
-            accuracyRef.current.correct /
-            (accuracyRef.current.correct + accuracyRef.current.incorrect);
+        const floatAccuracy = accuracy.correct / (accuracy.correct + accuracy.incorrect);
         const actualAccuracy = roundToFixed(floatAccuracy * 100);
 
         const graph = {
-            wpm: [wordIndex === 0 ? 0 : progress, wpm],
-            accuracy: [wordIndex === 0 ? 0 : progress, actualAccuracy],
+            wpm: [wordIndex === 1 ? 0 : progress, wpm],
+            accuracy: [wordIndex === 1 ? 0 : progress, actualAccuracy],
         };
         setGraph(dispatch, graph);
 
-        if (newIndex === quoteData.length) {
+        if (wordIndex === quoteData.length) {
+            clearInterval(statsRef.current.intervalId);
             setCompleted(dispatch, true);
             toggleIsRunning(dispatch, false);
-            clearInterval(wpmIntervalRef.current);
             setStats(dispatch, { wpm });
-            updateStatus({ progress: newIndex, wpm, time, accuracy: actualAccuracy });
+            updateStatus({ progress: wordIndex, wpm, time, accuracy: actualAccuracy });
         } else {
-            updateStatus({ progress: newIndex });
+            updateStatus({ progress: wordIndex });
         }
     };
 
