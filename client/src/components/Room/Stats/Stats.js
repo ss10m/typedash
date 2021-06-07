@@ -1,7 +1,6 @@
 // Libraries & utils
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Switch from "react-switch";
-import useInterval from "./useInterval";
 
 // Context
 import { useRoomContext } from "../context";
@@ -16,56 +15,55 @@ import Tooltip from "components/Tooltip/Tooltip";
 import * as Styled from "./styles";
 
 const Stats = ({ setReady }) => {
-    const [active, setActive] = useState(false);
-    const [startTime, setStartTime] = useState(null);
     const [timer, setTimer] = useState(0);
     const [stopwatch, setStopwatch] = useState(0);
+    const timerRef = useRef({
+        intervalId: null,
+        startTime: null,
+        completed: false,
+        isSpectating: false,
+    });
 
     const { data } = useRoomContext();
-    const { state, completed, isRunning, isSpectating, isReady, stats } = data;
-
-    const isPlaying = isRunning && !isSpectating;
+    const { state, completed, isSpectating, isReady, stats } = data;
 
     useEffect(() => {
+        timerRef.current.completed = completed;
+        timerRef.current.isSpectating = isSpectating;
+    }, [completed, isSpectating]);
+
+    useEffect(() => {
+        const { intervalId, completed, isSpectating } = timerRef.current;
+        clearInterval(intervalId);
+        let updatedIntervalId;
+
         switch (state.current) {
             case STATE.PREGAME:
-                setStartTime(null);
-                setTimer(60000);
-                setStopwatch(0);
-                setActive(false);
-                break;
             case STATE.COUNTDOWN:
-                setStartTime(null);
                 setTimer(60000);
                 setStopwatch(0);
-                setActive(false);
                 break;
             case STATE.PLAYING:
-                setStartTime(new Date() - (60000 - state.timer));
-                setActive(true);
+                timerRef.current.startTime = new Date() - (60000 - state.timer);
+                updatedIntervalId = setInterval(() => {
+                    const { startTime, completed, isSpectating } = timerRef.current;
+                    const timeDiff = new Date() - startTime;
+                    setTimer(60000 - timeDiff);
+                    if (!completed && !isSpectating) {
+                        setStopwatch(timeDiff);
+                    }
+                }, 100);
+                timerRef.current.intervalId = updatedIntervalId;
                 break;
             case STATE.POSTGAME:
                 setTimer(0);
-                setActive(false);
+                if (!completed && !isSpectating) setStopwatch(60000);
                 break;
             default:
                 break;
         }
+        return () => clearInterval(updatedIntervalId);
     }, [state]);
-
-    useEffect(() => {
-        if (state.current !== STATE.POSTGAME || isSpectating || completed) return;
-        setStopwatch(60000);
-    }, [state, isSpectating, completed]);
-
-    useInterval(
-        () => {
-            const timeDiff = new Date() - startTime;
-            setTimer(60000 - timeDiff);
-            if (isPlaying) setStopwatch(timeDiff);
-        },
-        active ? 100 : null
-    );
 
     const showReadyUp = !isSpectating && state.current !== STATE.PLAYING;
 
