@@ -7,8 +7,8 @@ services:
         environment:
             NODE_ENV: production
             VIRTUAL_PORT: 8080
-            VIRTUAL_HOST: test.ssprojects.ca
-            LETSENCRYPT_HOST: test.ssprojects.ca
+            VIRTUAL_HOST: typedash.ssprojects.ca
+            LETSENCRYPT_HOST: typedash.ssprojects.ca
             LETSENCRYPT_EMAIL: "fastf20@gmail.com"
         networks:
             - service-network
