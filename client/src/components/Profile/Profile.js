@@ -1,5 +1,5 @@
 // Libraries & utils
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 
 // Icons
@@ -7,7 +7,7 @@ import { RiUser3Line } from "react-icons/ri";
 
 // Components
 import Charts from "components/Charts/Charts";
-//import Username from "./Username/Username";
+import Username from "./Username/Username";
 import Results from "./Results/Results";
 import QuoteModal from "components/QuoteModal/QuoteModal";
 import Error from "components/Error/Error";
@@ -80,50 +80,53 @@ const Profile = () => {
     );
 };
 
-const Header = ({ username }) => {
+const Header = React.memo(({ username }) => {
     return (
         <div className="header">
             <div className="avatar">
                 <RiUser3Line />
             </div>
-            {username}
+            <Username text={username} />
         </div>
     );
-};
+});
 
 const Stats = ({ allTime, recent }) => {
     return (
         <>
-            <div className="stats-header">STATS</div>
             <div className="stats">
                 <div className="row">
-                    <div className="title">ALL TIME</div>
-                    <div className="stat">
-                        <div>PLAYED</div>
-                        <div>{allTime.count}</div>
-                    </div>
-                    <div className="stat">
-                        <div>AVERAGE WPM</div>
-                        <div>{allTime.avg_wpm}</div>
-                    </div>
-                    <div className="stat">
-                        <div>AVERAGE ACCURACY</div>
-                        <div>{allTime.avg_acc + "%"}</div>
+                    <div className="title">ALL TIME STATS</div>
+                    <div className="details">
+                        <div className="stat">
+                            <div>PLAYED</div>
+                            <div>{allTime.count}</div>
+                        </div>
+                        <div className="stat">
+                            <div>AVERAGE WPM</div>
+                            <div>{allTime.avg_wpm}</div>
+                        </div>
+                        <div className="stat">
+                            <div>AVERAGE ACCURACY</div>
+                            <div>{allTime.avg_acc + "%"}</div>
+                        </div>
                     </div>
                 </div>
                 <div className="row">
                     <div className="title">RECENT FORM</div>
-                    <div className="stat">
-                        <div>PLAYED</div>
-                        <div>{recent.count}</div>
-                    </div>
-                    <div className="stat">
-                        <div>AVERAGE WPM</div>
-                        <div>{recent.avg_wpm}</div>
-                    </div>
-                    <div className="stat">
-                        <div>AVERAGE ACCURACY</div>
-                        <div>{recent.avg_acc + "%"}</div>
+                    <div className="details">
+                        <div className="stat">
+                            <div>PLAYED</div>
+                            <div>{recent.count}</div>
+                        </div>
+                        <div className="stat">
+                            <div>AVERAGE WPM</div>
+                            <div>{recent.avg_wpm}</div>
+                        </div>
+                        <div className="stat">
+                            <div>AVERAGE ACCURACY</div>
+                            <div>{recent.avg_acc + "%"}</div>
+                        </div>
                     </div>
                 </div>
             </div>

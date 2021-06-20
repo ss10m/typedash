@@ -10,10 +10,11 @@
     }
 
     .header {
-        height: 100px;
+        height: 80px;
         display: flex;
         align-items: center;
         margin-bottom: 20px;
+        //border: 1px solid red;
 
         .avatar {
             width: 60px;
@@ -42,31 +43,49 @@
     .stats {
         display: flex;
         flex-direction: column;
-        border: 3px solid #203140;
-        border-radius: 7px;
-        padding: 20px;
+
         margin-bottom: 20px;
 
         .row {
             width: 100%;
             display: flex;
-            justify-content: space-between;
+            justify-content: space-evenly;
             margin-bottom: 20px;
 
-            &:last-of-type {
-                margin: 0;
-                padding-top: 10px;
-            }
-
             .title {
-                flex-basis: 150px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                text-align: center;
+                padding: 10px;
+                flex-basis: 170px;
                 font-size: 18px;
                 font-weight: 800;
-                line-height: 50px;
+            }
+
+            .details {
+                padding: 10px;
+                //flex: 1;
+                display: flex;
+                justify-content: space-evenly;
+                flex-direction: row;
+                //background-color: red;
+                border: 3px solid #203140;
+                border-radius: 7px;
+
+                @media (max-width: 730px) {
+                    flex-direction: column;
+                }
             }
 
             .stat {
                 text-align: center;
+                padding: 0 25px;
+
+                @media (max-width: 730px) {
+                    padding: 5px 15px;
+                }
 
                 :first-child {
                     color: gold;
@@ -78,6 +97,12 @@
                     font-size: 18px;
                     font-weight: 800;
                 }
+            }
+
+            .divider {
+                width: 3px;
+                background-color: #203140;
+                margin: 5px;
             }
         }
     }
