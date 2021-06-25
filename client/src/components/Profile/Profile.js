@@ -1,13 +1,13 @@
 // Libraries & utils
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
+import { Textfit } from "react-textfit";
 
 // Icons
 import { RiUser3Line } from "react-icons/ri";
 
 // Components
 import Charts from "components/Charts/Charts";
-import Username from "./Username/Username";
 import Results from "./Results/Results";
 import QuoteModal from "components/QuoteModal/QuoteModal";
 import Error from "components/Error/Error";
@@ -15,8 +15,8 @@ import Error from "components/Error/Error";
 // Constants
 import { handleResponse } from "helpers";
 
-// SCSS
-import "./Profile.scss";
+// Styles
+import * as Styled from "./styles";
 
 const Profile = () => {
     const { username } = useParams();
@@ -57,7 +57,7 @@ const Profile = () => {
     if (!profile) return null;
 
     return (
-        <div className="profile">
+        <Styled.Profile>
             <Header username={username} />
             <Stats allTime={profile.avg} recent={profile.recentAvg} />
             <Charts
@@ -76,61 +76,74 @@ const Profile = () => {
             {quoteModal && (
                 <QuoteModal quoteId={quoteModal} closeModal={() => setQuoteModal(null)} />
             )}
-        </div>
+        </Styled.Profile>
     );
 };
 
 const Header = React.memo(({ username }) => {
     return (
-        <div className="header">
-            <div className="avatar">
+        <Styled.Header>
+            <Styled.Avatar>
                 <RiUser3Line />
-            </div>
-            <Username text={username} />
-        </div>
+            </Styled.Avatar>
+            <Styled.Username>
+                <div>
+                    <Textfit
+                        mode="single"
+                        forceSingleModeWidth={false}
+                        max={500}
+                        style={{
+                            height: "100%",
+                            lineHeight: "80px",
+                            fontWeight: "600",
+                        }}
+                    >
+                        {username.toUpperCase()}
+                    </Textfit>
+                </div>
+            </Styled.Username>
+        </Styled.Header>
     );
 });
 
 const Stats = ({ allTime, recent }) => {
     return (
-        <>
-            <div className="stats">
-                <div className="row">
-                    <div className="title">ALL TIME STATS</div>
-                    <div className="details">
-                        <div className="stat">
-                            <div>PLAYED</div>
-                            <div>{allTime.count}</div>
-                        </div>
-                        <div className="stat">
-                            <div>AVERAGE WPM</div>
-                            <div>{allTime.avg_wpm}</div>
-                        </div>
-                        <div className="stat">
-                            <div>AVERAGE ACCURACY</div>
-                            <div>{allTime.avg_acc + "%"}</div>
-                        </div>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="title">RECENT FORM</div>
-                    <div className="details">
-                        <div className="stat">
-                            <div>PLAYED</div>
-                            <div>{recent.count}</div>
-                        </div>
-                        <div className="stat">
-                            <div>AVERAGE WPM</div>
-                            <div>{recent.avg_wpm}</div>
-                        </div>
-                        <div className="stat">
-                            <div>AVERAGE ACCURACY</div>
-                            <div>{recent.avg_acc + "%"}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </>
+        <Styled.Stats>
+            <Styled.StateRow>
+                <Styled.StatsHeader>ALL TIME STATS</Styled.StatsHeader>
+                <Styled.StatsColumns>
+                    <Styled.Stat>
+                        <Styled.StatHeader>PLAYED</Styled.StatHeader>
+                        <Styled.StatValue>{allTime.count}</Styled.StatValue>
+                    </Styled.Stat>
+                    <Styled.Stat>
+                        <Styled.StatHeader>AVERAGE WPM</Styled.StatHeader>
+                        <Styled.StatValue>{allTime.avg_wpm}</Styled.StatValue>
+                    </Styled.Stat>
+                    <Styled.Stat>
+                        <Styled.StatHeader>AVERAGE ACCURACY</Styled.StatHeader>
+                        <Styled.StatValue>{allTime.avg_acc + "%"}</Styled.StatValue>
+                    </Styled.Stat>
+                </Styled.StatsColumns>
+            </Styled.StateRow>
+            <Styled.StateRow>
+                <Styled.StatsHeader>RECENT FORM</Styled.StatsHeader>
+                <Styled.StatsColumns>
+                    <Styled.Stat>
+                        <Styled.StatHeader>PLAYED</Styled.StatHeader>
+                        <Styled.StatValue>{recent.count}</Styled.StatValue>
+                    </Styled.Stat>
+                    <Styled.Stat>
+                        <Styled.StatHeader>AVERAGE WPM</Styled.StatHeader>
+                        <Styled.StatValue>{recent.avg_wpm}</Styled.StatValue>
+                    </Styled.Stat>
+                    <Styled.Stat>
+                        <Styled.StatHeader>AVERAGE ACCURACY</Styled.StatHeader>
+                        <Styled.StatValue>{recent.avg_acc + "%"}</Styled.StatValue>
+                    </Styled.Stat>
+                </Styled.StatsColumns>
+            </Styled.StateRow>
+        </Styled.Stats>
     );
 };
 
