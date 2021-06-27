@@ -150,7 +150,7 @@ export const TimeValue = styled(Time)`
 `;
 
 export const Footer = styled.div`
-    height: 35px;
+    height: 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
