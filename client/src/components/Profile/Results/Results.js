@@ -1,13 +1,12 @@
 // Libraries & utils
 import { useState } from "react";
 import moment from "moment";
-import classnames from "classnames";
 
 // Constants
 import { RESULT_TYPE } from "helpers/constants";
 
-// SCSS
-import "./Results.scss";
+// Styles
+import * as Styled from "./styles";
 
 const Results = ({ top, recent, setQuoteModal }) => {
     const [view, setView] = useState(RESULT_TYPE.TOP);
@@ -18,63 +17,60 @@ const Results = ({ top, recent, setQuoteModal }) => {
     };
 
     return (
-        <div className="profile-results">
-            <div className="tabs">
-                <div
-                    className={classnames({ selected: view === RESULT_TYPE.TOP })}
+        <>
+            <Styled.Tabs>
+                <Styled.Tab
+                    $selected={view === RESULT_TYPE.TOP}
                     onClick={() => changeView(RESULT_TYPE.TOP)}
                 >
                     TOP 10
-                </div>
-                <div
-                    className={classnames({ selected: view === RESULT_TYPE.RECENT })}
+                </Styled.Tab>
+                <Styled.Tab
+                    $selected={view === RESULT_TYPE.RECENT}
                     onClick={() => changeView(RESULT_TYPE.RECENT)}
                 >
                     RECENT
-                </div>
-            </div>
-            <div className="results">
-                <div className="results-header">
-                    <div className="rank">#</div>
-                    <div className="wpm">WPM</div>
-                    <div className="accuracy">ACCURACY</div>
-                    <div className="time">TIME</div>
-                    <div className="quote">QUOTE</div>
-                </div>
-                <div className="data">
-                    <ResultsData
-                        data={view === RESULT_TYPE.TOP ? top : recent}
-                        setQuoteModal={setQuoteModal}
-                    />
-                </div>
-            </div>
-            <div className="results-footer"></div>
-        </div>
+                </Styled.Tab>
+            </Styled.Tabs>
+            <Styled.Results>
+                <Styled.ResultsHeader>
+                    <Styled.Rank>#</Styled.Rank>
+                    <Styled.Wpm>WPM</Styled.Wpm>
+                    <Styled.Accuracy>ACCURACY</Styled.Accuracy>
+                    <Styled.Time>TIME</Styled.Time>
+                    <Styled.Quote>QUOTE</Styled.Quote>
+                </Styled.ResultsHeader>
+                <ResultsData
+                    data={view === RESULT_TYPE.TOP ? top : recent}
+                    setQuoteModal={setQuoteModal}
+                />
+            </Styled.Results>
+            <Styled.Footer />
+        </>
     );
 };
 
 const ResultsData = ({ data, setQuoteModal }) => {
     if (!data.length) {
-        return <div className="empty">No results found</div>;
+        return <Styled.ResultsData empty>No results found</Styled.ResultsData>;
     }
-    return data.map((score, index) => (
-        <Score key={index} score={score} setQuoteModal={setQuoteModal} />
-    ));
-};
 
-const Score = ({ score, setQuoteModal }) => {
     return (
-        <div className="result">
-            <div className="rank">{score.rank}</div>
-            <div className="wpm">{`${score.wpm}wpm`}</div>
-            <div className="accuracy">{`${score.accuracy}%`}</div>
-            <div className="time">{moment(score.played_at).fromNow()}</div>
-            <div className="quote">
-                <span
-                    onClick={() => setQuoteModal(score.quote_id)}
-                >{`#${score.quote_id}`}</span>
-            </div>
-        </div>
+        <Styled.ResultsData>
+            {data.map((score, index) => (
+                <Styled.Result key={index}>
+                    <Styled.RankValue>{score.rank}</Styled.RankValue>
+                    <Styled.WpmValue>{`${score.wpm}wpm`}</Styled.WpmValue>
+                    <Styled.AccuracyValue>{`${score.accuracy}%`}</Styled.AccuracyValue>
+                    <Styled.TimeValue>{moment(score.played_at).fromNow()}</Styled.TimeValue>
+                    <Styled.QuoteValue>
+                        <span
+                            onClick={() => setQuoteModal(score.quote_id)}
+                        >{`#${score.quote_id}`}</span>
+                    </Styled.QuoteValue>
+                </Styled.Result>
+            ))}
+        </Styled.ResultsData>
     );
 };
 
