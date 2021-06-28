@@ -1,22 +1,14 @@
 // Libraries & utils
 import React from "react";
 
-// SCSS
-import "./Spinner.scss";
+// Styles
+import * as Styled from "./styles";
 
 const Spinner = ({ size }) => {
-    const style = { width: size, height: size };
-
     return (
-        <div className="spinner" style={style}>
-            <svg
-                width="100px"
-                height="100px"
-                viewBox="0 0 66 66"
-                xmlns="http://www.w3.org/2000/svg"
-            >
-                <circle
-                    className="path"
+        <Styled.Spinner $size={size}>
+            <Styled.Svg viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
+                <Styled.Circle
                     fill="none"
                     strokeWidth="6"
                     strokeLinecap="round"
@@ -24,8 +16,8 @@ const Spinner = ({ size }) => {
                     cy="33"
                     r="30"
                 />
-            </svg>
-        </div>
+            </Styled.Svg>
+        </Styled.Spinner>
     );
 };
 
