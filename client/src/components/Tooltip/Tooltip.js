@@ -1,27 +1,16 @@
 // Libraries & utils
 import { usePopperTooltip } from "react-popper-tooltip";
-import classnames from "classnames";
 
-// SCSS
-import "./Tooltip.scss";
+// Styles
+import * as Styled from "./styles";
 
 const Tooltip = (props) => {
-    const {
-        getArrowProps,
-        getTooltipProps,
-        setTooltipRef,
-        setTriggerRef,
-        visible,
-    } = usePopperTooltip({ placement: props.placement });
+    const { getArrowProps, getTooltipProps, setTooltipRef, setTriggerRef, visible } =
+        usePopperTooltip({ placement: props.placement });
 
     return (
-        <div>
-            <div
-                className={classnames({ "tooltip-fullHeight": props.fullHeight })}
-                ref={setTriggerRef}
-            >
-                {props.children}
-            </div>
+        <Styled.Wrapper>
+            <div ref={setTriggerRef}>{props.children}</div>
             {visible && props.visible && (
                 <div
                     ref={setTooltipRef}
@@ -31,7 +20,7 @@ const Tooltip = (props) => {
                     {props.msg}
                 </div>
             )}
-        </div>
+        </Styled.Wrapper>
     );
 };
 
